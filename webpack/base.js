@@ -31,6 +31,12 @@ export const fileLoader = {
   use: 'file-loader',
 }
 
+export const reactHotLoaderRule = {
+  test: /\.js$/,
+  exclude: /node_modules/,
+  use: ['react-hot-loader/webpack'],
+}
+
 export const definePlugin = new DefinePlugin({
   process: {
     env: {

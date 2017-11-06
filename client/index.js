@@ -2,18 +2,18 @@ import React from 'react'
 import { render } from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
 import { Provider } from 'react-redux'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import store from './store'
 import App from './containers/App'
 
 const $app = document.getElementById('app')
 
 const renderApp = NextApp => render(
-  <AppContainer>
+  <AppContainer warnings={false}>
     <Provider store={store}>
-      <Router>
+      <BrowserRouter>
         <NextApp />
-      </Router>
+      </BrowserRouter>
     </Provider>
   </AppContainer>,
   $app,
@@ -22,5 +22,5 @@ const renderApp = NextApp => render(
 renderApp(App)
 
 if (module.hot) {
-  module.hot.accept('./containers/App', () => renderApp(App))
+  module.hot.accept('./containers/App', async () => renderApp((await import('./containers/App')).default))
 }

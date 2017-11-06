@@ -1,4 +1,5 @@
-import { smart } from 'webpack-merge'
+import { HotModuleReplacementPlugin } from 'webpack'
+import { smart, smartStrategy } from 'webpack-merge'
 import {
   NODE_ENV,
   clientContext,
@@ -6,6 +7,7 @@ import {
   eslintRule,
   babelRule,
   fileLoader,
+  reactHotLoaderRule,
   definePlugin,
   htmlWebpackPlugin,
 } from './base'
@@ -15,8 +17,6 @@ const config = {
   target: 'web',
   context: clientContext,
   entry: [
-    // 'babel-polyfill',
-    'react-hot-loader/patch',
     './index',
   ],
   output: {
@@ -24,10 +24,10 @@ const config = {
     filename: 'client.js',
     sourceMapFilename: 'client.js.map',
   },
-  devtool: 'cheap-module-eval-source-map',
   module: {
     rules: [
       eslintRule,
+      reactHotLoaderRule,
       babelRule,
       fileLoader,
     ],
@@ -37,14 +37,21 @@ const config = {
   ],
 }
 
-export default (() => (NODE_ENV !== 'production' ? smart(config, {
+export default (() => (NODE_ENV !== 'production' ? smartStrategy({
+  entry: 'prepend',
+})(config, {
+  entry: [
+    'babel-polyfill',
+    'react-hot-loader/patch',
+  ],
+  devtool: 'cheap-module-eval-source-map',
   devServer: {
     port: clientDevServerPort,
-    // hot: true,
-    // inline: true,
+    hot: true,
     historyApiFallback: true,
   },
   plugins: [
+    new HotModuleReplacementPlugin(),
     htmlWebpackPlugin,
   ],
 }) : smart(config, {
