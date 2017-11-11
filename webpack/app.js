@@ -1,12 +1,13 @@
-import { smart } from 'webpack-merge'
-import nodeExternals from 'webpack-node-externals'
-import ReloadServerPlugin from 'reload-server-webpack-plugin'
+import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
+import nodeExternals from 'webpack-node-externals' // eslint-disable-line import/no-extraneous-dependencies
+import ReloadServerPlugin from 'reload-server-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 import {
-  NODE_ENV,
+  isProduction,
   outputPath,
   eslintRule,
   babelRule,
   definePlugin,
+  cleanWebpackPlugin,
 } from './base'
 
 const config = {
@@ -21,20 +22,26 @@ const config = {
     rules: [
       eslintRule,
       babelRule,
+      {
+        test: /\.html$/,
+        exclude: /node_modules/,
+        use: 'html-loader',
+      },
     ],
   },
   externals: [nodeExternals()],
   plugins: [
     definePlugin,
+    cleanWebpackPlugin,
   ],
 }
 
-export default (() => (NODE_ENV !== 'production' ? smart(config, {
+export default !isProduction ? merge(config, {
   plugins: [
     new ReloadServerPlugin({
       script: 'build/app.js',
     }),
   ],
-}) : smart(config, {
+}) : merge(config, {
   plugins: [],
-})))()
+})

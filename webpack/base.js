@@ -1,14 +1,10 @@
 import { resolve } from 'path'
-import {
-  DefinePlugin,
-} from 'webpack'
-import HtmlWebpackPlugin from 'html-webpack-plugin'
+import { DefinePlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
+import CleanWebpackPlugin from 'clean-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 
-const { stringify } = JSON
+const { env: { NODE_ENV } } = process
 
-export const { env: { NODE_ENV } } = process
-
-export const clientContext = resolve('client')
+export const isProduction = NODE_ENV === 'production'
 
 export const outputPath = resolve('build')
 
@@ -25,27 +21,8 @@ export const babelRule = {
   use: 'babel-loader',
 }
 
-export const fileLoader = {
-  test: /\.(png|jpg|otf|eot|woff|ttf|svg)$/,
-  exclude: /node_modules/,
-  use: 'file-loader',
-}
-
-export const reactHotLoaderRule = {
-  test: /\.js$/,
-  exclude: /node_modules/,
-  use: ['react-hot-loader/webpack'],
-}
-
 export const definePlugin = new DefinePlugin({
-  process: {
-    env: {
-      NODE_ENV: stringify(NODE_ENV),
-    },
-  },
+  PRODUCTION: isProduction,
 })
 
-export const htmlWebpackPlugin = new HtmlWebpackPlugin({
-  title: 'Starter',
-  template: './index.html',
-})
+export const cleanWebpackPlugin = new CleanWebpackPlugin(['build'], { root: resolve() })

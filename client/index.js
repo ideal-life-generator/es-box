@@ -1,26 +1,32 @@
 import React from 'react'
-import { render } from 'react-dom'
+import { hydrate } from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
-import store from './store'
-import App from './containers/App'
+import createStore from './store'
+import Routes from './Routes'
 
 const $app = document.getElementById('app')
 
-const renderApp = NextApp => render(
+const { PRELOADED_STATE } = window
+
+delete window.PRELOADED_STATE
+
+const store = createStore(PRELOADED_STATE)
+
+const renderApp = NextRoutes => hydrate(
   <AppContainer warnings={false}>
     <Provider store={store}>
       <BrowserRouter>
-        <NextApp />
+        <NextRoutes />
       </BrowserRouter>
     </Provider>
   </AppContainer>,
   $app,
 )
 
-renderApp(App)
+renderApp(Routes)
 
 if (module.hot) {
-  module.hot.accept('./containers/App', async () => renderApp((await import('./containers/App')).default))
+  module.hot.accept('./Routes', async () => renderApp((await import('./Routes')).default))
 }

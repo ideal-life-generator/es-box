@@ -6,7 +6,7 @@
     "node": true,
   },
   "rules": {
-    "semi": [0],
+    "semi": [1, "never"],
     "linebreak-style": [0],
     "camelcase": [1],
     "no-debugger": [1],

@@ -1,8 +1,5 @@
 import React, { Component } from 'react'
-import { string, func } from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import * as exampleActions from '../reducers/example'
+import { element } from 'prop-types'
 
 const styles = {
   app: {
@@ -11,44 +8,20 @@ const styles = {
   },
 }
 
-@connect(({
-  example: { name },
-}) => ({ name }), dispatch => bindActionCreators({
-  setName: exampleActions.setName,
-}, dispatch))
-
 export default class App extends Component {
   static propTypes = {
-    name: string.isRequired,
-    setName: func.isRequired,
-  }
-
-  onNameChange = ({ target: { value: name } }) => {
-    const {
-      props: { setName },
-    } = this;
-
-    setName(name)
+    children: element.isRequired,
   }
 
   render() {
     const {
-      onNameChange,
-      props: { name },
-    } = this;
+      props: { children },
+    } = this
 
     return (
       <div style={styles.app}>
-        <div>
-          <input
-            value={name}
-            onChange={onNameChange}
-            placeholder="Name"
-          />
-        </div>
-        <div>
-          {`Hi ${name}`}
-        </div>
+        App
+        {children}
       </div>
     )
   }
