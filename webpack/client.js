@@ -50,7 +50,7 @@ export default !isProduction ? merge(config, {
   },
   plugins: [
     new HotModuleReplacementPlugin(),
-    new CopyWebpackPlugin(['./index.html']),
+    new CopyWebpackPlugin(['./index.html', 'static/normalize.css']),
   ],
 }) : merge(config, {
   devtool: 'source-map',
