@@ -5,6 +5,7 @@ import Search from './Search'
 const styles = {
   app: {
     flexGrow: 1,
+    fontFamily: 'Open Sans',
     backgroundColor: 'lightblue',
     ':hover': {
       backgroundColor: 'lightgreen',
@@ -21,6 +22,7 @@ const styles = {
     width: 375,
     margin: 15,
     padding: 15,
+    borderRadius: 0.5,
     backgroundColor: 'lavenderblush',
   },
 }

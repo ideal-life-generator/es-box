@@ -6,7 +6,7 @@ import radium from 'radium'
 import ClearIcon from '../components/Icons/Clear'
 import * as searchActions from '../reducers/search'
 
-const searchHeight = 35
+const searchHeight = 39
 const searchBorderWidth = 2
 
 const style = {
@@ -21,8 +21,8 @@ const style = {
   },
   input: {
     flexGrow: 1,
-    paddingLeft: 12.5,
-    paddingRight: 2.5,
+    paddingLeft: 13,
+    paddingRight: 3,
     fontSize: 18,
     color: 'black',
   },
@@ -92,7 +92,7 @@ export default class Search extends Component {
             onClick={onClear}
             style={style.clear}
           >
-            <ClearIcon size={10} />
+            <ClearIcon size={10.5} />
           </button>
         )}
       </div>
