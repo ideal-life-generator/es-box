@@ -1,17 +1,7 @@
-import React from 'react'
-import { Switch, Route } from 'react-router-dom'
-import App from './containers/App'
-import NotFound from './containers/NotFound'
+import App from './containers/App.vue'
+import NotFound from './containers/NotFound.vue'
 
-export default () => (
-  <Switch>
-    <Route
-      path="/"
-      exact
-      render={() => (
-        <App />
-      )}
-    />
-    <Route render={() => (<NotFound />)} />
-  </Switch>
-)
+export default [
+  { path: '/', component: App },
+  { path: '*', component: NotFound },
+]

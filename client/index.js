@@ -1,32 +1,30 @@
-import React from 'react'
-import { hydrate } from 'react-dom'
-import { AppContainer } from 'react-hot-loader'
-import { Provider } from 'react-redux'
-import { BrowserRouter } from 'react-router-dom'
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Vuex from 'vuex'
+import { sync } from 'vuex-router-sync'
+import routes from './routes'
 import createStore from './store'
-import Routes from './Routes'
 
-const $app = document.getElementById('app')
+Vue.use(VueRouter)
+Vue.use(Vuex)
 
-const { PRELOADED_STATE } = window
+const router = new VueRouter({
+  mode: 'history',
+  routes,
+})
 
-delete window.PRELOADED_STATE
+const store = createStore()
 
-const store = createStore(PRELOADED_STATE)
+sync(store, router)
 
-const renderApp = NextRoutes => hydrate(
-  <AppContainer warnings={false}>
-    <Provider store={store}>
-      <BrowserRouter>
-        <NextRoutes />
-      </BrowserRouter>
-    </Provider>
-  </AppContainer>,
-  $app,
-)
+const app = new Vue({
+  router,
+  store,
+  template: '<router-view />',
+})
 
-renderApp(Routes)
+app.$mount('#app')
 
-if (module.hot) {
-  module.hot.accept('./Routes', async () => renderApp((await import('./Routes')).default))
+if (!PRODUCTION) { // eslint-disable-line no-undef
+  Vue.config.productionTip = false
 }

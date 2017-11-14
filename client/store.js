@@ -1,5 +1,18 @@
-import { createStore, applyMiddleware, compose } from 'redux'
-import thunk from 'redux-thunk'
-import reducers from './reducers'
+import { Store } from 'vuex'
 
-export default preloadedState => createStore(reducers, preloadedState || {}, compose(applyMiddleware(thunk)))
+export default () => new Store({
+  state: {
+    value: '',
+  },
+  getters: {
+    getValue: state => state.value,
+  },
+  mutations: {
+    updateValue: (state, value) => state.value = value,
+    clearValue: state => state.value = '',
+  },
+  actions: {
+    updateValue: ({ commit }, { target: { value } }) => commit('updateValue', value),
+    clearValue: ({ commit }) => commit('clearValue'),
+  },
+})

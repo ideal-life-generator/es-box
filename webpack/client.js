@@ -6,6 +6,7 @@ import {
   isProduction,
   eslintRule,
   babelRule,
+  vueRule,
   definePlugin,
   cleanWebpackPlugin,
 } from './base'
@@ -14,10 +15,7 @@ import { clientDevServerPort } from '../config'
 const config = {
   target: 'web',
   context: resolve('client'),
-  entry: [
-    'react-hot-loader/patch',
-    './index',
-  ],
+  entry: './index',
   output: {
     path: resolve('build/static'),
     filename: 'client.js',
@@ -27,12 +25,18 @@ const config = {
     rules: [
       eslintRule,
       babelRule,
+      vueRule,
       {
         test: /\.(png|jpg|otf|eot|woff|ttf|svg)$/,
         exclude: /node_modules/,
         use: 'file-loader',
       },
     ],
+  },
+  resolve: {
+    alias: {
+      vue$: 'vue/dist/vue.esm.js',
+    },
   },
   plugins: [
     definePlugin,
@@ -50,7 +54,7 @@ export default !isProduction ? merge(config, {
   },
   plugins: [
     new HotModuleReplacementPlugin(),
-    new CopyWebpackPlugin(['./index.html', 'static/normalize.css']),
+    new CopyWebpackPlugin(['./static/index.html']),
   ],
 }) : merge(config, {
   devtool: 'source-map',

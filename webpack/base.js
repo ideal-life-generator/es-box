@@ -21,8 +21,17 @@ export const babelRule = {
   use: 'babel-loader',
 }
 
+export const vueRule = {
+  test: /\.vue$/,
+  exclude: /node_modules/,
+  use: 'vue-loader',
+}
+
 export const definePlugin = new DefinePlugin({
   PRODUCTION: isProduction,
+  'process.env': {
+    NODE_ENV: `"${NODE_ENV}"`,
+  },
 })
 
 export const cleanWebpackPlugin = new CleanWebpackPlugin(['build'], { root: resolve() })
