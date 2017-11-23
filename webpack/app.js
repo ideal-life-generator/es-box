@@ -1,13 +1,14 @@
 import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
-import nodeExternals from 'webpack-node-externals' // eslint-disable-line import/no-extraneous-dependencies
 import ReloadServerPlugin from 'reload-server-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 import {
-  isProduction,
+  PRODUCTION,
   outputPath,
   eslintRule,
   babelRule,
+  vueRule,
+  stats,
+  nodeExternals,
   definePlugin,
-  cleanWebpackPlugin,
 } from './base'
 
 const config = {
@@ -16,27 +17,23 @@ const config = {
   output: {
     path: outputPath,
     filename: 'app.js',
-    sourceMapFilename: 'app.js.map',
   },
   module: {
     rules: [
       eslintRule,
       babelRule,
-      {
-        test: /\.html$/,
-        exclude: /node_modules/,
-        use: 'html-loader',
-      },
+      vueRule,
     ],
   },
-  externals: [nodeExternals()],
+  stats,
+  externals: nodeExternals,
   plugins: [
     definePlugin,
-    cleanWebpackPlugin,
   ],
 }
 
-export default !isProduction ? merge(config, {
+export default !PRODUCTION ? merge(config, {
+  devtool: 'source-map',
   plugins: [
     new ReloadServerPlugin({
       script: 'build/app.js',

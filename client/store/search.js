@@ -1,11 +1,9 @@
-import { Store } from 'vuex'
-
-export default () => new Store({
+export default {
   state: {
     value: '',
   },
   getters: {
-    getValue: state => state.value,
+    getValue: ({ value }) => value,
   },
   mutations: {
     updateValue: (state, value) => state.value = value,
@@ -15,4 +13,4 @@ export default () => new Store({
     updateValue: ({ commit }, { target: { value } }) => commit('updateValue', value),
     clearValue: ({ commit }) => commit('clearValue'),
   },
-})
+}

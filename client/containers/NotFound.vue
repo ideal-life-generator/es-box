@@ -1,3 +1,3 @@
-<template>
-  <div>Not found</div>
+<template lang="jade">
+div Not found
 </template>

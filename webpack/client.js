@@ -1,62 +1,98 @@
 import { resolve } from 'path'
-import { HotModuleReplacementPlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
+import {
+  HotModuleReplacementPlugin,
+  optimize,
+} from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
 import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
 import CopyWebpackPlugin from 'copy-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
+import VueSSRClientPlugin from 'vue-server-renderer/client-plugin' // eslint-disable-line import/no-extraneous-dependencies
+import VueSSRServerPlugin from 'vue-server-renderer/server-plugin' // eslint-disable-line import/no-extraneous-dependencies
+import HtmlWebpackPlugin from 'html-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 import {
-  isProduction,
+  PRODUCTION,
+  outputPath,
   eslintRule,
   babelRule,
   vueRule,
+  sassRule,
+  fileRule,
+  stats,
+  nodeExternals,
   definePlugin,
-  cleanWebpackPlugin,
 } from './base'
 import { clientDevServerPort } from '../config'
 
-const config = {
-  target: 'web',
+const serverEntry = {
+  target: 'node',
   context: resolve('client'),
-  entry: './index',
+  entry: './entry-server',
   output: {
-    path: resolve('build/static'),
-    filename: 'client.js',
-    sourceMapFilename: 'client.js.map',
+    path: outputPath,
+    filename: '[name].[hash].js',
+    libraryTarget: 'commonjs2',
   },
   module: {
     rules: [
       eslintRule,
       babelRule,
       vueRule,
-      {
-        test: /\.(png|jpg|otf|eot|woff|ttf|svg)$/,
-        exclude: /node_modules/,
-        use: 'file-loader',
-      },
+      sassRule,
+      fileRule,
     ],
   },
-  resolve: {
-    alias: {
-      vue$: 'vue/dist/vue.esm.js',
-    },
-  },
+  stats,
+  externals: nodeExternals,
   plugins: [
     definePlugin,
-    cleanWebpackPlugin,
+    new VueSSRServerPlugin(),
   ],
 }
 
-export default !isProduction ? merge(config, {
-  devtool: 'cheap-module-eval-source-map',
+const clientEntry = {
+  context: resolve('client'),
+  entry: './entry-client',
+  output: {
+    path: outputPath,
+    filename: '[name].[hash].js',
+  },
+  module: {
+    rules: [
+      eslintRule,
+      babelRule,
+      vueRule,
+      sassRule,
+      fileRule,
+    ],
+  },
+  stats,
+  plugins: [
+    definePlugin,
+  ],
+}
+
+export default !PRODUCTION ? merge(clientEntry, {
+  devtool: 'cheap-module-source-map',
   devServer: {
     port: clientDevServerPort,
     hot: true,
     inline: true,
     historyApiFallback: true,
+    stats,
   },
   plugins: [
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: '../index.template.dev.html',
+    }), 
     new HotModuleReplacementPlugin(),
-    new CopyWebpackPlugin(['./static/index.html']),
   ],
-}) : merge(config, {
-  devtool: 'source-map',
-  plugins: [],
-})
+}) : [serverEntry, merge(clientEntry, {
+  plugins: [
+    new optimize.CommonsChunkPlugin({
+      name: 'manifest',
+      minChunks: Infinity,
+    }),
+    new VueSSRClientPlugin(),
+    new CopyWebpackPlugin(['../index.template.html']),
+  ],
+})]

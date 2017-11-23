@@ -1,5 +1,8 @@
 <template lang="jade">
 div#app
+  table
+    tr
+      td hi
   main.main
     aside.search-container <Search />
     section.content
@@ -18,7 +21,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import "../normalize.sass"
+@import "../../normalize.sass"
 
 html
   height: 100%
@@ -31,9 +34,10 @@ body
 #app
   flex-grow: 1
   font-family: Open Sans
-  background-color: lightblue
-  &:hover
-    background-color: lightgreen
+  background-image: url("../static/maxresdefault.jpg")
+  background-position: center
+  background-repeat: no-repeat
+  background-size: cover
 
 .main
   margin-top: 65px

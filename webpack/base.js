@@ -1,10 +1,8 @@
 import { resolve } from 'path'
 import { DefinePlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
-import CleanWebpackPlugin from 'clean-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
+import webpackNodeExternals from 'webpack-node-externals' // eslint-disable-line import/no-extraneous-dependencies
 
-const { env: { NODE_ENV } } = process
-
-export const isProduction = NODE_ENV === 'production'
+export const { env: { PRODUCTION, SERVER } } = process
 
 export const outputPath = resolve('build')
 
@@ -27,11 +25,28 @@ export const vueRule = {
   use: 'vue-loader',
 }
 
+export const sassRule = {
+  test: /\.sass$/,
+  exclude: /node_modules/,
+  use: ['style-loader', 'css-loader', 'sass-loader'],
+}
+
+export const fileRule = {
+  test: /\.(png|jpg)$/,
+  exclude: /node_modules/,
+  use: 'file-loader',
+}
+
+export const stats = {
+  modules: false,
+}
+
+export const nodeExternals = webpackNodeExternals()
+
 export const definePlugin = new DefinePlugin({
-  PRODUCTION: isProduction,
+  PRODUCTION,
+  SERVER,
   'process.env': {
-    NODE_ENV: `"${NODE_ENV}"`,
+    NODE_ENV: `"${PRODUCTION ? 'production' : 'development'}"`,
   },
 })
-
-export const cleanWebpackPlugin = new CleanWebpackPlugin(['build'], { root: resolve() })
