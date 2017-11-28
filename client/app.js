@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { sync } from 'vuex-router-sync'
 import createRouter from './router'
 import createStore from './store'
+import apolloProvider from './apollo-provider'
 import App from './containers/App.vue'
 
 export default () => {
@@ -14,6 +15,7 @@ export default () => {
   const app = new Vue({
     router,
     store,
+    apolloProvider,
     render: h => h(App),
   })
 

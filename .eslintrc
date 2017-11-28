@@ -3,13 +3,16 @@
     "browser": true,
     "node": true,
   },
-  "extends": [
-    'eslint:recommended',
-    'plugin:vue/recommended',
-  ],
   "parserOptions": {
      "parser": "babel-eslint",
   },
+  plugins: ["import"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:vue/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings"
+  ],
   "rules": {
     "semi": [1, "never"],
     "comma-dangle": [1, "always-multiline"],

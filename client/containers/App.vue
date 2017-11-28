@@ -1,27 +1,26 @@
 <template lang="jade">
 div#app
-  table
-    tr
-      td hi
   main.main
     aside.search-container <Search />
-    section.content
-      ul.lists
-        li Song prototype
+    <Results />      
 </template>
 
 <script>
 import Search from './Search.vue'
+import Results from './Results.vue'
 
 export default {
   components: {
     Search,
+    Results,
   },
 }
 </script>
 
 <style lang="sass">
 @import "../../normalize.sass"
+@import "../sass/mixins.sass"
+@import "../sass/variables.sass"
 
 html
   height: 100%
@@ -34,10 +33,10 @@ body
 #app
   flex-grow: 1
   font-family: Open Sans
-  background-image: url("../static/maxresdefault.jpg")
-  background-position: center
-  background-repeat: no-repeat
-  background-size: cover
+  // background-image: url("../static/maxresdefault.jpg")
+  // background-position: center
+  // background-repeat: no-repeat
+  // background-size: cover
 
 .main
   margin-top: 65px
@@ -45,13 +44,4 @@ body
   margin-right: 150px
 
 .search-container
-
-.content
-
-.lists
-  width: 375px
-  margin: 15px
-  padding: 15px
-  border-radius: 0.5px
-  background-color: lavenderblush
 </style>

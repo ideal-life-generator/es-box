@@ -1,15 +1,29 @@
 import { readFileSync } from 'fs'
 import Koa from 'koa'
+import Router from 'koa-router'
+import bodyParser from 'koa-bodyparser'
 import serve from 'koa-static'
+import cors from 'koa-cors'
+import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
 import { createBundleRenderer } from 'vue-server-renderer'
 import { blue } from 'chalk'
+import schema from './schema'
 import { serverPort } from './config'
 
 const app = new Koa()
 
-app.use(serve('./'))
+const router = new Router()
 
-app.use(PRODUCTION ? (() => { // eslint-disable-line no-undef
+app.use(bodyParser())
+app.use(serve('./'))
+app.use(cors())
+
+router.post('/graphql', graphqlKoa({ schema }))
+router.get('/graphql', graphqlKoa({ schema }))
+
+router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
+
+router.get('*', PRODUCTION ? (() => { // eslint-disable-line no-undef
   const { parse } = JSON
   const template = readFileSync('./index.template.html', 'utf8')
   const serverBundle = parse(readFileSync('./vue-ssr-server-bundle.json', 'utf8'))
@@ -42,5 +56,8 @@ app.use(PRODUCTION ? (() => { // eslint-disable-line no-undef
 })() : ctx => {
   ctx.body = 'Koa server'
 })
+
+app.use(router.routes())
+app.use(router.allowedMethods())
 
 app.listen(serverPort, () => console.info(blue(`Server is listening on ${serverPort} port`)))
