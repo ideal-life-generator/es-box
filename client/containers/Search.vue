@@ -20,7 +20,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      value: 'getValue',
+      value: 'value',
     }),
   },
 }

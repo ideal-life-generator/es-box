@@ -1,8 +1,8 @@
 import { resolve } from 'path'
-import {
+import { // eslint-disable-line import/no-extraneous-dependencies
   HotModuleReplacementPlugin,
   optimize,
-} from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
+} from 'webpack'
 import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
 import CopyWebpackPlugin from 'copy-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 import VueSSRClientPlugin from 'vue-server-renderer/client-plugin' // eslint-disable-line import/no-extraneous-dependencies
@@ -20,7 +20,7 @@ import {
   nodeExternals,
   definePlugin,
 } from './base'
-import { clientDevServerPort } from '../config'
+import { DEV_SERVER_PORT } from '../config'
 
 const serverEntry = {
   target: 'node',
@@ -73,7 +73,7 @@ const clientEntry = {
 export default !PRODUCTION ? merge(clientEntry, {
   devtool: 'cheap-module-source-map',
   devServer: {
-    port: clientDevServerPort,
+    port: DEV_SERVER_PORT,
     hot: true,
     inline: true,
     historyApiFallback: true,
@@ -83,7 +83,7 @@ export default !PRODUCTION ? merge(clientEntry, {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: '../index.template.dev.html',
-    }), 
+    }),
     new HotModuleReplacementPlugin(),
   ],
 }) : [serverEntry, merge(clientEntry, {

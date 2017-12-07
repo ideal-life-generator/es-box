@@ -1,6 +1,6 @@
 import { makeExecutableSchema } from 'graphql-tools'
 
-const userDefined = [
+const userSongs = [
   {
     artist: 'Evol Intent',
     title: 'Middle of the night',
@@ -21,13 +21,13 @@ type Song {
   title: String
 }
 
-type UserDefinedPagination {
-  count: Int!
-  collection: [Song]
+type UserPagination {
+  total: Int!
+  items: [Song]
 }
 
 type Songs {
-  userDefined: UserDefinedPagination
+  user: UserPagination
 }
 
 type Query {
@@ -44,9 +44,9 @@ const resolvers = {
     songs: () => ({}),
   },
   Songs: {
-    userDefined: () => ({
-      count: userDefined.length,
-      collection: userDefined,
+    user: () => ({
+      total: userSongs.length,
+      items: userSongs,
     }),
   },
 }

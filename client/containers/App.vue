@@ -1,18 +1,22 @@
 <template lang="jade">
 div#app
-  main.main
+  main.container
     aside.search-container <Search />
-    <Results />      
+    section.main
+      <Results />
+      <Player />
 </template>
 
 <script>
 import Search from './Search.vue'
 import Results from './Results.vue'
+import Player from './Player.vue'
 
 export default {
   components: {
     Search,
     Results,
+    Player,
   },
 }
 </script>
@@ -38,10 +42,14 @@ body
   // background-repeat: no-repeat
   // background-size: cover
 
-.main
+.container
   margin-top: 65px
   margin-left: 150px
   margin-right: 150px
 
 .search-container
+
+.main
+  padding: 30px
+  display: flex
 </style>

@@ -8,7 +8,7 @@ import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
 import { createBundleRenderer } from 'vue-server-renderer'
 import { blue } from 'chalk'
 import schema from './schema'
-import { serverPort } from './config'
+import { SERVER_PORT } from './config'
 
 const app = new Koa()
 
@@ -60,4 +60,4 @@ router.get('*', PRODUCTION ? (() => { // eslint-disable-line no-undef
 app.use(router.routes())
 app.use(router.allowedMethods())
 
-app.listen(serverPort, () => console.info(blue(`Server is listening on ${serverPort} port`)))
+app.listen(SERVER_PORT, () => console.info(blue(`Server is listening on ${SERVER_PORT} port`)))
