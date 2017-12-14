@@ -1,33 +1,24 @@
 <template lang="jade">
-div.resize
-  div.left-side
+resize(:width="300", :height="180")
   div.player player
 </template>
 
 <script>
-export default {}
+import Resize from '../components/Resize.vue'
+
+export default {
+  components: {
+    resize: Resize,
+  },
+}
 </script>
 
 <style lang="sass">
 @import "../sass/variables.sass"
 @import "../sass/mixins.sass"
 
-.resize
-  position: relative
-  display: flex
-  .left-side
-    $width: 15px
-    content: ''
-    position: absolute
-    top: 0px
-    left: - ($width / 2)
-    width: $width
-    height: 100%
-    background-color: blue
-    cursor: nesw-resize
-  .player
-    flex-grow: 1
-    border-radius: 0.5px
-    color: $white
-    +border-neon(0.1px, $white)
+.player
+  border-radius: 0.5px
+  color: $white
+  +border-neon(0.1px, $white)
 </style>
