@@ -2,8 +2,6 @@ const $ = require('core/create-element') // eslint-disable-line
 const $clearIcon = require('./icons/clear')
 require('../styles/search.sass')
 
-console.log($clearIcon)
-
 const $input = $('input', {
   placeholder: 'Search',
 })
