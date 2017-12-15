@@ -1,7 +1,7 @@
 const append = require('./append')
 
 module.exports = function createElement(tagName, options, $children) {
-  const $element = document.createElement(tagName)
+  const $element = document.createElementNS('http://www.w3.org/2000/svg', tagName)
 
   if (options) Object.assign($element, options)
 

@@ -1,0 +1,18 @@
+@import "./mixins.sass"
+@import "./variables.sass"
+
+.results
+  flex-grow: 1
+  border-radius: 0.5px
+  ul
+    +border-neon(0.25px, $white)
+    li
+      height: 50px
+      display: flex
+      align-items: center
+      .title
+        color: $white
+        text-overflow: ellipsis
+        white-space: nowrap
+        overflow: hidden
+        +text-neon(0.5px, fade-out($white, 0.8))

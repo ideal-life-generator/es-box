@@ -10,7 +10,10 @@ export const eslintRule = {
   test: /\.js$/,
   enforce: 'pre',
   exclude: /node_modules/,
-  use: 'eslint-loader',
+  loader: 'eslint-loader',
+  options: {
+    quiet: true,
+  },
 }
 
 export const babelRule = {
