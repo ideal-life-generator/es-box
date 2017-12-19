@@ -1,4 +1,4 @@
-const $ = require('core/create-element') // eslint-disable-line
+const $ = require('core') // eslint-disable-line
 const { $search } = require('./search')
 const { $results } = require('./results')
 const { $resize } = require('./player')

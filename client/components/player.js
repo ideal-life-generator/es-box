@@ -1,4 +1,4 @@
-const $ = require('core/create-element') // eslint-disable-line
+const $ = require('core') // eslint-disable-line
 const setAttributes = require('core/set-attributes') // eslint-disable-line
 require('../styles/player.sass')
 

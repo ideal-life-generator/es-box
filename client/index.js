@@ -1,6 +1,10 @@
-const $main = require('./components/main')
+const { $search } = require('./components/search')
+// const { $results } = require('./components/results')
+// const { $resize } = require('./components/player')
+const append = require('./core/append')
 require('./styles/normalize.sass')
+require('./styles/index.sass')
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('body').appendChild($main)
+  append(document.querySelector('body'), [$search])
 })
