@@ -1,8 +1,8 @@
-module.exports = function position($element, { top, left, right, bottom }) {
+module.exports = function position($element, [left, top]) {
   $element.style.position = 'absolute'
 
   if (typeof top === 'number') $element.style.top = `${top}px`
   if (typeof left === 'number') $element.style.left = `${left}px`
-  if (typeof right === 'number') $element.style.right = `${right}px`
-  if (typeof bottom === 'number') $element.style.bottom = `${bottom}px`
+
+  return $element
 }

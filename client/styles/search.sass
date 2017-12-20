@@ -1,39 +1,30 @@
 @import "./mixins.sass"
 @import "./variables.sass"
 
-$searchHeight: 39px
 $searchBorderWidth: 2px
 
 .search
-  height: $searchHeight
   border-style: solid
   border-width: 1px
   border-color: $white
-  border-radius: $searchHeight / 2
   box-sizing: border-box
   +border-neon(0.5px, $violet)
   .input
-    border-style: solid
-    border-width: 1px
-    border-color: $white
-    box-sizing: border-box
-    // display: block
-  //   padding-left: 13px
-  //   padding-right: 3px
-  //   font-size: 18px
-  //   color: black
-  //   font-size: 16.5px
-  //   color: $white
-  //   +text-neon(0.15px, fade-out($white, 0.8))
-  // .clear
-  //   width: $searchHeight - ($searchBorderWidth * 2)
-  //   fill: $white
-  //   +svg-neon(1.5px, $white)
-  //   cursor: pointer
-  //   transition: all 0.3s easy-in-out
-  //   &:hover
-  //     fill: fade-out($white, 0.3)
-  //     +svg-neon(0.15px, $white)
+    padding-left: 13px
+    padding-right: 3px
+    font-size: 18px
+    color: black
+    font-size: 16.5px
+    color: $white
+    +text-neon(0.15px, fade-out($white, 0.8))
+  .clear
+    fill: $white
+    +svg-neon(1.5px, $white)
+    cursor: pointer
+    transition: all 0.3s easy-in-out
+    &:hover
+      fill: fade-out($white, 0.3)
+      +svg-neon(0.15px, $white)
 
 ::-webkit-input-placeholder
   color: fade-out($white, 0.45)

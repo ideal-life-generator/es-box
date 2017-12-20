@@ -1,15 +1,12 @@
 import { resolve } from 'path'
-import { // eslint-disable-line import/no-extraneous-dependencies
-  HotModuleReplacementPlugin,
-  optimize,
-} from 'webpack'
+import { HotModuleReplacementPlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
 import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
-import CopyWebpackPlugin from 'copy-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 import HtmlWebpackPlugin from 'html-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 import {
   PRODUCTION,
   outputPath,
   eslintRule,
+  babelRule,
   sassRule,
   fileRule,
   stats,
@@ -27,6 +24,7 @@ const clientEntry = {
   module: {
     rules: [
       eslintRule,
+      babelRule,
       sassRule,
       fileRule,
     ],
@@ -39,6 +37,10 @@ const clientEntry = {
   stats,
   plugins: [
     definePlugin,
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: './index.html',
+    }),
   ],
 }
 
@@ -52,18 +54,6 @@ export default merge(clientEntry, !PRODUCTION ? {
     stats,
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: './index.html',
-    }),
     new HotModuleReplacementPlugin(),
   ],
-} : {
-  plugins: [
-    new optimize.CommonsChunkPlugin({
-      name: 'manifest',
-      minChunks: Infinity,
-    }),
-    new CopyWebpackPlugin(['../index.template.html']),
-  ],
-})
+} : {})

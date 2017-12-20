@@ -2,41 +2,52 @@ const $ = require('core') // eslint-disable-line
 const $clearIcon = require('./icons/clear')
 require('../styles/search.sass')
 
+const {
+  innerWidth,
+} = window
+
+const searchMargin = 150
+const search = {
+  size: [innerWidth - (searchMargin * 2), 39],
+  position: [searchMargin, 80],
+}
+const input = {
+  size: [search.size[0] - search.size[1], search.size[1]],
+}
+const clear = {
+  size: [search.size[1], search.size[1]],
+  position: [input.size[0], 0],
+}
+
+const $clear = $('button', {
+  className: 'clear',
+}, {
+  size: clear.size,
+  position: clear.position,
+  append: $clearIcon,
+})
+
 const $input = $('input', {
   className: 'input',
   placeholder: 'Search',
-}, null, {
-  position: {
-    top: 0,
-    left: 0,
-    right: 35,
-    bottom: 0,
-  },
-})
-const $clear = $('button', {
-  className: 'clear',
-  style: {
-    flexGrow: 1,
-  },
-}, $clearIcon, {
-  position: {
-    top: 0,
-    right: 2.5,
+}, {
+  size: input.size,
+  events: {
+    input: e => {
+      console.log(e.target.value)
+    },
   },
 })
 
 const $search = $('div', {
   className: 'search',
-}, [$input], {
-  position: {
-    top: 65,
-    left: 150,
-    right: 150,
+  style: {
+    borderRadius: `${search.size[1] / 2}px`,
   },
-})
-
-$search.addEventListener('input', event => {
-  console.log(event.target.value)
+}, {
+  size: search.size,
+  position: search.position,
+  append: [$input, $clear],
 })
 
 module.exports = {
