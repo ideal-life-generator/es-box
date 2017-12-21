@@ -1,5 +1,5 @@
-module.exports = function createElement(tagName) {
-  const $element = document.createElement(tagName)
+export default (tagName) => {
+  const node = document.createElement(tagName)
 
-  return $element
+  return node
 }

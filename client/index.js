@@ -1,9 +1,9 @@
-const { $search } = require('./components/search')
-// const { $results } = require('./components/results')
-// const { $resize } = require('./components/player')
-const append = require('./core/append')
-require('./styles/normalize.sass')
-require('./styles/index.sass')
+import $search from './components/search'
+import { $results } from './components/results'
+// import { $resize } from './components/player'
+import append from './core/append'
+import './styles/normalize.sass'
+import './styles/index.sass'
 
 document.addEventListener('DOMContentLoaded', () => {
   const {
@@ -12,5 +12,5 @@ document.addEventListener('DOMContentLoaded', () => {
     },
   } = window
 
-  append(body, $search)
+  append(body, [$search, $results])
 })

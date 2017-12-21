@@ -1,55 +1,34 @@
-const $ = require('core') // eslint-disable-line
-const $clearIcon = require('./icons/clear')
-require('../styles/search.sass')
+import $ from 'core' // eslint-disable-line
+import { search, input, clear, clearIcon } from '../params/search' // eslint-disable-line
+import $clearIcon from './icons/clear'
+import '../styles/search.sass'
 
-const {
-  innerWidth,
-} = window
-
-const searchMargin = 150
-const search = {
-  size: [innerWidth - (searchMargin * 2), 39],
-  position: [searchMargin, 80],
-}
-const input = {
-  size: [search.size[0] - search.size[1], search.size[1]],
-}
-const clear = {
-  size: [search.size[1], search.size[1]],
-  position: [input.size[0], 0],
-}
-
-const $clear = $('button', {
-  className: 'clear',
-}, {
-  size: clear.size,
-  position: clear.position,
-  append: $clearIcon,
+export const $clear = $({
+  element: 'button',
+  params: clear,
+  classes: 'clear',
+  append: $clearIcon({
+    params: clearIcon,
+  }).$svg,
 })
 
-const $input = $('input', {
-  className: 'input',
-  placeholder: 'Search',
-}, {
-  size: input.size,
+export const $input = $({
+  element: 'input',
+  params: input,
+  classes: 'input',
   events: {
     input: e => {
       console.log(e.target.value)
     },
   },
+  placeholder: 'Search',
 })
 
-const $search = $('div', {
-  className: 'search',
+export default $({
+  params: search,
+  classes: 'search',
   style: {
-    borderRadius: `${search.size[1] / 2}px`,
+    borderRadius: `${search.height / 2}px`,
   },
-}, {
-  size: search.size,
-  position: search.position,
   append: [$input, $clear],
 })
-
-module.exports = {
-  $search,
-}

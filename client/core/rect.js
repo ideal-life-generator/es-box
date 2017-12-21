@@ -1,5 +1,5 @@
-module.exports = function rect($element) {
-  const { width, height } = $element.getBoundingClientRect()
+export default (node) => {
+  const { width, height } = node.getBoundingClientRect()
 
   return [width, height]
 }

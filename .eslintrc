@@ -35,5 +35,6 @@
     "function-paren-newline": 1,
     "arrow-parens": 0,
     "object-curly-newline": 0,
+    "object-property-newline": 0,
   },
 }

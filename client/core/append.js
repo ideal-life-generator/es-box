@@ -1,11 +1,11 @@
-module.exports = function append($element, children) {
+export default function $(node, children) {
   if (Array.isArray(children)) {
-    children.map($children => append($element, $children))
+    children.map($children => $(node, $children))
   } else if (typeof children === 'string') {
-    $element.textContent = children
+    node.textContent = children
   } else {
-    $element.appendChild(children)
+    node.appendChild(children)
   }
 
-  return $element
+  return node
 }

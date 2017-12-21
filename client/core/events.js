@@ -1,5 +1,5 @@
-module.exports = function events($element, map) {
-  Object.keys(map).forEach(name => $element.addEventListener(name, map[name]))
+export default (node, events) => {
+  Object.keys(events).forEach(name => node.addEventListener(name, events[name]))
 
-  return $element
+  return node
 }
