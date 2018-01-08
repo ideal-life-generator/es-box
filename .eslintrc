@@ -36,5 +36,6 @@
     "arrow-parens": 0,
     "object-curly-newline": 0,
     "object-property-newline": 0,
+    "default-case": 0,
   },
 }

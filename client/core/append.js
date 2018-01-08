@@ -1,6 +1,6 @@
-export default function $(node, children) {
+export default function _(node, children) {
   if (Array.isArray(children)) {
-    children.map($children => $(node, $children))
+    children.map($children => _(node, $children))
   } else if (typeof children === 'string') {
     node.textContent = children
   } else {

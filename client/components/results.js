@@ -1,8 +1,11 @@
 import $ from 'core' // eslint-disable-line
 import clone from 'core/clone' // eslint-disable-line
-import text from 'core/text' // eslint-disable-line
 import append from 'core/append' // eslint-disable-line
 import map from 'core/map' // eslint-disable-line
+import params from 'core/params' // eslint-disable-line
+import text from 'core/text' // eslint-disable-line
+import classes from 'core/classes' // eslint-disable-line
+import { results, list, item } from '../params/results'
 import '../styles/results.sass'
 
 const userSongs = [
@@ -20,48 +23,91 @@ const userSongs = [
   },
 ]
 
-const $title = $({
-  element: 'p',
-  classes: 'title',
+const $list = $({
+  element: 'ul',
+  params: list,
 })
-const $item = $({ element: 'li' })
-const $list = $({ element: 'ul' })
 
 const $songs = $({
   node: $list,
 })
 
-const update = map({
-  create: ({ id, title }) => {
-    const $songTitle = $({
-      node: $title,
-      text: title,
+export const $results = $({
+  classes: 'results',
+  params: results,
+  append: $songs,
+})
+
+const $itemTemplate = $({
+  element: 'li',
+  params: item,
+})
+const $titleTemplate = $({
+  element: 'p',
+  classes: 'title',
+})
+
+const move = (start, end, duration, cb) => {
+  const startedAt = Date.now()
+
+  const intervalId = setInterval(() => {
+    const timeLeft = Date.now() - startedAt
+
+    if (timeLeft < duration) {
+      const cursor = timeLeft / duration
+      const current = (end - start) * cursor
+
+      cb(current)
+    } else {
+      clearInterval(intervalId)
+
+      cb(end - start)
+    }
+  }, 1000 / 60)
+}
+
+const update = map($songs, {
+  create: i => {
+    const $title = $({
+      node: $titleTemplate,
     })
 
-    const $song = $({
-      node: $item,
-      append: $songTitle,
+    const $ref = $({
+      node: $itemTemplate,
+      append: $title,
+      params: { y: i * item.height },
     })
 
-    append($songs, $song)
-
-    return { key: id, $song, $songTitle }
+    return { $ref, $title }
   },
-  update: ({ $songTitle }, { title }) => text($songTitle, title),
+  // update: {
+  //   title: ({ $title }, { title }) => text($title, title),
+  // },
+  update: ({ $title }, { title }) => text($title, title),
+  move: ($ref, { previ, i }) => {
+    const prevPosition = previ * item.height
+    const nextPosition = i * item.height
+
+    move(prevPosition, nextPosition, 200, y => params($ref, { y: prevPosition + y }))
+  },
+  remove: $ref => classes($ref, 'remove') || console.log('remove'),
+  length: ($container, l) => params($container, { height: l * item.height }),
 })
 
 update(userSongs)
 
-userSongs[1].title = 'Bungle - Back to mars'
+const song1 = userSongs[1]
 
-userSongs.push({
-  id: 3,
-  title: 'Michael Jackson - Black and white',
-})
+userSongs.splice(1, 1)
+
+userSongs.push(song1)
 
 setTimeout(() => update(userSongs), 1500)
 
-export const $results = $({
-  classes: 'results',
-  append: $songs,
-})
+setTimeout(() => {
+  userSongs.shift()
+
+  console.log(userSongs)
+
+  update(userSongs)
+}, 5000)
