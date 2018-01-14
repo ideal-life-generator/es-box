@@ -1,10 +1,10 @@
 import $ from 'core' // eslint-disable-line
 import clone from 'core/clone' // eslint-disable-line
-import append from 'core/append' // eslint-disable-line
-import map from 'core/map' // eslint-disable-line
+import collection from 'core/collection' // eslint-disable-line
 import params from 'core/params' // eslint-disable-line
 import text from 'core/text' // eslint-disable-line
-import classes from 'core/classes' // eslint-disable-line
+import style from 'core/style' // eslint-disable-line
+import fromTo from 'core/from-to' // eslint-disable-line
 import { results, list, item } from '../params/results'
 import '../styles/results.sass'
 
@@ -47,67 +47,66 @@ const $titleTemplate = $({
   classes: 'title',
 })
 
-const move = (start, end, duration, cb) => {
-  const startedAt = Date.now()
+const duration = 150
 
-  const intervalId = setInterval(() => {
-    const timeLeft = Date.now() - startedAt
-
-    if (timeLeft < duration) {
-      const cursor = timeLeft / duration
-      const current = (end - start) * cursor
-
-      cb(current)
-    } else {
-      clearInterval(intervalId)
-
-      cb(end - start)
-    }
-  }, 1000 / 60)
-}
-
-const update = map($songs, {
+const change = collection($songs, {
+  // create: i => ([{
+  //   key: '$title',
+  //   node: $titleTemplate,
+  // }, {
+  //   key: '$item',
+  //   node: $itemTemplate,
+  //   append: '$title',
+  //   params: { y: i * item.height },
+  // }]),
   create: i => {
     const $title = $({
       node: $titleTemplate,
     })
 
-    const $ref = $({
+    const $item = $({
       node: $itemTemplate,
       append: $title,
       params: { y: i * item.height },
+      style: { opacity: 0 },
     })
 
-    return { $ref, $title }
-  },
-  // update: {
-  //   title: ({ $title }, { title }) => text($title, title),
-  // },
-  update: ({ $title }, { title }) => text($title, title),
-  move: ($ref, { previ, i }) => {
-    const prevPosition = previ * item.height
-    const nextPosition = i * item.height
+    fromTo(0, 1, duration, opacity => style($item, { opacity }))
 
-    move(prevPosition, nextPosition, 200, y => params($ref, { y: prevPosition + y }))
+    return { $item, $title }
   },
-  remove: $ref => classes($ref, 'remove') || console.log('remove'),
-  length: ($container, l) => params($container, { height: l * item.height }),
+  update: {
+    title: ({ $title }, title) => text($title, title),
+  },
+  move: ({ $item }, { previousIndex, nextIndex }) =>
+    fromTo(previousIndex * item.height, nextIndex * item.height, duration, y => params($item, { y })),
+  remove: async ({ $item }) => await fromTo(1, 0, duration, opacity => style($item, { opacity })),
+  count: ($parent, { nextCount }) => params($parent, { height: nextCount * item.height }),
 })
 
-update(userSongs)
+change(userSongs)
 
-const song1 = userSongs[1]
+const {
+  0: song0,
+  1: song1,
+} = userSongs
 
 userSongs.splice(1, 1)
 
 userSongs.push(song1)
 
-setTimeout(() => update(userSongs), 1500)
+setTimeout(() => {
+  change(userSongs)
+}, 1500)
 
 setTimeout(() => {
   userSongs.shift()
 
-  console.log(userSongs)
+  change(userSongs)
+}, 3000)
 
-  update(userSongs)
-}, 5000)
+setTimeout(() => {
+  userSongs.splice(1, 0, song0)
+
+  change(userSongs)
+}, 4500)

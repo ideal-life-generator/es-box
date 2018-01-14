@@ -81,6 +81,7 @@
     "apollo-server-koa": "^1.2.0",
     "axios": "^0.17.1",
     "chalk": "^2.3.0",
+    "fast-clone": "^1.4.2",
     "fast-deep-equal": "^1.0.0",
     "graphql": "^0.11.7",
     "graphql-tag": "^2.5.0",
