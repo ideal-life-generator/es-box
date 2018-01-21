@@ -5,7 +5,6 @@
   flex-grow: 1
   border-radius: 0.5px
   ul
-    +border-neon(0.25px, $white)
     li
       .title
         color: $white
@@ -13,3 +12,6 @@
         white-space: nowrap
         overflow: hidden
         +text-neon(0.5px, fade-out($white, 0.8))
+    .separator
+      border-bottom: 1px solid $white
+      +border-neon(0.25px, fade-out($white, 0.8))

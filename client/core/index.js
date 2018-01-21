@@ -8,6 +8,8 @@ import $text from './text'
 import $append from './append'
 import $events from './events'
 import $assign from './assign'
+import $animateStyle from './animate-style'
+import $animateParams from './animate-params'
 
 export default ({
   element,
@@ -20,6 +22,8 @@ export default ({
   text,
   append,
   events,
+  animateStyle,
+  animateParams,
   ...assign
 }) => {
   if (node) node = $clone(node)
@@ -32,6 +36,8 @@ export default ({
   if (text) $text(node, text)
   if (append) $append(node, append)
   if (events) $events(node, events)
+  if (animateStyle) $animateStyle.call(null, node, ...animateStyle)
+  if (animateParams) $animateParams.call(null, node, ...animateParams)
   if (assign) $assign(node, assign)
 
   return node

@@ -1,21 +1,52 @@
-export default (from, to, duration, cb) => new Promise(resolve => {
+const calculateNumber = (from, to) => cursor => from + ((to - from) * cursor)
+
+const calculateObject = (keys, from, to) => {
+  const calculateHandlers = {}
+
+  keys.forEach(key => {
+    const fromNumber = from[key]
+    const toNumber = to[key]
+
+    calculateHandlers[key] = calculateNumber(fromNumber, toNumber)
+  })
+
+  return cursor => {
+    const current = {}
+
+    keys.forEach(key => current[key] = calculateHandlers[key](cursor))
+
+    return current
+  }
+}
+
+export default (from, to, { duration }, callback) => new Promise(resolve => {
   const startedAt = Date.now()
 
-  const intervalId = setInterval(() => {
+  let calculate
+  if (typeof from === 'number' && typeof to === 'number') {
+    calculate = calculateNumber(from, to)
+  } else if (typeof from === 'object' && typeof to === 'object') {
+    calculate = calculateObject(Object.keys(to), from, to)
+  }
+
+  const tick = () => {
     const timeLeft = Date.now() - startedAt
 
     if (timeLeft < duration) {
       const cursor = timeLeft / duration
-      const difference = to - from
-      const current = from + (difference * cursor)
+      const current = calculate(cursor)
 
-      cb(current)
+      callback(current)
     } else {
-      clearInterval(intervalId)
+      clearInterval(intervalId) // eslint-disable-line no-use-before-define
 
-      cb(to)
+      callback(to)
 
       resolve()
     }
-  }, 1000 / 60)
+  }
+
+  tick()
+
+  const intervalId = setInterval(tick)
 })

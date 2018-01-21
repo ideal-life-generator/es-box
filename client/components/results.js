@@ -5,7 +5,9 @@ import params from 'core/params' // eslint-disable-line
 import text from 'core/text' // eslint-disable-line
 import style from 'core/style' // eslint-disable-line
 import fromTo from 'core/from-to' // eslint-disable-line
-import { results, list, item } from '../params/results'
+import animateStyle from 'core/animate-style' // eslint-disable-line
+import animateParams from 'core/animate-params' // eslint-disable-line
+import { results, list, item, title, separator } from '../params/results'
 import '../styles/results.sass'
 
 const userSongs = [
@@ -41,72 +43,77 @@ export const $results = $({
 const $itemTemplate = $({
   element: 'li',
   params: item,
+  style: { opacity: 0 },
 })
+
 const $titleTemplate = $({
   element: 'p',
   classes: 'title',
 })
 
+const $separatorTemplate = $({
+  element: 'div',
+  classes: 'separator',
+  params: separator,
+  style: { opacity: 0 },
+})
+
 const duration = 150
 
-const change = collection($songs, {
-  // create: i => ([{
-  //   key: '$title',
-  //   node: $titleTemplate,
-  // }, {
-  //   key: '$item',
-  //   node: $itemTemplate,
-  //   append: '$title',
-  //   params: { y: i * item.height },
-  // }]),
+const update = collection($songs, {
   create: i => {
     const $title = $({
       node: $titleTemplate,
+      params: title,
     })
 
     const $item = $({
       node: $itemTemplate,
       append: $title,
       params: { y: i * item.height },
-      style: { opacity: 0 },
+      animateStyle: [{ duration }, { opacity: 0 }, { opacity: 1 }],
     })
-
-    fromTo(0, 1, duration, opacity => style($item, { opacity }))
 
     return { $item, $title }
   },
-  update: {
-    title: ({ $title }, title) => text($title, title),
-  },
-  move: ({ $item }, { previousIndex, nextIndex }) =>
-    fromTo(previousIndex * item.height, nextIndex * item.height, duration, y => params($item, { y })),
-  remove: async ({ $item }) => await fromTo(1, 0, duration, opacity => style($item, { opacity })),
-  count: ($parent, { nextCount }) => params($parent, { height: nextCount * item.height }),
+  update: { title: ({ $title }, t) => text($title, t) },
+  move: ({ $item }, { previousIndex: p, nextIndex: n }) =>
+    animateParams($item, { duration }, { y: p * item.height }, { y: n * item.height }),
+  remove: async ({ $item }) => await animateStyle($item, { duration }, { opacity: 1 }, { opacity: 0 }),
+  count: ($parent, { nextCount: c }) => params($parent, { height: c * item.height }),
 })
 
-change(userSongs)
+// update.broadcast(separator({
+//   create: n => $({
+//     node: $separatorTemplate,
+//     params: { y: (n * item.height) - (separator.height / 2) },
+//     animateStyle: [{ duration }, { opacity: 0 }, { opacity: 1 }],
+//   }),
+//   remove: async ($el) => await fromTo(1, 0, duration, opacity => style($el, { opacity })),
+// }))
 
 const {
   0: song0,
   1: song1,
 } = userSongs
 
-userSongs.splice(1, 1)
-
-userSongs.push(song1)
+update(userSongs)
 
 setTimeout(() => {
-  change(userSongs)
-}, 1500)
+  userSongs.splice(1, 1)
+  userSongs.push(song1)
+
+  update(userSongs)
+}, 800)
 
 setTimeout(() => {
   userSongs.shift()
 
-  change(userSongs)
-}, 3000)
+  update(userSongs)
+}, 1600)
 
 setTimeout(() => {
   userSongs.splice(1, 0, song0)
 
-  change(userSongs)
-}, 4500)
+  update(userSongs)
+}, 2400)

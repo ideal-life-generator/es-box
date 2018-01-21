@@ -23,7 +23,7 @@ const clientEntry = {
   },
   module: {
     rules: [
-      eslintRule,
+      // eslintRule,
       babelRule,
       sassRule,
       fileRule,

@@ -20,7 +20,7 @@ const config = {
   },
   module: {
     rules: [
-      eslintRule,
+      // eslintRule,
       babelRule,
       vueRule,
     ],
