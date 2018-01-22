@@ -1,9 +1,8 @@
 import clone from 'fast-clone'
 import $append from './append'
 import $before from './before'
-import $repeat from './repeat'
 
-const { abs } = Math
+const { assign, keys } = Object
 
 const getDifference = (next, previous) => {
   const difference = {}
@@ -62,7 +61,16 @@ export default ($parent, { create, update, move, remove, count }) => {
   let previousElements$ = new Map()
   let previousItems = []
 
-  return nextItems => {
+  const listeners = {
+    create: [],
+    remove: [],
+  }
+
+  const emit = (name, ...args) => listeners[name].forEach(listener => listener(...args))
+
+  const broadcast = listener => keys(listener).forEach(key => listeners[key].push(listener[key]))
+
+  const $update = (nextItems) => {
     elements$ = new Map()
 
     const { length: previousCount } = previousItems
@@ -95,9 +103,15 @@ export default ($parent, { create, update, move, remove, count }) => {
 
         elements$.set(previousItem.id, $nextElements)
       } else {
-        await remove($previousElements)
+        const removeResolver = remove($previousElements.ﾟ)
+
+        if (removeResolver instanceof Promise) {
+          await removeResolver
+        }
 
         $previousElements.ﾟ.remove()
+
+        emit('remove')
       }
     })
 
@@ -118,6 +132,8 @@ export default ($parent, { create, update, move, remove, count }) => {
         }
 
         elements$.set(nextItem.id, $elements)
+
+        emit('create', nextCount)
       }
     })
 
@@ -129,4 +145,8 @@ export default ($parent, { create, update, move, remove, count }) => {
 
     previousElements$ = elements$
   }
+
+  return assign($update, {
+    broadcast,
+  })
 }

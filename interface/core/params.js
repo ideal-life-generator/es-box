@@ -16,22 +16,23 @@ const parseKey = key => {
 
 export default function $params(node, params) {
   if (!Array.isArray(node)) {
-    const styledParams = {}
+    const style = {}
 
     Object.keys(params).forEach(key => {
       const value = params[key]
       const parsedKey = parseKey(key)
 
       if (typeof value === 'number') {
-        styledParams[parsedKey] = `${value}px`
+        style[parsedKey] = `${value}px`
       } else if (value === null) {
-        styledParams[parsedKey] = null
+        style[parsedKey] = null
       }
     })
 
-    $style(node, {
-      position: 'absolute',
-      ...styledParams,
-    })
+    if (style.left || style.top) {
+      style.position = 'absolute'
+    }
+
+    $style(node, style)
   } else node.forEach(n => $params(n, params))
 }

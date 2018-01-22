@@ -18,7 +18,12 @@ export const $title = $cloner({
   params: title,
 })
 
-export const ﾟseparatorTemplate = $cloner({
+export const $separators = $cloner({
+  el: 'ul',
+  params: list,
+})
+
+export const $separator = $cloner({
   el: 'div',
   classes: 'separator',
   params: separator,
