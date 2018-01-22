@@ -85,9 +85,9 @@ export default ($parent, { create, update, move, remove, count }) => {
           const $beforeElements = getByIndex(previousElements$, nextIndex)
 
           if ($beforeElements) {
-            $before($nextElements.$item, $beforeElements.$item)
+            $before($nextElements.ﾟ, $beforeElements.ﾟ)
           } else {
-            $append($parent, $nextElements.$item)
+            $append($parent, $nextElements.ﾟ)
           }
 
           move($nextElements, { previousIndex, nextIndex })
@@ -97,7 +97,7 @@ export default ($parent, { create, update, move, remove, count }) => {
       } else {
         await remove($previousElements)
 
-        $previousElements.$item.remove()
+        $previousElements.ﾟ.remove()
       }
     })
 
@@ -112,9 +112,9 @@ export default ($parent, { create, update, move, remove, count }) => {
         const beforeElements$ = getByIndex(previousElements$, nextIndex)
 
         if (beforeElements$) {
-          $before($elements.$item, beforeElements$.$item)
+          $before($elements.ﾟ, beforeElements$.ﾟ)
         } else {
-          $append($parent, $elements.$item)
+          $append($parent, $elements.ﾟ)
         }
 
         elements$.set(nextItem.id, $elements)

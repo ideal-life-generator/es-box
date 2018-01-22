@@ -1,5 +1,4 @@
 import $createNode from './create-node'
-import $clone from './clone'
 import $attributes from './attributes'
 import $params from './params'
 import $classes from './classes'
@@ -12,7 +11,7 @@ import $animateStyle from './animate-style'
 import $animateParams from './animate-params'
 
 export default ({
-  element,
+  el,
   svg,
   node,
   attributes,
@@ -26,8 +25,7 @@ export default ({
   animateParams,
   ...assign
 }) => {
-  if (node) node = $clone(node)
-  else node = $createNode({ element, svg })
+  if (!node) node = $createNode({ el, svg })
 
   if (attributes) $attributes(node, attributes)
   if (params) $params(node, params)

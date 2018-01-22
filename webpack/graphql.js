@@ -11,12 +11,12 @@ import {
   definePlugin,
 } from './base'
 
-const config = {
+const graphql = {
   target: 'node',
   entry: './index',
   output: {
     path: outputPath,
-    filename: 'app.js',
+    filename: 'graphql.js',
   },
   module: {
     rules: [
@@ -32,13 +32,13 @@ const config = {
   ],
 }
 
-export default !PRODUCTION ? merge(config, {
+export default !PRODUCTION ? merge(graphql, {
   devtool: 'source-map',
   plugins: [
     new ReloadServerPlugin({
-      script: 'build/app.js',
+      script: 'build/graphql.js',
     }),
   ],
-}) : merge(config, {
+}) : merge(graphql, {
   plugins: [],
 })

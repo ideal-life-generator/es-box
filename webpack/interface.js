@@ -14,8 +14,8 @@ import {
 } from './base'
 import { DEV_SERVER_PORT } from '../config'
 
-const clientEntry = {
-  context: resolve('client'),
+const interf = {
+  context: resolve('interface'),
   entry: './',
   output: {
     path: outputPath,
@@ -31,7 +31,7 @@ const clientEntry = {
   },
   resolve: {
     alias: {
-      core: resolve('./client/core'),
+      core: resolve('./interface/core'),
     },
   },
   stats,
@@ -44,7 +44,7 @@ const clientEntry = {
   ],
 }
 
-export default merge(clientEntry, !PRODUCTION ? {
+export default merge(interf, !PRODUCTION ? {
   devtool: 'cheap-module-source-map',
   devServer: {
     port: DEV_SERVER_PORT,

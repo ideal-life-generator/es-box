@@ -4,7 +4,7 @@ import $clearIcon from './icons/clear'
 import '../styles/search.sass'
 
 export const $clear = $({
-  element: 'button',
+  el: 'button',
   params: clear,
   classes: 'clear',
   append: $clearIcon({
@@ -13,7 +13,7 @@ export const $clear = $({
 })
 
 export const $input = $({
-  element: 'input',
+  el: 'input',
   params: input,
   classes: 'input',
   events: {

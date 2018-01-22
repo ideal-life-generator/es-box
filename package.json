@@ -6,33 +6,33 @@
   "license": "ISC",
   "scripts": {
     "lint": "eslint ./",
-    "dev:app": "better-npm-run dev:app",
-    "dev:client": "better-npm-run dev:client",
-    "dev": "parallelshell \"rimraf build\" \"better-npm-run dev:app\" \"better-npm-run dev:client\"",
-    "build:app": "better-npm-run build:app",
-    "build:client": "better-npm-run build:client",
-    "build": "parallelshell \"rimraf build\" \"better-npm-run build:app\" \"better-npm-run build:client\"",
+    "dev:graphql": "better-npm-run dev:graphql",
+    "dev:interface": "better-npm-run dev:interface",
+    "dev": "parallelshell \"rimraf build\" \"better-npm-run dev:graphql\" \"better-npm-run dev:interface\"",
+    "build:graphql": "better-npm-run build:graphql",
+    "build:interface": "better-npm-run build:interface",
+    "build": "parallelshell \"rimraf build\" \"better-npm-run build:graphql\" \"better-npm-run build:interface\"",
     "start": "npm run dev"
   },
   "betterScripts": {
-    "dev:app": {
-      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/app.js --watch",
+    "dev:graphql": {
+      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/graphql.js --watch",
       "env": {
         "SERVER": true
       }
     },
-    "dev:client": {
-      "command": "node -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config=./webpack/client.js"
+    "dev:interface": {
+      "command": "node -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config=./webpack/interface.js"
     },
-    "build:app": {
-      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/app.js",
+    "build:graphql": {
+      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/graphql.js",
       "env": {
         "PRODUCTION": true,
         "SERVER": true
       }
     },
-    "build:client": {
-      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/client.js",
+    "build:interface": {
+      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/interface.js",
       "env": {
         "PRODUCTION": true
       }

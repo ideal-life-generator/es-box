@@ -5,7 +5,7 @@ import serve from 'koa-static'
 import cors from 'koa-cors'
 import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
 import { blue } from 'chalk'
-import schema from './schema'
+import schema from './graphql'
 import { SERVER_PORT } from './config'
 
 const app = new Koa()
