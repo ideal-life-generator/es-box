@@ -9,21 +9,21 @@ $searchBorderWidth: 2px
   border-color: $white
   box-sizing: border-box
   +border-neon(0.5px, $violet)
-  .input
-    padding-left: 13px
-    padding-right: 3px
-    box-sizing: border-box
-    font-size: 16.5px
-    color: $white
-    +text-neon(0.15px, fade-out($white, 0.8))
+  .field
+    input
+      font-size: 16.5px
+      color: $white
+      +text-neon(0.15px, fade-out($white, 0.8))
+    .text
+      color: transparent
   .clear
     fill: $white
-    +svg-neon(1.5px, $white)
+    +svg-neon(0.5px, $white)
     cursor: pointer
-    transition: all 0.3s easy-in-out
+    transition: 0.2s
     &:hover
-      fill: fade-out($white, 0.3)
-      +svg-neon(0.15px, $white)
+      fill: fade-out($white, 0.5)
 
 ::-webkit-input-placeholder
+  font-size: 16.5px
   color: fade-out($white, 0.45)

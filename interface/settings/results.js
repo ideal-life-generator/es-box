@@ -1,4 +1,4 @@
-import $calculate from 'core/calculate' // eslint-disable-line
+import $cloner from 'core/cloner' // eslint-disable-line
 import {
   screenWidth,
   screenSidesMargin,
@@ -26,3 +26,32 @@ export const title = {
 export const separator = {
   width: item.width, height: 0,
 }
+
+
+export const $listﾟ = $cloner({
+  el: 'ul',
+  params: list,
+})
+
+export const $itemﾟ = $cloner({
+  el: 'li',
+  params: item,
+  style: { opacity: 0 },
+})
+
+export const $titleﾟ = $cloner({
+  el: 'p',
+  classes: 'title',
+  params: title,
+})
+
+export const $separatorsﾟ = $cloner({
+  el: 'ul',
+  params: list,
+})
+
+export const $separatorﾟ = $cloner({
+  classes: 'separator',
+  params: separator,
+  style: { opacity: 0 },
+})

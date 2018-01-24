@@ -30,13 +30,13 @@ const getDifference = (next, previous) => {
   return difference
 }
 
-const resolveUpdate = (data, $elements, update) => {
+const resolveUpdate = (data, elementsﾟ, update) => {
   Object.keys(data).forEach(key => {
     const { [key]: value } = data
     const { [key]: updateHandler } = update
 
     if (updateHandler) {
-      updateHandler($elements, value)
+      updateHandler(elementsﾟ, value)
     }
   })
 }
@@ -56,9 +56,9 @@ const getByIndex = (map, index) => {
   return foundValue
 }
 
-export default ($parent, { create, update, move, remove, count }) => {
-  let elements$
-  let previousElements$ = new Map()
+export default (parentﾟ, { create, update, move, remove, count }) => {
+  let elementsﾟ
+  let previousElementsﾟ = new Map()
   let previousItems = []
 
   const listeners = {
@@ -71,45 +71,45 @@ export default ($parent, { create, update, move, remove, count }) => {
   const broadcast = listener => keys(listener).forEach(key => listeners[key].push(listener[key]))
 
   const $update = (nextItems) => {
-    elements$ = new Map()
+    elementsﾟ = new Map()
 
     const { length: previousCount } = previousItems
     const { length: nextCount } = nextItems
 
     previousItems.forEach(async (previousItem, previousIndex) => {
-      const $previousElements = previousElements$.get(previousItem.id)
+      const foundElementsﾟ = previousElementsﾟ.get(previousItem.id)
       const nextIndex = nextItems.findIndex(nextItem => previousItem.id === nextItem.id)
 
       if (nextIndex >= 0) {
-        const $nextElements = $previousElements
+        const nextElementsﾟ = foundElementsﾟ
         const { [nextIndex]: nextItem } = nextItems
         const difference = getDifference(nextItem, previousItem)
 
         if (difference) {
-          resolveUpdate(difference, $nextElements, update)
+          resolveUpdate(difference, nextElementsﾟ, update)
         }
 
         if (previousIndex !== nextIndex) {
-          const $beforeElements = getByIndex(previousElements$, nextIndex)
+          const $beforeElements = getByIndex(previousElementsﾟ, nextIndex)
 
           if ($beforeElements) {
-            $before($nextElements.ﾟ, $beforeElements.ﾟ)
+            $before(nextElementsﾟ.ﾟ, $beforeElements.ﾟ)
           } else {
-            $append($parent, $nextElements.ﾟ)
+            $append(parentﾟ, nextElementsﾟ.ﾟ)
           }
 
-          move($nextElements, { previousIndex, nextIndex })
+          move(nextElementsﾟ, { previousIndex, nextIndex })
         }
 
-        elements$.set(previousItem.id, $nextElements)
+        elementsﾟ.set(previousItem.id, nextElementsﾟ)
       } else {
-        const removeResolver = remove($previousElements.ﾟ)
+        const removeResolver = remove(foundElementsﾟ)
 
         if (removeResolver instanceof Promise) {
           await removeResolver
         }
 
-        $previousElements.ﾟ.remove()
+        foundElementsﾟ.ﾟ.remove()
 
         emit('remove')
       }
@@ -119,31 +119,31 @@ export default ($parent, { create, update, move, remove, count }) => {
       const previousIndex = previousItems.findIndex(previousItem => nextItem.id === previousItem.id)
 
       if (previousIndex === -1) {
-        const $elements = create(nextIndex)
+        const createdElementsﾟ = create(nextIndex)
 
-        resolveUpdate(nextItem, $elements, update)
+        resolveUpdate(nextItem, createdElementsﾟ, update)
 
-        const beforeElements$ = getByIndex(previousElements$, nextIndex)
+        const beforeElementsﾟ = getByIndex(previousElementsﾟ, nextIndex)
 
-        if (beforeElements$) {
-          $before($elements.ﾟ, beforeElements$.ﾟ)
+        if (beforeElementsﾟ) {
+          $before(createdElementsﾟ.ﾟ, beforeElementsﾟ.ﾟ)
         } else {
-          $append($parent, $elements.ﾟ)
+          $append(parentﾟ, createdElementsﾟ.ﾟ)
         }
 
-        elements$.set(nextItem.id, $elements)
+        elementsﾟ.set(nextItem.id, createdElementsﾟ)
 
         emit('create', nextCount)
       }
     })
 
     if (nextCount !== previousCount) {
-      count($parent, { nextCount, previousCount })
+      count(parentﾟ, { nextCount, previousCount })
     }
 
     previousItems = clone(nextItems)
 
-    previousElements$ = elements$
+    previousElementsﾟ = elementsﾟ
   }
 
   return assign($update, {

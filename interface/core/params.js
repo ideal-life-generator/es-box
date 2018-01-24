@@ -29,10 +29,8 @@ export default function $params(node, params) {
       }
     })
 
-    if (style.left || style.top) {
-      style.position = 'absolute'
-    }
-
-    $style(node, style)
+    $style(node, Object.assign(style, {
+      position: 'absolute',
+    }))
   } else node.forEach(n => $params(n, params))
 }

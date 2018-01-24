@@ -1,4 +1,5 @@
 import gql from 'graphql-tag'
+import { $key } from 'core/normalize' // eslint-disable-line
 
 export const USER_SONGS = gql`{
   songs {
@@ -24,4 +25,4 @@ export const userSongsMock = [
     id: 2,
     title: 'Makoto - Wue',
   },
-]
+].map(data => Object.assign(data, { key: $key(data.title) }))

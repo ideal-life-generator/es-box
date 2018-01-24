@@ -18,15 +18,17 @@ export default (ﾟparent, { create, remove }) => {
       }
     },
     async remove() {
-      const ﾟseparator = separatorsﾟ.pop()
+      if (separatorsﾟ.length > 0) {
+        const ﾟseparator = separatorsﾟ.pop()
 
-      const romoveReslver = remove(ﾟseparator)
+        const romoveReslver = remove(ﾟseparator)
 
-      if (romoveReslver instanceof Promise) {
-        await romoveReslver
+        if (romoveReslver instanceof Promise) {
+          await romoveReslver
+        }
+
+        $remove(ﾟseparator)
       }
-
-      $remove(ﾟseparator)
     },
   }
 }
