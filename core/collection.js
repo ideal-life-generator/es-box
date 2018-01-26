@@ -1,8 +1,10 @@
 import clone from 'fast-clone'
 import $append from './append'
 import $before from './before'
+import $resolve from './resolve'
 
 const { assign, keys } = Object
+const { isArray } = Array
 
 const getDifference = (next, previous) => {
   const difference = {}
@@ -56,10 +58,11 @@ const getByIndex = (map, index) => {
   return foundValue
 }
 
-export default (parentﾟ, { create, update, move, remove, count }) => {
+export default (parentﾟ, methods) => {
   let elementsﾟ
   let previousElementsﾟ = new Map()
   let previousItems = []
+  let previousTotal = 0
 
   const listeners = {
     create: [],
@@ -70,11 +73,22 @@ export default (parentﾟ, { create, update, move, remove, count }) => {
 
   const broadcast = listener => keys(listener).forEach(key => listeners[key].push(listener[key]))
 
-  const $update = (nextItems) => {
-    elementsﾟ = new Map()
+  if (!(methods.data instanceof Function)) {
+    throw 'Should data method a function'
+  }
 
-    const { length: previousCount } = previousItems
-    const { length: nextCount } = nextItems
+  const $update = async (...args) => {
+    const { items: nextItems, total: nextTotal } = await $resolve(methods.data(...args))
+
+    if (!isArray(nextItems)) {
+      throw `Expected data items array, take ${nextItems}`
+    }
+
+    if (!(typeof nextTotal === 'number')) {
+      throw `Expected data total number, take ${nextTotal}`
+    }
+
+    elementsﾟ = new Map()
 
     previousItems.forEach(async (previousItem, previousIndex) => {
       const foundElementsﾟ = previousElementsﾟ.get(previousItem.id)
@@ -86,7 +100,7 @@ export default (parentﾟ, { create, update, move, remove, count }) => {
         const difference = getDifference(nextItem, previousItem)
 
         if (difference) {
-          resolveUpdate(difference, nextElementsﾟ, update)
+          resolveUpdate(difference, nextElementsﾟ, methods.update)
         }
 
         if (previousIndex !== nextIndex) {
@@ -98,12 +112,12 @@ export default (parentﾟ, { create, update, move, remove, count }) => {
             $append(parentﾟ, nextElementsﾟ.ﾟ)
           }
 
-          move(nextElementsﾟ, { previousIndex, nextIndex })
+          methods.move(nextElementsﾟ, { previousIndex, nextIndex })
         }
 
         elementsﾟ.set(previousItem.id, nextElementsﾟ)
       } else {
-        const removeResolver = remove(foundElementsﾟ)
+        const removeResolver = methods.remove(foundElementsﾟ)
 
         if (removeResolver instanceof Promise) {
           await removeResolver
@@ -119,9 +133,9 @@ export default (parentﾟ, { create, update, move, remove, count }) => {
       const previousIndex = previousItems.findIndex(previousItem => nextItem.id === previousItem.id)
 
       if (previousIndex === -1) {
-        const createdElementsﾟ = create(nextIndex)
+        const createdElementsﾟ = methods.create(nextIndex)
 
-        resolveUpdate(nextItem, createdElementsﾟ, update)
+        resolveUpdate(nextItem, createdElementsﾟ, methods.update)
 
         const beforeElementsﾟ = getByIndex(previousElementsﾟ, nextIndex)
 
@@ -133,15 +147,16 @@ export default (parentﾟ, { create, update, move, remove, count }) => {
 
         elementsﾟ.set(nextItem.id, createdElementsﾟ)
 
-        emit('create', nextCount)
+        emit('create', nextTotal)
       }
     })
 
-    if (nextCount !== previousCount) {
-      count(parentﾟ, { nextCount, previousCount })
+    if (nextTotal !== previousTotal) {
+      methods.count(parentﾟ, { nextTotal, previousTotal })
     }
 
     previousItems = clone(nextItems)
+    previousTotal = nextTotal
 
     previousElementsﾟ = elementsﾟ
   }

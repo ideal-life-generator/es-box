@@ -6,6 +6,7 @@ import {
   eslintRule,
   babelRule,
   vueRule,
+  alias,
   stats,
   nodeExternals,
   definePlugin,
@@ -24,6 +25,9 @@ const graphql = {
       babelRule,
       vueRule,
     ],
+  },
+  resolve: {
+    alias: { core: alias.core },
   },
   stats,
   externals: nodeExternals,

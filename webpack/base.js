@@ -40,6 +40,10 @@ export const fileRule = {
   use: 'file-loader',
 }
 
+export const alias = {
+  core: resolve('./core'),
+}
+
 export const stats = {
   modules: false,
 }

@@ -3,6 +3,7 @@ import $attributes from 'core/attributes' // eslint-disable-line
 import $animateStyle from 'core/animate-style' // eslint-disable-line
 import $append from 'core/append' // eslint-disable-line
 import $remove from 'core/remove' // eslint-disable-line
+import $assign from 'core/assign' // eslint-disable-line
 import {
   search,
   input,
@@ -11,6 +12,7 @@ import {
   clear,
   clearIcon,
   searchChange,
+  onClear,
 } from '../settings/search'
 import $clearIconﾟ from './icons/clear'
 import '../styles/search.sass'
@@ -23,7 +25,7 @@ export const ﾟclear = $({
     params: clearIcon,
   }),
   events: {
-    click: () => searchChange('') || hideClear(),
+    click: () => onClear(),
   },
 })
 
@@ -36,8 +38,6 @@ export const ﾟinput = $({
   },
   placeholder: 'Search',
 })
-
-searchChange(value => $attributes(ﾟinput, { value }))
 
 export const ﾟtext = $({
   el: 'span',
@@ -90,6 +90,14 @@ searchChange(value => {
   } else {
     hideClear()
   }
+})
+
+onClear(() => {
+  $assign(ﾟinput, { value: '' })
+
+  searchChange('')
+
+  hideClear()
 })
 
 export default ﾟsearch

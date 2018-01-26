@@ -9,6 +9,7 @@ import {
   babelRule,
   sassRule,
   fileRule,
+  alias,
   stats,
   definePlugin,
 } from './base'
@@ -30,9 +31,7 @@ const interf = {
     ],
   },
   resolve: {
-    alias: {
-      core: resolve('./interface/core'),
-    },
+    alias: { core: alias.core },
   },
   stats,
   plugins: [

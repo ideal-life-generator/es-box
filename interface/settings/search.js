@@ -42,4 +42,4 @@ export const clearIcon = {
   y: (clear.height / 2) - (iconSize / 2),
 }
 
-export const { searchChange } = $broadcast('searchChange')
+export const { searchChange, onClear } = $broadcast('searchChange', 'onClear')

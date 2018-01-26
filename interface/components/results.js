@@ -18,7 +18,7 @@ import {
   separator,
 } from '../settings/results'
 import { searchChange } from '../settings/search'
-import { userSongsMock } from '../../graphql/queries/songs'
+import getUserSongs from '../../graphql/fetch'
 import '../styles/results.sass'
 
 const { height: itemHeight } = item
@@ -28,6 +28,7 @@ const ﾟsongs = $listﾟ()
 const duration = 150
 
 const $update = $collection(ﾟsongs, {
+  data: async key => await getUserSongs(key),
   create: i => {
     const ﾟtitle = $titleﾟ()
 
@@ -57,9 +58,9 @@ $update.broadcast($separator(ﾟseparators, {
   remove: async ﾟ => await $animateStyle(ﾟ, { duration }, { opacity: 1 }, { opacity: 0 }),
 }))
 
-$update(userSongsMock)
+$update()
 
-searchChange(value => $update(userSongsMock.filter(({ key }) => key.includes($key(value)))))
+searchChange(value => $update(value))
 
 export default $({
   classes: 'results',

@@ -9,7 +9,6 @@
   plugins: ["import"],
   "extends": [
     "airbnb-base",
-    "plugin:vue/recommended",
     "plugin:import/errors",
     "plugin:import/warnings"
   ],
