@@ -1,6 +1,6 @@
 import $createFetchGraphQL from 'core/fetch-graphql' // eslint-disable-line
-import { SERVER_BASE_URL } from '../../config'
+import { GRAPHQL_API_URL } from '../../config'
 
-export default $createFetchGraphQL('graphql', {
-  baseUrl: SERVER_BASE_URL,
+export default $createFetchGraphQL({
+  baseURL: GRAPHQL_API_URL,
 })

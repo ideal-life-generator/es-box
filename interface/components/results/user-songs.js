@@ -8,26 +8,25 @@ import $separator from 'core/separator' // eslint-disable-line
 import { $take } from 'core/broadcast' // eslint-disable-line
 import { $key } from 'core/normalize' // eslint-disable-line
 import {
+  $containerﾟ,
   $listﾟ,
   $itemﾟ,
   $titleﾟ,
   $separatorsﾟ,
   $separatorﾟ,
-  results,
   item,
   separator,
-} from '../settings/results'
-import { searchChange } from '../settings/search'
-import getUserSongs from '../../graphql/fetch'
-import '../styles/results.sass'
+} from '../../settings/results'
+import { searchChange } from '../../settings/search'
+import getUserSongs from '../../../graphql/fetch'
 
 const { height: itemHeight } = item
 
-const ﾟsongs = $listﾟ()
+const ﾟuserSongs = $listﾟ()
 
 const duration = 150
 
-const $update = $collection(ﾟsongs, {
+const $update = $collection(ﾟuserSongs, {
   data: async key => await getUserSongs(key),
   create: i => {
     const ﾟtitle = $titleﾟ()
@@ -62,8 +61,6 @@ $update()
 
 searchChange(value => $update(value))
 
-export default $({
-  classes: 'results',
-  params: results,
-  append: [ﾟsongs, ﾟseparators],
+export default $containerﾟ({
+  append: [ﾟuserSongs, ﾟseparators],
 })

@@ -10,12 +10,16 @@ export const results = {
   width: screenWidth - (screenSidesMargin * 2),
 }
 
-export const list = {
+export const container = {
   width: results.width,
 }
 
+export const list = {
+  width: container.width,
+}
+
 export const item = {
-  width: results.width, height: 50,
+  width: list.width, height: 50,
 }
 
 export const title = {
@@ -27,6 +31,10 @@ export const separator = {
   width: item.width, height: 0,
 }
 
+
+export const $containerﾟ = $cloner({
+  params: container,
+})
 
 export const $listﾟ = $cloner({
   el: 'ul',

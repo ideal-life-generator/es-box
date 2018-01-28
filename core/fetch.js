@@ -1,12 +1,15 @@
 import { stringify as stringifyQuery } from 'qs'
+import assign from 'deep-assign'
 
-const { keys, assign } = Object
+const { keys } = Object
 const { stringify } = JSON
 
-const resolveRequestParams = (params, options) => {
-  keys(options).forEach(key => {
-    if (resolveRequestParams.possibleKeys.includes(key)) {
-      const { [key]: option } = options
+const resolveRequestParsers = (params, parsers) => {
+  const { possibleKeys } = resolveRequestParsers
+
+  keys(parsers).forEach(key => {
+    if (possibleKeys.includes(key)) {
+      const { [key]: option } = parsers
       const { [key]: param } = params
 
       if (typeof option === 'function') {
@@ -17,7 +20,25 @@ const resolveRequestParams = (params, options) => {
 
   return params
 }
-resolveRequestParams.possibleKeys = ['query', 'data']
+resolveRequestParsers.possibleKeys = ['query', 'data']
+
+const resolveResponseParsers = (response, parsers) => {
+  const { possibleKeys } = resolveResponseParsers
+
+  keys(parsers).forEach(key => {
+    if (possibleKeys.includes(key)) {
+      const { [key]: option } = parsers
+      const { [key]: param } = response
+
+      if (typeof option === 'function') {
+        assign(response, { [key]: option(param) })
+      }
+    }
+  })
+
+  return response
+}
+resolveResponseParsers.possibleKeys = ['data']
 
 const createHeaders = headers => {
   const headersInstance = new Headers()
@@ -27,14 +48,16 @@ const createHeaders = headers => {
   return headersInstance
 }
 
-const createRequest = (source, { baseUrl, query, type, headers, data }) => {
-  let url
+const createRequest = (source, { baseURL, query, type, headers, data }) => {
+  let url = ''
   const params = {}
 
-  if (baseUrl) {
-    url = `${baseUrl}/${source}`
-  } else {
-    url = source
+  if (baseURL) {
+    url = baseURL
+  }
+
+  if (source) {
+    url += `/${source}`
   }
 
   if (query) {
@@ -66,13 +89,19 @@ const createRequest = (source, { baseUrl, query, type, headers, data }) => {
   return new Request(url, params)
 }
 
-export default baseParams => async (source, additionalParams, { request: requestOptions }) => {
+export default baseParams => async (source, additionalParams, requestParser, responseParser) => {
   const params = assign(baseParams, additionalParams)
-  const resolvedRequestParams = resolveRequestParams(params, requestOptions)
-
+  const resolvedRequestParams = requestParser ? resolveRequestParsers(params, requestParser) : params
   const request = createRequest(source, resolvedRequestParams)
 
-  const response = await fetch(request)
+  const fetchResponse = await fetch(request)
+  const fetchData = await fetchResponse.json()
 
-  return await response.json()
+  const response = {
+    data: fetchData,
+  }
+
+  const resolvedResponse = responseParser ? resolveResponseParsers(response, responseParser) : response
+
+  return resolvedResponse
 }

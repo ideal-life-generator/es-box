@@ -1,6 +1,6 @@
 import $fetchGraphQL from './utils/fetch-graphql'
 
-export const USER_SONGS = (key) => `{
+export const USER_SONGS = key => `{
   user {
     songs(key: "${key}") {
       total
@@ -13,11 +13,11 @@ export const USER_SONGS = (key) => `{
   }
 }`
 
-const parseUserSongs = ({ user: { songs: { total, items } } }) => ({ total, items })
+const normalize = ({ user: { songs: { total, items } } }) => ({ total, items })
 
 export default async key => {
   const query = USER_SONGS(key)
   const { data } = await $fetchGraphQL(query)
 
-  return parseUserSongs(data)
+  return normalize(data)
 }
