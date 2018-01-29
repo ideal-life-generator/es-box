@@ -7,6 +7,7 @@ import $animateParams from 'core/animate-params' // eslint-disable-line
 import $separator from 'core/separator' // eslint-disable-line
 import { $take } from 'core/broadcast' // eslint-disable-line
 import { $key } from 'core/normalize' // eslint-disable-line
+import ﾟresults from './'
 import {
   $containerﾟ,
   $listﾟ,
@@ -27,7 +28,7 @@ const ﾟuserSongs = $listﾟ()
 const duration = 150
 
 const $update = $collection(ﾟuserSongs, {
-  data: async key => await getUserSongs(key),
+  data: async key => await getUserSongs(key, 0, 5),
   create: i => {
     const ﾟtitle = $titleﾟ()
 
@@ -44,7 +45,11 @@ const $update = $collection(ﾟuserSongs, {
   move: ({ ﾟ }, { previousIndex: p, nextIndex: n }) =>
     $animateParams(ﾟ, { duration }, { y: p * itemHeight }, { y: n * itemHeight }),
   remove: async ({ ﾟ }) => await $animateStyle(ﾟ, { duration }, { opacity: 1 }, { opacity: 0 }),
-  count: (ﾟparent, { nextCount: c }) => $params(ﾟparent, { height: c * itemHeight }),
+  count: (ﾟparent, { nextCount: c }) => {
+    $params(ﾟparent, { height: c * itemHeight })
+
+    $params(ﾟresults, { height: c * itemHeight })
+  },
 })
 
 const ﾟseparators = $separatorsﾟ()

@@ -2,16 +2,21 @@
 @import "./variables.sass"
 
 .results
-  flex-grow: 1
+  padding: 1px;
   border-radius: 0.5px
+  border: 1px solid $white
+
   ul
-    li
-      .title
-        color: $white
-        text-overflow: ellipsis
-        white-space: nowrap
-        overflow: hidden
-        // +text-neon(0.5px, fade-out($white, 0.8))
+    &.list
+      padding: 1px;
+      border: 1px solid $violet
+
+      li
+        .title
+          color: $white
+          text-overflow: ellipsis
+          white-space: nowrap
+          overflow: hidden
+
     .separator
       border-bottom: 1px solid $white
-      // +border-neon(0.25px, fade-out($white, 0.8))

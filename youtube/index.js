@@ -1,7 +1,7 @@
 import fetch from './utils/fetch'
 
-const normalize = ({ pageInfo: { totalResults }, items }) => ({
-  total: totalResults,
+const normalize = ({ pageInfo: { resultsPerPage, totalResults }, items }) => ({
+  count: resultsPerPage,
   items: items.map(({
     id: { videoId: id },
     snippet: {
@@ -15,6 +15,7 @@ const normalize = ({ pageInfo: { totalResults }, items }) => ({
     thumbnails,
     publishedAt,
   })),
+  total: totalResults,
 })
 
 export const search = async key => {

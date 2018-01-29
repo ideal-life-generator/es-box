@@ -36,12 +36,17 @@ type Song {
 
 type SongsPagination {
   items: [Song]
+  count: Int!
   total: Int!
 }
 
 type User {
   name: String
-  songs(key: String): SongsPagination
+  songs(
+    key: String
+    cursor: Int
+    count: Int
+  ): SongsPagination
 }
 
 type Query {
@@ -58,11 +63,27 @@ const resolvers = {
     user: () => ({ name: 'Vlad' }),
   },
   User: {
-    songs: (user, { key }) => {
-      const items = key ? userSongsMock.filter(userSong => userSong.key.includes(key)) : userSongsMock
-      const { length: total } = items
+    songs: (user, params) => {
+      let items
 
-      return { items, total }
+      if (params.key) {
+        items = params.key ? userSongsMock.filter(userSong => userSong.key.includes(params.key)) : userSongsMock
+      } else {
+        items = userSongsMock
+      }
+
+      if (params.cursor && params.count) {
+        items = items.slice(params.cursor, params.cursor + params.count)
+      } else if (params.cursor) {
+        items = items.slice(params.cursor)
+      } else if (params.count) {
+        items = items.slice(0, params.count)
+      }
+
+      const { length: count } = items
+      const { length: total } = userSongsMock
+
+      return { items, count, total }
     },
   },
 }

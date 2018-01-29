@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import { DefinePlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
 import webpackNodeExternals from 'webpack-node-externals' // eslint-disable-line import/no-extraneous-dependencies
+import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 
 export const { env: { PRODUCTION, SERVER } } = process
 
@@ -47,6 +48,8 @@ export const alias = {
 export const stats = {
   modules: false,
 }
+
+export const uglify = new UglifyJSPlugin()
 
 export const nodeExternals = webpackNodeExternals()
 

@@ -7,7 +7,7 @@ import { search } from './search'
 
 export const results = {
   x: screenSidesMargin, y: search.y + search.height + 35,
-  width: screenWidth - (screenSidesMargin * 2),
+  width: screenWidth - (screenSidesMargin * 2), height: 500,
 }
 
 export const container = {
@@ -31,13 +31,13 @@ export const separator = {
   width: item.width, height: 0,
 }
 
-
 export const $containerﾟ = $cloner({
   params: container,
 })
 
 export const $listﾟ = $cloner({
   el: 'ul',
+  classes: 'list',
   params: list,
 })
 

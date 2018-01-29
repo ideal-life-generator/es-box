@@ -12,6 +12,7 @@ import {
   alias,
   stats,
   definePlugin,
+  uglify,
 } from './base'
 import { DEV_SERVER_PORT } from '../config'
 
@@ -55,4 +56,8 @@ export default merge(interf, !PRODUCTION ? {
   plugins: [
     new HotModuleReplacementPlugin(),
   ],
-} : {})
+} : {
+  plugins: [
+    uglify,
+  ],
+})

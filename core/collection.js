@@ -62,7 +62,7 @@ export default (parentﾟ, methods) => {
   let elementsﾟ
   let previousElementsﾟ = new Map()
   let previousItems = []
-  let previousTotal = 0
+  let previousCount = 0
 
   const listeners = {
     create: [],
@@ -78,14 +78,14 @@ export default (parentﾟ, methods) => {
   }
 
   const $update = async (...args) => {
-    const { items: nextItems, total: nextTotal } = await $resolve(methods.data(...args))
+    const { items: nextItems, count: nextCount } = await $resolve(methods.data(...args))
 
     if (!isArray(nextItems)) {
       throw `Expected data items array, take ${nextItems}`
     }
 
-    if (!(typeof nextTotal === 'number')) {
-      throw `Expected data total number, take ${nextTotal}`
+    if (!(typeof nextCount === 'number')) {
+      throw `Expected data count number, take ${nextCount}`
     }
 
     elementsﾟ = new Map()
@@ -147,16 +147,16 @@ export default (parentﾟ, methods) => {
 
         elementsﾟ.set(nextItem.id, createdElementsﾟ)
 
-        emit('create', nextTotal)
+        emit('create', nextCount)
       }
     })
 
-    if (nextTotal !== previousTotal) {
-      methods.count(parentﾟ, { nextTotal, previousTotal })
+    if (nextCount !== previousCount) {
+      methods.count(parentﾟ, { nextCount, previousCount })
     }
 
     previousItems = clone(nextItems)
-    previousTotal = nextTotal
+    previousCount = nextCount
 
     previousElementsﾟ = elementsﾟ
   }

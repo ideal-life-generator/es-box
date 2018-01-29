@@ -8,10 +8,10 @@
     "lint": "eslint ./",
     "dev:graphql": "better-npm-run dev:graphql",
     "dev:interface": "better-npm-run dev:interface",
-    "dev": "parallelshell \"rimraf build\" \"better-npm-run dev:graphql\" \"better-npm-run dev:interface\"",
-    "build:graphql": "better-npm-run build:graphql",
-    "build:interface": "better-npm-run build:interface",
-    "build": "parallelshell \"rimraf build\" \"better-npm-run build:graphql\" \"better-npm-run build:interface\"",
+    "dev": "parallelshell \"rimraf prod\" \"better-npm-run dev:graphql\" \"better-npm-run dev:interface\"",
+    "prod:graphql": "better-npm-run prod:graphql",
+    "prod:interface": "better-npm-run prod:interface",
+    "prod": "parallelshell \"rimraf prod\" \"better-npm-run prod:graphql\" \"better-npm-run prod:interface\"",
     "start": "npm run dev"
   },
   "betterScripts": {
@@ -24,14 +24,14 @@
     "dev:interface": {
       "command": "node -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config=./webpack/interface.js"
     },
-    "build:graphql": {
+    "prod:graphql": {
       "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/graphql.js",
       "env": {
         "PRODUCTION": true,
         "SERVER": true
       }
     },
-    "build:interface": {
+    "prod:interface": {
       "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/interface.js",
       "env": {
         "PRODUCTION": true
@@ -64,7 +64,7 @@
     "rimraf": "^2.6.2",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.19.0",
-    "webpack": "^3.8.1",
+    "webpack": "^3.10.0",
     "webpack-dev-server": "^2.9.4",
     "webpack-merge": "^4.1.1",
     "webpack-node-externals": "^1.6.0"
@@ -83,6 +83,7 @@
     "koa-proxy": "^0.9.0",
     "koa-router": "^7.3.0",
     "koa-static": "^4.0.2",
-    "qs": "^6.5.1"
+    "qs": "^6.5.1",
+    "uglifyjs-webpack-plugin": "^1.1.6"
   }
 }
