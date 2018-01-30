@@ -78,7 +78,11 @@ export default (parentﾟ, methods) => {
   }
 
   const $update = async (...args) => {
-    const { items: nextItems, count: nextCount } = await $resolve(methods.data(...args))
+    const {
+      items: nextItems,
+      count: nextCount,
+      total,
+    } = await $resolve(methods.data(...args))
 
     if (!isArray(nextItems)) {
       throw `Expected data items array, take ${nextItems}`
@@ -152,7 +156,7 @@ export default (parentﾟ, methods) => {
     })
 
     if (nextCount !== previousCount) {
-      methods.count(parentﾟ, { nextCount, previousCount })
+      methods.count(parentﾟ, { previousCount, nextCount, total })
     }
 
     previousItems = clone(nextItems)

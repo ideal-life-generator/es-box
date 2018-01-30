@@ -31,6 +31,13 @@ export const separator = {
   width: item.width, height: 0,
 }
 
+const padding = 6
+
+export const scroll = {
+  width: 5,
+  x: container.width + padding,
+}
+
 export const $containerﾟ = $cloner({
   params: container,
 })
@@ -62,4 +69,9 @@ export const $separatorﾟ = $cloner({
   classes: 'separator',
   params: separator,
   style: { opacity: 0 },
+})
+
+export const $scrollﾟ = $cloner({
+  params: scroll,
+  classes: 'scroll',
 })

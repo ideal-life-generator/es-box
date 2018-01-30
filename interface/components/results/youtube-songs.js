@@ -27,13 +27,7 @@ const ﾟyoutubeSongs = $listﾟ()
 const duration = 150
 
 const $update = $collection(ﾟyoutubeSongs, {
-  data: async key => {
-    const data = await searchYoutube(key)
-
-    console.log(data)
-
-    return data
-  },
+  data: async key => await searchYoutube(key),
   create: i => {
     const ﾟtitle = $titleﾟ()
 

@@ -2,6 +2,8 @@ import $ from 'core' // eslint-disable-line
 import $collection from 'core/collection' // eslint-disable-line
 import $params from 'core/params' // eslint-disable-line
 import $text from 'core/text' // eslint-disable-line
+import $events from 'core/events' // eslint-disable-line
+import $eventsRemove from 'core/events-remove' // eslint-disable-line
 import $animateStyle from 'core/animate-style' // eslint-disable-line
 import $animateParams from 'core/animate-params' // eslint-disable-line
 import $separator from 'core/separator' // eslint-disable-line
@@ -15,6 +17,7 @@ import {
   $titleﾟ,
   $separatorsﾟ,
   $separatorﾟ,
+  $scrollﾟ,
   item,
   separator,
 } from '../../settings/results'
@@ -23,12 +26,63 @@ import getUserSongs from '../../../graphql/fetch'
 
 const { height: itemHeight } = item
 
+let userSongsHeight
+let scrollHeight
+
 const ﾟuserSongs = $listﾟ()
+
+const { document: { body: ﾟbody } } = window
+
+
+const getClientY = ({ clientY }) => clientY
+
+let scrollStartPosition
+let scrollCurrentPosition
+let scrollLastPosition = 0
+let scrollPosition = scrollLastPosition
+let maxScrollPosition
+
+const mousemove = event => {
+  scrollCurrentPosition = getClientY(event)
+
+  const scrollDifference = scrollCurrentPosition - scrollStartPosition
+
+  scrollPosition = scrollLastPosition + scrollDifference
+
+  if (scrollPosition < 0) {
+    scrollPosition = 0
+  } else if (scrollPosition > maxScrollPosition) {
+    scrollPosition = maxScrollPosition
+  }
+
+  $params(ﾟscroll, { y: scrollPosition })
+}
+
+const unbind = () => {
+  scrollLastPosition = scrollPosition
+
+  $eventsRemove(ﾟbody, { mousemove, mouseup: unbind, mouseleave: unbind })
+}
+
+const ﾟscroll = $scrollﾟ({
+  events: {
+    mousedown: event => {
+      scrollStartPosition = getClientY(event)
+
+      $events(ﾟbody, {
+        mousemove,
+        mouseup: unbind,
+        mouseleave: unbind,
+      })
+    },
+  },
+})
+
 
 const duration = 150
 
 const $update = $collection(ﾟuserSongs, {
-  data: async key => await getUserSongs(key, 0, 5),
+  data: async key => await getUserSongs(key, 0),
   create: i => {
     const ﾟtitle = $titleﾟ()
 
@@ -45,10 +99,16 @@ const $update = $collection(ﾟuserSongs, {
   move: ({ ﾟ }, { previousIndex: p, nextIndex: n }) =>
     $animateParams(ﾟ, { duration }, { y: p * itemHeight }, { y: n * itemHeight }),
   remove: async ({ ﾟ }) => await $animateStyle(ﾟ, { duration }, { opacity: 1 }, { opacity: 0 }),
-  count: (ﾟparent, { nextCount: c }) => {
-    $params(ﾟparent, { height: c * itemHeight })
+  count: (ﾟparent, { /*nextCount,*/ total }) => {
+    userSongsHeight = 5 * itemHeight
+    scrollHeight = (5 / total) * userSongsHeight
+    maxScrollPosition = userSongsHeight - scrollHeight
 
-    $params(ﾟresults, { height: c * itemHeight })
+    $params(ﾟparent, { height: userSongsHeight })
+
+    $params(ﾟresults, { height: userSongsHeight })
+
+    $params(ﾟscroll, { height: scrollHeight })
   },
 })
 
@@ -67,5 +127,5 @@ $update()
 searchChange(value => $update(value))
 
 export default $containerﾟ({
-  append: [ﾟuserSongs, ﾟseparators],
+  append: [ﾟuserSongs, ﾟseparators, ﾟscroll],
 })
