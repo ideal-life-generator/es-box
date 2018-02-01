@@ -1,5 +1,3 @@
-export default (node, assign) => {
-  Object.assign(node, assign)
+const { assign } = Object
 
-  return node
-}
+export default (target, values) => assign(target, values)

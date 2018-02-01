@@ -4,10 +4,10 @@ import eventsRemove_ from './events-remove'
 
 const { document: { body: $body } } = window
 
-export default ($container, { vertical }) => {
+export default (container, { vertical }) => {
   if (vertical) {
     const {
-      $activator,
+      activator,
       padding,
       step,
       size,
@@ -15,7 +15,7 @@ export default ($container, { vertical }) => {
       max,
     } = vertical
 
-    coords_($activator, {
+    coords_(activator, {
       y: (size * step) + padding,
     })
 
@@ -47,8 +47,8 @@ export default ($container, { vertical }) => {
         position += size
       }
 
-      coords_($container, { height: position })
-      coords_($activator, { y: position + padding })
+      coords_(container, { height: position })
+      coords_(activator, { y: position + padding })
     }
 
     const unbind = () => {
@@ -61,7 +61,7 @@ export default ($container, { vertical }) => {
       })
     }
 
-    events_($activator, {
+    events_(activator, {
       mousedown: ({ clientY }) => {
         startPosition = clientY
 

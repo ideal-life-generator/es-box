@@ -9,7 +9,6 @@ import {
   babelRule,
   sassRule,
   fileRule,
-  alias,
   stats,
   definePlugin,
   uglify,

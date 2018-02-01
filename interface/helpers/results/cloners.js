@@ -1,40 +1,40 @@
-import $cloner from 'core/cloner' // eslint-disable-line
+import cloner_ from '_/cloner' // eslint-disable-line
 import * as coords from './coords'
 
-export const container = $cloner({
+export const container = cloner_({
   coords: coords.container,
 })
 
-export const list = $cloner({
+export const list = cloner_({
   el: 'ul',
-  classes: 'list',
+  class: 'list',
   coords: coords.list,
 })
 
-export const item = $cloner({
+export const item = cloner_({
   el: 'li',
   coords: coords.item,
   style: { opacity: 0 },
 })
 
-export const title = $cloner({
+export const title = cloner_({
   el: 'p',
-  classes: 'title',
+  class: 'title',
   coords: coords.title,
 })
 
-export const separators = $cloner({
+export const separators = cloner_({
   el: 'ul',
   coords: coords.separators,
 })
 
-export const separator = $cloner({
-  classes: 'separator',
+export const separator = cloner_({
+  class: 'separator',
   coords: coords.separator,
   style: { opacity: 0 },
 })
 
-export const scroll = $cloner({
+export const scroll = cloner_({
   coords: coords.scroll,
-  classes: 'scroll',
+  class: 'scroll',
 })

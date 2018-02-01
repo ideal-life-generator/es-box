@@ -1,9 +1,9 @@
-import _ from 'core' // eslint-disable-line
-import attributes_ from 'core/attributes' // eslint-disable-line
-import animateStyle_ from 'core/animate-style' // eslint-disable-line
-import append_ from 'core/append' // eslint-disable-line
-import remove_ from 'core/remove' // eslint-disable-line
-import assign_ from 'core/assign' // eslint-disable-line
+import _ from '_' // eslint-disable-line
+import attributes_ from '_/attributes' // eslint-disable-line
+import animateStyle_ from '_/animate-style' // eslint-disable-line
+import append_ from '_/append' // eslint-disable-line
+import remove_ from '_/remove' // eslint-disable-line
+import assign_ from '_/assign' // eslint-disable-line
 import * as coords from '../helpers/search/coords'
 import { searchChange, onClear } from '../helpers/search/caster'
 import cloneClearIcon from '../helpers/clear-icon'
@@ -12,7 +12,7 @@ import '../styles/search.sass'
 export const $clear = _({
   el: 'button',
   coords: coords.clear,
-  classes: 'clear',
+  class: 'clear',
   append: cloneClearIcon({
     coords: coords.clearIcon,
   }),
@@ -24,7 +24,7 @@ export const $clear = _({
 export const $input = _({
   el: 'input',
   coords: coords.input,
-  classes: 'input',
+  class: 'input',
   events: {
     input: ({ target: { value } }) => searchChange(value),
   },
@@ -34,18 +34,18 @@ export const $input = _({
 export const $text = _({
   el: 'span',
   coords: coords.text,
-  classes: 'text',
+  class: 'text',
 })
 
 export const $field = _({
   coords: coords.field,
-  classes: 'field',
+  class: 'field',
   append: [$text, $input],
 })
 
 const $search = _({
   coords: coords.search,
-  classes: 'search',
+  class: 'search',
   style: {
     borderRadius: `${coords.search.height / 2}px`,
   },

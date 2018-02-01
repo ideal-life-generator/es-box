@@ -1,5 +1,5 @@
-import append_ from 'core/append' // eslint-disable-line
-import events_ from 'core/events' // eslint-disable-line
+import append_ from '_/append' // eslint-disable-line
+import events_ from '_/events' // eslint-disable-line
 import $search from './components/search'
 import $results from './components/results'
 // import { $resize } from './components/player'

@@ -1,7 +1,7 @@
-import _ from 'core' // eslint-disable-line
-import clone_ from 'core/clone' // eslint-disable-line
+import _ from '_' // eslint-disable-line
+import cloner_ from '_/cloner' // eslint-disable-line
 
-export default clone_({
+export default cloner_({
   svg: true,
   attributes: {
     viewBox: '0 0 512 512',

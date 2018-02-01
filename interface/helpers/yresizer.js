@@ -1,7 +1,6 @@
-import clone_ from 'core/clone' // eslint-disable-line
-import { coords } from './results'
+import cloner_ from '_/cloner' // eslint-disable-line
 
-export default clone_({
-  coords: { width: coords.width, height: 2 },
-  classes: 'scroll',
+export default cloner_({
+  class: 'scroll',
+  coords: { height: 2 },
 })

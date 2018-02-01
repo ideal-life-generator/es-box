@@ -1,3 +1,4 @@
+import { resolve } from 'path'
 import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
 import ReloadServerPlugin from 'reload-server-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 import {
@@ -6,7 +7,6 @@ import {
   eslintRule,
   babelRule,
   vueRule,
-  alias,
   stats,
   nodeExternals,
   definePlugin,
@@ -27,7 +27,7 @@ const graphql = {
     ],
   },
   resolve: {
-    alias: { core: alias.core },
+    alias: { _: resolve('core') },
   },
   stats,
   externals: nodeExternals,

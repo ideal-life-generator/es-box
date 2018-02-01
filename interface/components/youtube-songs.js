@@ -1,20 +1,21 @@
-import collection_ from 'core/collection' // eslint-disable-line
-import params_ from 'core/params' // eslint-disable-line
-import text_ from 'core/text' // eslint-disable-line
-import animateStyle_ from 'core/animate-style' // eslint-disable-line
-import animateParams_ from 'core/animate-params' // eslint-disable-line
-import separator_ from 'core/separator' // eslint-disable-line
-import { take_ } from 'core/broadcast' // eslint-disable-line
-import { key_ } from 'core/normalize' // eslint-disable-line
-import resizable_ from 'core/resizable' // eslint-disable-line
+import collection_ from '_/collection' // eslint-disable-line
+import params_ from '_/params' // eslint-disable-line
+import text_ from '_/text' // eslint-disable-line
+import animateStyle_ from '_/animate-style' // eslint-disable-line
+import animateParams_ from '_/animate-params' // eslint-disable-line
+import separator_ from '_/separator' // eslint-disable-line
+import { take_ } from '_/broadcast' // eslint-disable-line
+import { key_ } from '_/normalize' // eslint-disable-line
+import resizable_ from '_/resizable' // eslint-disable-line
 import * as cloners from '../helpers/results/cloners'
 import * as coords from '../helpers/results/coords'
+import { searchChange } from '../helpers/search/caster'
 import { animationDuration } from '../helpers/results/settings'
 import cloneYresizer from '../helpers/yresizer'
-import { searchChange } from '../helpers/search/caster'
 import * as youtube from '../../youtube'
 
 const {
+  container: { width: containerWidth },
   item: { height: itemHeight },
   separator: { height: separatorHeight },
 } = coords
@@ -56,9 +57,13 @@ update.broadcast(separator_($separators, {
   remove: async ﾟ => await animateStyle_(ﾟ, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }),
 }))
 
+const $yresizer = cloneYresizer({
+  coords: { width: containerWidth },
+})
+
 resizable_($youtubeSongs, {
   vertical: {
-    activator: cloneYresizer(),
+    activator: $yresizer,
     padding: 5,
     step: itemHeight,
     size: 10,
@@ -75,5 +80,5 @@ update()
 searchChange(value => update(value))
 
 export default cloners.container({
-  append: [$youtubeSongs, $separators],
+  append: [$youtubeSongs, $separators, $yresizer],
 })

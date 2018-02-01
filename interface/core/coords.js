@@ -1,4 +1,8 @@
-import $style from './style'
+import style_ from './style'
+import assign_ from '../../_/assign'
+
+const { keys } = Object
+const { isArray } = Array
 
 const parseKey = key => {
   switch (key) {
@@ -14,11 +18,13 @@ const parseKey = key => {
   }
 }
 
-export default function $params(node, params) {
-  if (!Array.isArray(node)) {
+export default function params_(node, params) {
+  if (isArray(node)) {
+    node.forEach(n => params_(n, params))
+  } else {
     const style = {}
 
-    Object.keys(params).forEach(key => {
+    keys(params).forEach(key => {
       const value = params[key]
       const parsedKey = parseKey(key)
 
@@ -29,8 +35,6 @@ export default function $params(node, params) {
       }
     })
 
-    $style(node, Object.assign(style, {
-      position: 'absolute',
-    }))
-  } else node.forEach(n => $params(n, params))
+    style_(node, assign_(style, { position: 'absolute' }))
+  }
 }

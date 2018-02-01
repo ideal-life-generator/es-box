@@ -1,4 +1,4 @@
-import caster_ from 'core/caster' // eslint-disable-line
+import caster_ from '_/caster' // eslint-disable-line
 
 export const {
   searchChange,
