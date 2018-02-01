@@ -1,37 +1,29 @@
-import $ from 'core' // eslint-disable-line
-import $attributes from 'core/attributes' // eslint-disable-line
-import $animateStyle from 'core/animate-style' // eslint-disable-line
-import $append from 'core/append' // eslint-disable-line
-import $remove from 'core/remove' // eslint-disable-line
-import $assign from 'core/assign' // eslint-disable-line
-import {
-  search,
-  input,
-  text,
-  field,
-  clear,
-  clearIcon,
-  searchChange,
-  onClear,
-} from '../settings/search'
-import $clearIconﾟ from './icons/clear'
+import _ from 'core' // eslint-disable-line
+import attributes_ from 'core/attributes' // eslint-disable-line
+import animateStyle_ from 'core/animate-style' // eslint-disable-line
+import append_ from 'core/append' // eslint-disable-line
+import remove_ from 'core/remove' // eslint-disable-line
+import assign_ from 'core/assign' // eslint-disable-line
+import * as coords from '../helpers/search/coords'
+import { searchChange, onClear } from '../helpers/search/caster'
+import cloneClearIcon from '../helpers/clear-icon'
 import '../styles/search.sass'
 
-export const ﾟclear = $({
+export const $clear = _({
   el: 'button',
-  params: clear,
+  coords: coords.clear,
   classes: 'clear',
-  append: $clearIconﾟ({
-    params: clearIcon,
+  append: cloneClearIcon({
+    coords: coords.clearIcon,
   }),
   events: {
     click: () => onClear(),
   },
 })
 
-export const ﾟinput = $({
+export const $input = _({
   el: 'input',
-  params: input,
+  coords: coords.input,
   classes: 'input',
   events: {
     input: ({ target: { value } }) => searchChange(value),
@@ -39,25 +31,25 @@ export const ﾟinput = $({
   placeholder: 'Search',
 })
 
-export const ﾟtext = $({
+export const $text = _({
   el: 'span',
-  params: text,
+  coords: coords.text,
   classes: 'text',
 })
 
-export const ﾟfield = $({
-  params: field,
+export const $field = _({
+  coords: coords.field,
   classes: 'field',
-  append: [ﾟtext, ﾟinput],
+  append: [$text, $input],
 })
 
-const ﾟsearch = $({
-  params: search,
+const $search = _({
+  coords: coords.search,
   classes: 'search',
   style: {
-    borderRadius: `${search.height / 2}px`,
+    borderRadius: `${coords.search.height / 2}px`,
   },
-  append: [ﾟfield],
+  append: [$field],
 })
 
 const duration = 100
@@ -66,9 +58,9 @@ let include = false
 
 const showClear = () => {
   if (!include) {
-    $append(ﾟsearch, ﾟclear)
+    append_($search, $clear)
 
-    $animateStyle(ﾟclear, { duration }, { opacity: 0 }, { opacity: 1 })
+    animateStyle_($clear, { duration }, { opacity: 0 }, { opacity: 1 })
 
     include = true
   }
@@ -76,28 +68,22 @@ const showClear = () => {
 
 const hideClear = async () => {
   if (include) {
-    await $animateStyle(ﾟclear, { duration }, { opacity: 1 }, { opacity: 0 })
+    await animateStyle_($clear, { duration }, { opacity: 1 }, { opacity: 0 })
 
-    $remove(ﾟclear)
+    remove_($clear)
 
     include = false
   }
 }
 
-searchChange(value => {
-  if (value) {
-    showClear()
-  } else {
-    hideClear()
-  }
-})
+searchChange(value => (value ? showClear() : hideClear()))
 
 onClear(() => {
-  $assign(ﾟinput, { value: '' })
+  assign_($input, { value: '' })
 
   searchChange('')
 
   hideClear()
 })
 
-export default ﾟsearch
+export default $search

@@ -56,6 +56,7 @@ const mousemove = event => {
   }
 
   $params(ﾟscroll, { y: scrollPosition })
+  $params([ﾟuserSongsContainer], { y: -(scrollPosition * (8 / 5)) })
 }
 
 const unbind = () => {
@@ -89,7 +90,7 @@ const $update = $collection(ﾟuserSongs, {
     return {
       ﾟ: $itemﾟ({
         append: ﾟtitle,
-        params: { y: i * itemHeight },
+        coords: { y: i * itemHeight },
         animateStyle: [{ duration }, { opacity: 0 }, { opacity: 1 }],
       }),
       ﾟtitle,
@@ -104,9 +105,7 @@ const $update = $collection(ﾟuserSongs, {
     scrollHeight = (5 / total) * userSongsHeight
     maxScrollPosition = userSongsHeight - scrollHeight
 
-    $params(ﾟparent, { height: userSongsHeight })
-
-    $params(ﾟresults, { height: userSongsHeight })
+    $params([ﾟresults, ﾟparent], { height: userSongsHeight })
 
     $params(ﾟscroll, { height: scrollHeight })
   },
@@ -116,7 +115,7 @@ const ﾟseparators = $separatorsﾟ()
 
 $update.broadcast($separator(ﾟseparators, {
   create: i => $separatorﾟ({
-    params: { y: (i * item.height) - (separator.height / 2) },
+    coords: { y: (i * item.height) - (separator.height / 2) },
     animateStyle: [{ duration }, { opacity: 0 }, { opacity: 1 }],
   }),
   remove: async ﾟ => await $animateStyle(ﾟ, { duration }, { opacity: 1 }, { opacity: 0 }),
@@ -126,6 +125,10 @@ $update()
 
 searchChange(value => $update(value))
 
+const ﾟuserSongsContainer = $containerﾟ({
+  append: [ﾟuserSongs, ﾟseparators],
+})
+
 export default $containerﾟ({
-  append: [ﾟuserSongs, ﾟseparators, ﾟscroll],
+  append: [ﾟuserSongsContainer, ﾟscroll],
 })

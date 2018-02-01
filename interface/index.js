@@ -1,12 +1,15 @@
-import $append from 'core/append' // eslint-disable-line
-import ﾟsearch from './components/search'
-import ﾟresults from './components/results'
+import append_ from 'core/append' // eslint-disable-line
+import events_ from 'core/events' // eslint-disable-line
+import $search from './components/search'
+import $results from './components/results'
 // import { $resize } from './components/player'
 import './styles/normalize.sass'
 import './styles/index.sass'
 
-document.addEventListener('DOMContentLoaded', () => {
-  const { document: { body } } = window
+events_(document, {
+  DOMContentLoaded() {
+    const { body: $body } = document
 
-  $append(body, [ﾟsearch, ﾟresults])
+    append_($body, [$search, $results])
+  },
 })

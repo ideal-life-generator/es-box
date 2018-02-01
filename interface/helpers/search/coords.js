@@ -1,8 +1,7 @@
-import $broadcast from 'core/broadcast' // eslint-disable-line
 import {
   screenWidth,
   screenSidesMargin,
-} from './screen'
+} from '../screen-coords'
 
 const iconSize = 10
 
@@ -41,5 +40,3 @@ export const clearIcon = {
   x: (clear.width / 2) - (iconSize / 2),
   y: (clear.height / 2) - (iconSize / 2),
 }
-
-export const { searchChange, onClear } = $broadcast('searchChange', 'onClear')
