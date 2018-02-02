@@ -1,11 +1,11 @@
 import collection_ from '_/collection' // eslint-disable-line
-import params_ from '_/params' // eslint-disable-line
+import coords_ from '_/coords' // eslint-disable-line
 import text_ from '_/text' // eslint-disable-line
 import animateStyle_ from '_/animate-style' // eslint-disable-line
-import animateParams_ from '_/animate-params' // eslint-disable-line
+import animateCoords_ from '_/animate-coords' // eslint-disable-line
 import separator_ from '_/separator' // eslint-disable-line
-import { take_ } from '_/broadcast' // eslint-disable-line
-import { key_ } from '_/normalize' // eslint-disable-line
+import { take_ } from '__/caster' // eslint-disable-line
+import { key_ } from '__/normalize' // eslint-disable-line
 import resizable_ from '_/resizable' // eslint-disable-line
 import * as cloners from '../helpers/results/cloners'
 import * as coords from '../helpers/results/coords'
@@ -23,7 +23,7 @@ const {
 const $youtubeSongs = cloners.list()
 
 const update = collection_($youtubeSongs, {
-  data: async key => await youtube.search(key),
+  data: async ({ key, count }) => await youtube.search({ key, count }),
   create: i => {
     const $title = cloners.title()
 
@@ -38,12 +38,12 @@ const update = collection_($youtubeSongs, {
   },
   update: { title: ({ $title }, title) => text_($title, title) },
   move: ({ $item }, { previousIndex, nextIndex }) =>
-    animateParams_($item, { duration: animationDuration }, { y: previousIndex * itemHeight }, { y: nextIndex * itemHeight }),
+    animateCoords_($item, { duration: animationDuration }, { y: previousIndex * itemHeight }, { y: nextIndex * itemHeight }),
   remove: async ({ $item }) => await animateStyle_($item, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }),
   // count: $parent => {
   //   const youtubeSongsHeight = 5 * itemHeight
 
-  //   params_([$parent], { height: youtubeSongsHeight })
+  //   coords_([$parent], { height: youtubeSongsHeight })
   // },
 })
 
@@ -61,23 +61,64 @@ const $yresizer = cloneYresizer({
   coords: { width: containerWidth },
 })
 
+const interval = (hadler, delay) => {
+  let intervalId
+  let inInterval = false
+  let lastArgs = null
+  let lastHandledArgs = null
+
+  return (...args) => {
+    if (!inInterval) {
+      hadler(...args)
+
+      lastHandledArgs = args
+
+      intervalId = setInterval(() => {
+        if (lastArgs !== lastHandledArgs) {
+          hadler(...lastArgs)
+
+          lastHandledArgs = lastArgs
+        } else {
+          clearInterval(intervalId)
+
+          inInterval = false
+        }
+      }, delay)
+
+      inInterval = true
+    }
+
+    lastArgs = args
+  }
+}
+
+const intervalUpdate = interval(update, 500)
+
 resizable_($youtubeSongs, {
   vertical: {
     activator: $yresizer,
-    padding: 5,
-    step: itemHeight,
-    size: 10,
-    min: 2,
+    count: 5,
+    min: 5,
     max: 100,
+    size: itemHeight,
+    padding: 15,
   },
 }).broadcast({
-  init: () => console.log('resizer init'),
-  change: () => console.log('resizer change'),
+  init: (activator, { activatorPosition, containerSize, count }) => {
+    coords_(activator, { y: activatorPosition })
+    coords_($youtubeSongs, { height: containerSize })
+
+    update({ count })
+  },
+  change: (activator, { activatorPosition, containerSize, count }) => {
+    coords_(activator, { y: activatorPosition })
+    coords_($youtubeSongs, { height: containerSize })
+
+    // intervalUpdate({ count })
+  },
 })
 
-update()
-
-searchChange(value => update(value))
+searchChange(key => intervalUpdate({ key }))
 
 export default cloners.container({
   append: [$youtubeSongs, $separators, $yresizer],

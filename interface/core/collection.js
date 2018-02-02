@@ -1,7 +1,7 @@
 import clone from 'fast-clone'
-import append_ from './append'
-import before_ from './before'
-import resolve_ from '../../_/resolve'
+import append_ from '_/append' // eslint-disable-line
+import before_ from '_/before' // eslint-disable-line
+import resolve_ from '__/resolve' // eslint-disable-line
 
 const { assign, keys } = Object
 const { isArray } = Array
@@ -155,7 +155,7 @@ export default (parent, methods) => {
       }
     })
 
-    if (nextCount !== previousCount) {
+    if (methods.count && nextCount !== previousCount) {
       methods.count(parent, { previousCount, nextCount, total })
     }
 

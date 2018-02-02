@@ -31,7 +31,10 @@ const interf = {
     ],
   },
   resolve: {
-    alias: { core: alias.core },
+    alias: {
+      __: resolve('core'),
+      _: resolve('interface/core'),
+    },
   },
   stats,
   plugins: [

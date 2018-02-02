@@ -1,5 +1,5 @@
-import _ from './'
-import clone_ from './clone'
+import _ from '_' // eslint-disable-line
+import clone_ from '_/clone' // eslint-disable-line
 
 export default (setup, deep) => {
   const node = _(setup)

@@ -1,58 +1,72 @@
-import events_ from './events'
-import coords_ from './coords'
-import eventsRemove_ from './events-remove'
+import events_ from '_/events' // eslint-disable-line
+import coords_ from '_/coords' // eslint-disable-line
+import eventsRemove_ from '_/events-remove' // eslint-disable-line
+import caster_ from '__/caster' // eslint-disable-line
 
 const { document: { body: $body } } = window
+
+const calcPosition = (count, size) => count * size
 
 export default (container, { vertical }) => {
   if (vertical) {
     const {
       activator,
       padding,
-      step,
       size,
+      count: startCount,
       min,
       max,
     } = vertical
 
-    coords_(activator, {
-      y: (size * step) + padding,
-    })
+    const halfSize = size / 2
+    let count = startCount
+    let previousCount = count
+    let startY = null
+    let currentY = null
+    let direction = null
 
-    let startPosition
-    let currentPosition
-    let lastPosition = 0
-    let position = lastPosition
-    const halfPosition = size / 2
-    const minPosition = size * min
-    const maxPosition = size * max
+    const { init, change } = caster_('init', 'change')
 
     const mousemove = ({ clientY }) => {
-      currentPosition = clientY
+      currentY = clientY
 
-      const difference = currentPosition - startPosition
+      const movedY = currentY - startY
 
-      position = lastPosition + difference
+      if (
+        count < max &&
+        (((direction === null || direction === false) && movedY >= halfSize) ||
+        (direction === true && movedY >= size))
+      ) {
+        count += 1
 
-      if (position < minPosition) {
-        position = minPosition
-      } else if (position > maxPosition) {
-        position = maxPosition
+        direction = true
+      } else if (
+        count > min &&
+        (((direction === null || direction === true) && movedY <= -halfSize) ||
+        (direction === false && movedY <= -size))
+      ) {
+        count -= 1
+
+        direction = false
       }
 
-      const lastStepPosition = position % size
-      if (lastStepPosition < halfPosition) {
-        position -= lastStepPosition
-      } else if (lastStepPosition > halfPosition) {
-        position += size
-      }
+      if (count !== previousCount) {
+        const containerSize = calcPosition(count, size)
 
-      coords_(container, { height: position })
-      coords_(activator, { y: position + padding })
+        change(activator, {
+          activatorPosition: containerSize + padding,
+          containerSize,
+          count,
+        })
+
+        startY = clientY
+
+        previousCount = count
+      }
     }
 
     const unbind = () => {
-      lastPosition = position
+      direction = null
 
       eventsRemove_($body, {
         mousemove,
@@ -63,7 +77,7 @@ export default (container, { vertical }) => {
 
     events_(activator, {
       mousedown: ({ clientY }) => {
-        startPosition = clientY
+        startY = clientY
 
         events_($body, {
           mousemove,
@@ -72,5 +86,23 @@ export default (container, { vertical }) => {
         })
       },
     })
+
+    const broadcast = ({
+      init: initListener,
+      change: changeListener,
+    }) => {
+      init(initListener)
+      change(changeListener)
+
+      const containerSize = calcPosition(count, size)
+
+      init(activator, {
+        activatorPosition: containerSize + padding,
+        containerSize,
+        count,
+      })
+    }
+
+    return { broadcast }
   }
 }

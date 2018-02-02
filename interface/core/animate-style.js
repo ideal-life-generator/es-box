@@ -1,5 +1,5 @@
-import fromTo_ from '../../_/from-to'
-import style_ from './style'
+import fromTo_ from '__/from-to' // eslint-disable-line
+import style_ from '_/style' // eslint-disable-line
 
 export default (node, params, from, to) =>
   fromTo_(from, to, params, current => style_(node, current))

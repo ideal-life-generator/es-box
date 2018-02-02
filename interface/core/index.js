@@ -1,14 +1,14 @@
-import createNode_ from './create-node'
-import attributes_ from './attributes'
-import coords_ from './coords'
-import class_ from './class'
-import style_ from './style'
-import text_ from './text'
-import append_ from './append'
-import events_ from './events'
-import assign_ from '../../_/assign'
-import animateStyle_ from './animate-style'
-import animateCoords_ from './animate-coords'
+import createNode_ from '_/create-node' // eslint-disable-line
+import attributes_ from '_/attributes' // eslint-disable-line
+import coords_ from '_/coords' // eslint-disable-line
+import class_ from '_/class' // eslint-disable-line
+import style_ from '_/style' // eslint-disable-line
+import text_ from '_/text' // eslint-disable-line
+import append_ from '_/append' // eslint-disable-line
+import events_ from '_/events' // eslint-disable-line
+import assign_ from '__/assign' // eslint-disable-line
+import animateStyle_ from '_/animate-style' // eslint-disable-line
+import animateCoords_ from '_/animate-coords' // eslint-disable-line
 
 export default ({
   el,

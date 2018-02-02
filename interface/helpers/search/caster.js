@@ -1,6 +1,3 @@
-import caster_ from '_/caster' // eslint-disable-line
+import caster_ from '__/caster' // eslint-disable-line
 
-export const {
-  searchChange,
-  onClear,
-} = caster_('searchChange', 'onClear')
+export const { searchChange, onClear } = caster_('searchChange', 'onClear')

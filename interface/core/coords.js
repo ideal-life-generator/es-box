@@ -1,5 +1,5 @@
-import style_ from './style'
-import assign_ from '../../_/assign'
+import style_ from '_/style' // eslint-disable-line
+import assign_ from '__/assign' // eslint-disable-line
 
 const { keys } = Object
 const { isArray } = Array

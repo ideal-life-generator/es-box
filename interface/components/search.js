@@ -3,7 +3,7 @@ import attributes_ from '_/attributes' // eslint-disable-line
 import animateStyle_ from '_/animate-style' // eslint-disable-line
 import append_ from '_/append' // eslint-disable-line
 import remove_ from '_/remove' // eslint-disable-line
-import assign_ from '_/assign' // eslint-disable-line
+import assign_ from '__/assign' // eslint-disable-line
 import * as coords from '../helpers/search/coords'
 import { searchChange, onClear } from '../helpers/search/caster'
 import cloneClearIcon from '../helpers/clear-icon'

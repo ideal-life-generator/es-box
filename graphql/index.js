@@ -1,5 +1,5 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import { $key } from 'core/normalize' // eslint-disable-line
+import { key_ } from '_/normalize' // eslint-disable-line
 
 export const userSongsMock = [{
   id: 0,
@@ -25,7 +25,7 @@ export const userSongsMock = [{
 }, {
   id: 7,
   title: 'The Weeknd - Starboy (official) ft. Daft Punk',
-}].map(data => Object.assign(data, { key: $key(data.title) }))
+}].map(data => Object.assign(data, { key: key_(data.title) }))
 
 const typeDefs = `
 type Song {

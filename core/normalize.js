@@ -1,1 +1,1 @@
-export const $key = key => key.trim().toLowerCase()
+export const key_ = key => key.trim().toLowerCase()

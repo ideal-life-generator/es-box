@@ -18,10 +18,11 @@ const normalize = ({ pageInfo: { resultsPerPage, totalResults }, items }) => ({
   total: totalResults,
 })
 
-export const search = async key => {
+export const search = async ({ key, count }) => {
   const { data } = await fetch('search', {
     query: {
       q: key,
+      maxResults: count,
       part: 'snippet',
     },
   })
