@@ -97,9 +97,9 @@ const intervalUpdate = interval(update, 500)
 resizable_($youtubeSongs, {
   vertical: {
     activator: $yresizer,
-    count: 5,
-    min: 5,
-    max: 100,
+    count: 4,
+    min: 2,
+    max: 6,
     size: itemHeight,
     padding: 15,
   },

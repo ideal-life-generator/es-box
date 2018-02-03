@@ -4,6 +4,7 @@ import eventsRemove_ from '_/events-remove' // eslint-disable-line
 import caster_ from '__/caster' // eslint-disable-line
 
 const { document: { body: $body } } = window
+const { round } = Math
 
 const calcPosition = (count, size) => count * size
 
@@ -18,12 +19,13 @@ export default (container, { vertical }) => {
       max,
     } = vertical
 
-    const halfSize = size / 2
-    let count = startCount
-    let previousCount = count
     let startY = null
     let currentY = null
-    let direction = null
+
+    let count = startCount
+    let step = 0
+    let total = count + step
+    let previousTotal = step
 
     const { init, change } = caster_('init', 'change')
 
@@ -32,26 +34,18 @@ export default (container, { vertical }) => {
 
       const movedY = currentY - startY
 
-      if (
-        count < max &&
-        (((direction === null || direction === false) && movedY >= halfSize) ||
-        (direction === true && movedY >= size))
-      ) {
-        count += 1
+      step = round(movedY / size)
 
-        direction = true
-      } else if (
-        count > min &&
-        (((direction === null || direction === true) && movedY <= -halfSize) ||
-        (direction === false && movedY <= -size))
-      ) {
-        count -= 1
+      total = count + step
 
-        direction = false
+      if (total < min) {
+        total = min
+      } else if (total > max) {
+        total = max
       }
 
-      if (count !== previousCount) {
-        const containerSize = calcPosition(count, size)
+      if (total !== previousTotal) {
+        const containerSize = calcPosition(total, size)
 
         change(activator, {
           activatorPosition: containerSize + padding,
@@ -59,14 +53,12 @@ export default (container, { vertical }) => {
           count,
         })
 
-        startY = clientY
-
-        previousCount = count
+        previousTotal = total
       }
     }
 
     const unbind = () => {
-      direction = null
+      count = total
 
       eventsRemove_($body, {
         mousemove,
