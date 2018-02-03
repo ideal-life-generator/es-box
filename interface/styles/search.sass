@@ -4,18 +4,25 @@
 $searchBorderWidth: 2px
 
 .search
+  position: absolute;
+  left: 150px;
+  top: 80px;
+  width: 1236px;
+  height: 39px;
+  border-radius: 19.5px;
   border-style: solid
   border-width: 1px
   border-color: $white
   box-sizing: border-box
   +border-neon(0.5px, $violet)
-  .field
-    input
-      font-size: 16.5px
-      color: $white
-      +text-neon(0.15px, fade-out($white, 0.8))
-    .text
-      color: transparent
+  input
+    position: absolute;
+    left: 13px;
+    width: 1181px;
+    height: 39px;
+    font-size: 16.5px
+    color: $white
+    +text-neon(0.15px, fade-out($white, 0.8))
   .clear
     fill: $white
     +svg-neon(0.5px, $white)
