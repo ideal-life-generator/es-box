@@ -129,7 +129,7 @@ export default (parent, methods) => {
 
         foundElements.$item.remove()
 
-        emit('remove')
+        emit('remove', nextCount)
       }
     })
 

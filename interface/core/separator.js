@@ -2,32 +2,40 @@ import append_ from '_/append' // eslint-disable-line
 import remove_ from '_/remove' // eslint-disable-line
 
 export default (parent, { create, remove }) => {
-  const separatorsﾟ = []
+  const separators = []
 
   return {
     create: count => {
-      const { length } = separatorsﾟ
-      const index = length + 1
+      const { length: separatorsCount } = separators
 
-      if (count > index) {
-        const separator = create(index)
-
-        separatorsﾟ.push(separator)
-
-        append_(parent, separator)
+      if (separatorsCount < count) {
+        for (let index = separatorsCount; index < count; index += 1) {
+          const separator = create(index)
+          separators.push(separator)
+          append_(parent, separator)
+        }
       }
     },
-    async remove() {
-      if (separatorsﾟ.length > 0) {
-        const separator = separatorsﾟ.pop()
+    remove: async count => {
+      const { length: separatorsCount } = separators
 
-        const romoveReslver = remove(separator)
+      if (separatorsCount > count) {
+        const removeResolvers = []
 
-        if (romoveReslver instanceof Promise) {
-          await romoveReslver
+        for (let index = separatorsCount; count < index; index -= 1) {
+          const separator = separators.pop()
+          const romoveReslver = remove(separator)
+
+          if (romoveReslver instanceof Promise) {
+            removeResolvers.push(async () => {
+              await romoveReslver
+
+              remove_(separator)
+            })
+          }
         }
 
-        remove_(separator)
+        Promise.all(removeResolvers)
       }
     },
   }

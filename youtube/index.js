@@ -1,7 +1,7 @@
 import fetch from './utils/fetch'
 
-const normalize = ({ pageInfo: { resultsPerPage, totalResults }, items }) => ({
-  count: resultsPerPage,
+const normalize = ({ pageInfo: { totalResults }, items, items: { length: count } }) => ({
+  count,
   items: items.map(({
     id: { videoId: id },
     snippet: {

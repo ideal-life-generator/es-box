@@ -35,6 +35,7 @@ export const $clear = _({
 
       state._update({
         value: '',
+        normalizedValue: '',
         clear: false,
       })
     },
