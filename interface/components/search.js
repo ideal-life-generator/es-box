@@ -4,9 +4,8 @@ import _append from '_/append' // eslint-disable-line
 import _remove from '_/remove' // eslint-disable-line
 import _assign from '__/assign' // eslint-disable-line
 import _normalizeKey from '__/normalize-key' // eslint-disable-line
-import _delayInterval from '__/delay-interval' // eslint-disable-line
-import * as coords from '../helpers/search/coords'
-import state, { update } from '../helpers/search/state'
+import _delay from '__/delay' // eslint-disable-line
+import state from '../helpers/search/state'
 import cloneClearIcon from '../helpers/clear-icon'
 import '../styles/search.sass'
 
@@ -26,18 +25,15 @@ const hideClear = async () => {
 
 export const $clear = _({
   el: 'button',
-  coords: coords.clear,
   class: 'clear',
-  append: cloneClearIcon({
-    coords: coords.clearIcon,
-  }),
+  append: cloneClearIcon(),
   events: {
     click: () => {
       _assign($input, { value: '' })
 
       hideClear()
 
-      update({
+      state._update({
         value: '',
         clear: false,
       })
@@ -45,7 +41,7 @@ export const $clear = _({
   },
 })
 
-const intervalUpdate = _delayInterval(update, 1500)
+const intervalUpdate = _delay(state._update, 500)
 
 export const $input = _({
   el: 'input',

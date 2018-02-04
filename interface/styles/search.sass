@@ -1,33 +1,53 @@
 @import "./mixins.sass"
 @import "./variables.sass"
 
-$searchBorderWidth: 2px
+$searchTop: 80px
+$searchWidth: 1236px
+$searchHeight: 39px
+$searchPaddingLeft: 13px
+$clearSize: $searchHeight
+$inputWidth: $searchWidth - $searchPaddingLeft - $clearSize
+$svgSize: 10px
 
 .search
-  position: absolute;
-  left: 150px;
-  top: 80px;
-  width: 1236px;
-  height: 39px;
-  border-radius: 19.5px;
+  position: absolute
+  left: 150px
+  top: $searchTop
+  width: $searchWidth
+  height: $searchHeight
+  border-radius: $searchHeight / 2
   border-style: solid
   border-width: 1px
   border-color: $white
   box-sizing: border-box
   +border-neon(0.5px, $violet)
+
   input
-    position: absolute;
-    left: 13px;
-    width: 1181px;
-    height: 39px;
+    position: absolute
+    left: $searchPaddingLeft
+    width: $inputWidth
+    height: $searchHeight
     font-size: 16.5px
     color: $white
     +text-neon(0.15px, fade-out($white, 0.8))
+
   .clear
+    position: absolute
+    left: $searchPaddingLeft + $inputWidth
+    width: $clearSize
+    height: $clearSize
     fill: $white
     +svg-neon(0.5px, $white)
     cursor: pointer
     transition: 0.2s
+
+    svg
+      position: absolute
+      left: ($clearSize - $svgSize) / 2
+      top: ($clearSize - $svgSize) / 2
+      width: $svgSize
+      height: $svgSize
+
     &:hover
       fill: fade-out($white, 0.5)
 

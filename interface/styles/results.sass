@@ -1,21 +1,44 @@
 @import "./mixins.sass"
 @import "./variables.sass"
+@import "./search.sass"
+
+$resultsTop: 25px
+$resultsWidth: 1236px
+$itemHeight: 55px
+$titleHeight: 25px
 
 .results
-  padding: 1px;
+  position: absolute
+  left: 150px
+  top: $searchTop + $searchHeight + $resultsTop
+  width: $resultsWidth
   border-radius: 0.5px
   border: 1px solid $white
 
   ul
+    position: absolute
+    width: $resultsWidth
     &.list
+      position: absolute
+      width: $resultsWidth
       border: 1px solid $violet
 
       li
+        position: absolute
+        width: $resultsWidth
+        height: $itemHeight
         .title
+          position: absolute
+          left: 10px
+          top: ($itemHeight - $titleHeight) / 2
+          height: $titleHeight
           color: $white
           text-overflow: ellipsis
           white-space: nowrap
           overflow: hidden
 
     .separator
+      position: absolute
+      width: $resultsWidth
       border-bottom: 1px solid $white
+      opacity: 0
