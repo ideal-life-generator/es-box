@@ -1,6 +1,6 @@
-@import "./mixins.sass"
-@import "./variables.sass"
-@import "./search.sass"
+@import "../../styles/mixins.sass"
+@import "../../styles/variables.sass"
+@import "../../styles/search.sass"
 
 $resultsTop: 25px
 $resultsWidth: 1236px
@@ -13,7 +13,6 @@ $titleHeight: 25px
   top: $searchTop + $searchHeight + $resultsTop
   width: $resultsWidth
   border-radius: 0.5px
-  border: 1px solid $white
 
   ul
     position: absolute
@@ -21,7 +20,7 @@ $titleHeight: 25px
     &.list
       position: absolute
       width: $resultsWidth
-      border: 1px solid $violet
+      border-bottom: 1px solid $violet
 
       li
         position: absolute

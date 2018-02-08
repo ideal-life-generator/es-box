@@ -1,13 +1,13 @@
-import events_ from '_/events' // eslint-disable-line
-import coords_ from '_/coords' // eslint-disable-line
-import eventsRemove_ from '_/events-remove' // eslint-disable-line
-import caster_ from '__/caster' // eslint-disable-line
+import _events from '_/events' // eslint-disable-line
+import _eventsRemove from '_/events-remove' // eslint-disable-line
+import _caster from '__/caster' // eslint-disable-line
 
+const { assign } = Object
 const { round } = Math
 
 const calcPosition = (count, size) => count * size
 
-export default ({ y }) => {
+export default (container, { y }) => {
   if (y) {
     const {
       activator,
@@ -16,7 +16,6 @@ export default ({ y }) => {
       count: startCount,
       min,
       max,
-      update: updateListener,
     } = y
 
     let startY = null
@@ -24,28 +23,15 @@ export default ({ y }) => {
     let step = 0
     let count = startCount + step
     let previousCount = count
-    let lastCount = step
+    let lastCount = count
+    let containerSize = calcPosition(count, size)
 
-    const { update } = caster_('update')
+    const { init, update } = _caster('init', 'update')
 
-    update(updateListener)
-
-    const updateHandler = () => {
-      const containerSize = calcPosition(count, size)
-
-      update(activator, {
-        size: containerSize,
-        position: containerSize + padding,
-        count,
-      })
-    }
-
-    updateHandler()
-
-    const mousemove = ({ clientY: currentY }) => {
-      step = round((currentY - startY) / size)
-
-      count = previousCount + step
+    const _update = ({ count: settedCount }) => {
+      if (typeof settedCount === 'number') {
+        count = settedCount
+      }
 
       if (count < min) {
         count = min
@@ -54,38 +40,64 @@ export default ({ y }) => {
       }
 
       if (count !== lastCount) {
-        updateHandler()
+        containerSize = calcPosition(count, size)
+
+        update({
+          size: containerSize,
+          position: containerSize + padding,
+          count,
+        })
 
         lastCount = count
       }
     }
 
+    const mousemove = ({ clientY: currentY }) => {
+      step = round((currentY - startY) / size)
+
+      count = previousCount + step
+
+      _update({ count })
+    }
+
     const unbind = () => {
       previousCount = count
 
-      eventsRemove_(window, {
+      _eventsRemove(window, {
         mousemove,
         mouseup: unbind,
       })
     }
 
-    events_(activator, {
+    _events(activator, {
       mousedown: ({ clientY }) => {
         startY = clientY
 
-        events_(window, {
+        _events(window, {
           mousemove,
           mouseup: unbind,
         })
       },
     })
 
-    const broadcast = listeners => {
+    const on = listeners => {
+      if (listeners.init) {
+        init(listeners.init)
+
+        init({
+          size: containerSize,
+          position: containerSize + padding,
+          count,
+        })
+      }
+
       if (listeners.update) {
         update(listeners.update)
       }
     }
 
-    return { broadcast }
+    return assign(_update, {
+      on,
+    })
   }
 }

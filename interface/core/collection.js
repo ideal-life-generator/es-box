@@ -71,36 +71,26 @@ export default (parent, methods) => {
 
   const emit = (name, ...args) => listeners[name].forEach(listener => listener(...args))
 
-  const broadcast = listener => keys(listener).forEach(key => listeners[key].push(listener[key]))
+  const on = listener => keys(listener).forEach(key => listeners[key].push(listener[key]))
 
-  if (!(methods.data instanceof Function)) {
-    throw 'Should data method a function'
-  }
-
-  const $update = async (...args) => {
-    const {
-      items: nextItems,
-      count: nextCount,
-      total,
-    } = await resolve_(methods.data(...args))
-
-    if (!isArray(nextItems)) {
-      throw `Expected data items array, take ${nextItems}`
+  const $update = async ({ items, count }) => {
+    if (!isArray(items)) {
+      throw `Expected data items array, take ${items}`
     }
 
-    if (!(typeof nextCount === 'number')) {
-      throw `Expected data count number, take ${nextCount}`
+    if (!(typeof count === 'number')) {
+      throw `Expected data count number, take ${count}`
     }
 
     elements = new Map()
 
     previousItems.forEach(async (previousItem, previousIndex) => {
       const foundElements = previousElements.get(previousItem.id)
-      const nextIndex = nextItems.findIndex(nextItem => previousItem.id === nextItem.id)
+      const nextIndex = items.findIndex(nextItem => previousItem.id === nextItem.id)
 
       if (nextIndex >= 0) {
         const nextElements = foundElements
-        const { [nextIndex]: nextItem } = nextItems
+        const { [nextIndex]: nextItem } = items
         const difference = getDifference(nextItem, previousItem)
 
         if (difference) {
@@ -129,11 +119,11 @@ export default (parent, methods) => {
 
         foundElements.$item.remove()
 
-        emit('remove', nextCount)
+        emit('remove', count)
       }
     })
 
-    nextItems.forEach((nextItem, nextIndex) => {
+    items.forEach((nextItem, nextIndex) => {
       const previousIndex = previousItems.findIndex(previousItem => nextItem.id === previousItem.id)
 
       if (previousIndex === -1) {
@@ -151,21 +141,21 @@ export default (parent, methods) => {
 
         elements.set(nextItem.id, createdElements)
 
-        emit('create', nextCount)
+        emit('create', count)
       }
     })
 
-    if (methods.count && nextCount !== previousCount) {
-      methods.count(parent, { previousCount, nextCount, total })
+    if (methods.count && count !== previousCount) {
+      methods.count(parent, { previousCount, count })
     }
 
-    previousItems = clone(nextItems)
-    previousCount = nextCount
+    previousItems = clone(items)
+    previousCount = count
 
     previousElements = elements
   }
 
   return assign($update, {
-    broadcast,
+    on,
   })
 }

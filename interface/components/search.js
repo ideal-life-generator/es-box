@@ -3,7 +3,6 @@ import _animateStyle from '_/animate-style' // eslint-disable-line
 import _append from '_/append' // eslint-disable-line
 import _remove from '_/remove' // eslint-disable-line
 import _assign from '__/assign' // eslint-disable-line
-import _normalizeKey from '__/normalize-key' // eslint-disable-line
 import _delay from '__/delay' // eslint-disable-line
 import state from '../helpers/search/state'
 import cloneClearIcon from '../helpers/clear-icon'
@@ -33,26 +32,19 @@ export const $clear = _({
 
       hideClear()
 
-      state._update({
-        value: '',
-        normalizedValue: '',
-        clear: false,
-      })
+      state._broadcast({ value: '', clear: false }, 'updateCollection')
     },
   },
 })
 
-const intervalUpdate = _delay(state._update, 500)
+const intervalUpdate = _delay(data => state._broadcast(data, 'updateCollection'), 500)
 
 export const $input = _({
   el: 'input',
   class: 'input',
   events: {
     input: ({ target: { value } }) => {
-      intervalUpdate({
-        value,
-        normalizedValue: _normalizeKey(value),
-      })
+      intervalUpdate({ value })
 
       if (value && !state.clear) {
         showClear()
