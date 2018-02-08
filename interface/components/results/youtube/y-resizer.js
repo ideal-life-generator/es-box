@@ -10,6 +10,5 @@ export default _resizer($youtubeSongs, {
     min: 1,
     max: 100,
     size: itemHeight,
-    padding: 15,
   },
 })

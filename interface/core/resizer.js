@@ -44,7 +44,7 @@ export default (container, { y }) => {
 
         update({
           size: containerSize,
-          position: containerSize + padding,
+          position: padding ? containerSize + padding : containerSize,
           count,
         })
 
@@ -86,7 +86,7 @@ export default (container, { y }) => {
 
         init({
           size: containerSize,
-          position: containerSize + padding,
+          position: padding ? containerSize + padding : containerSize,
           count,
         })
       }
