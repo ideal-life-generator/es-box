@@ -19,7 +19,7 @@ state.on({
   },
 })
 
-const resizerIntervalUpdate = _delayInterval(resizerUpdate, 500)
+const resizerUpdateInterval = _delayInterval(resizerUpdate, 500)
 
 yResizer.on({
   init: ({ size, position }) => {
@@ -28,7 +28,7 @@ yResizer.on({
   update: ({ size, position, count }) => {
     state.emit('SET_RESIZER_POSITION', { size, position })
 
-    resizerIntervalUpdate(count)
+    resizerUpdateInterval(count)
   },
 })
 

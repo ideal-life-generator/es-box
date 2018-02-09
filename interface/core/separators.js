@@ -8,10 +8,10 @@ export default (parent, { create, remove }) => {
     create: count => {
       const { length: separatorsCount } = separators
 
-      const nextCount = count - 1
+      const nextSeparatorsCount = count - 1
 
-      if (separatorsCount < nextCount) {
-        for (let index = separatorsCount; index < nextCount; index += 1) {
+      if (separatorsCount < nextSeparatorsCount) {
+        for (let index = separatorsCount; index < nextSeparatorsCount; index += 1) {
           const separator = create(index + 1)
 
           separators.push(separator)
@@ -23,12 +23,12 @@ export default (parent, { create, remove }) => {
     remove: async count => {
       const { length: separatorsCount } = separators
 
-      const nextCount = count - 1
+      const nextSeparatorsCount = count - 1
 
-      if (separatorsCount > nextCount) {
+      if (separatorsCount > nextSeparatorsCount) {
         const removeResolvers = []
 
-        for (let index = separatorsCount; nextCount < index; index -= 1) {
+        for (let index = separatorsCount; index > nextSeparatorsCount; index -= 1) {
           const separator = separators.pop()
           const romoveReslver = remove(separator)
 

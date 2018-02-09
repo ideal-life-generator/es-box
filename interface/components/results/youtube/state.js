@@ -1,6 +1,6 @@
 import _state from '__/state' // eslint-disable-line
 import _assign from '__/assign' // eslint-disable-line
-import searchState from '../../../helpers/search/state'
+import searchState from '../../search/state'
 import { search } from '../../../../youtube'
 
 // const { now } = Date
