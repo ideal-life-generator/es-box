@@ -8,7 +8,7 @@ export default (parent, { create, remove }) => {
     create: count => {
       const { length: separatorsCount } = separators
 
-      const nextSeparatorsCount = count - 1
+      const nextSeparatorsCount = count > 0 ? count - 1 : 0
 
       if (separatorsCount < nextSeparatorsCount) {
         for (let index = separatorsCount; index < nextSeparatorsCount; index += 1) {
@@ -23,7 +23,7 @@ export default (parent, { create, remove }) => {
     remove: async count => {
       const { length: separatorsCount } = separators
 
-      const nextSeparatorsCount = count - 1
+      const nextSeparatorsCount = count > 0 ? count - 1 : 0
 
       if (separatorsCount > nextSeparatorsCount) {
         const removeResolvers = []

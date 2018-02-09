@@ -6,7 +6,7 @@ import { itemHeight } from '../settings'
 export default _resizer($youtubeSongs, {
   y: {
     activator: $yResizer,
-    count: state.count,
+    count: state.resizerLength,
     min: 1,
     max: 100,
     size: itemHeight,

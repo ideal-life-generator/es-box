@@ -96,8 +96,35 @@ export default (container, { y }) => {
       }
     }
 
-    return assign(_update, {
+    const set = ({ count: settedCount }) => {
+      if (typeof settedCount === 'number') {
+        count = settedCount
+
+        if (count < min) {
+          count = min
+        } else if (count > max) {
+          count = max
+        }
+
+        if (count !== lastCount) {
+          lastCount = count
+
+          previousCount = lastCount
+        }
+      }
+
+      containerSize = calcPosition(count, size)
+
+      return {
+        size: containerSize,
+        position: padding ? containerSize + padding : containerSize,
+        count,
+      }
+    }
+
+    return {
       on,
-    })
+      set,
+    }
   }
 }

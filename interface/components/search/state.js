@@ -1,7 +1,7 @@
 import _state from '__/state' // eslint-disable-line
 import _normalizeKey from '__/normalize-key' // eslint-disable-line
 import _delay from '__/delay' // eslint-disable-line
-import { fetchItems } from '../results/youtube/state'
+import { fetchItemsRecalculateResize } from '../results/youtube/state'
 
 const state = _state({
   value: '',
@@ -9,7 +9,7 @@ const state = _state({
   clear: false,
 })
 
-const fetchItemsDelay = _delay(fetchItems, 500)
+const fetchItemsRecalculateResizeDelay = _delay(fetchItemsRecalculateResize, 500)
 
 export const setValue = (value, force) => {
   state.value = value
@@ -26,9 +26,9 @@ export const setValue = (value, force) => {
   }
 
   if (force) {
-    fetchItems()
+    fetchItemsRecalculateResize()
   } else {
-    fetchItemsDelay()
+    fetchItemsRecalculateResizeDelay()
   }
 }
 
