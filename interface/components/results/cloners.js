@@ -12,6 +12,11 @@ export const item = cloner_({
   style: { opacity: 0 },
 })
 
+export const thumbnail = cloner_({
+  el: 'img',
+  class: 'thumbnail',
+})
+
 export const title = cloner_({
   el: 'p',
   class: 'title',

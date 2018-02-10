@@ -6,9 +6,7 @@ import { $youtubeSongs, $separators, $yResizer } from './elements'
 import { container } from '../cloners'
 import collection from './collection'
 import state, { fetchItems, resizerUpdate } from './state'
-// import separators from './separators'
 import yResizer from './y-resizer'
-// import searchState from '../../../helpers/search/state'
 
 (async () => await fetchItems())()
 
@@ -18,13 +16,20 @@ state.on({
     _coords($youtubeSongs, { height: size })
     _coords($yResizer, { y: position })
   },
-  CORRECT_RESIZER: ({ resizerLength }) => {
-    const { size, position } = yResizer.set({ count: resizerLength })
+  // RESIZER_MAX_CHANGE: ({ resizerMax }) => {
+  //   yResizer.setMax(resizerMax)
+  // },
+  // RESIZER_DISABLED: () => {
+  //   _class($yResizer, 'y-resizer disabled')
+  // },
+  // RESIZER_ENABLED: () => {
+  //   _class($yResizer, 'y-resizer')
+  // },
+  // RESIZER_CHANGE_COUNT: ({ resizerLength }) => {
+  //   const { size, position } = yResizer.setCount(resizerLength)
 
-    state.emit('SET_RESIZER_POSITION', { size, position })
-  },
-  DISABLE_RESIZER: () => _class($yResizer, 'y-resizer disabled'),
-  ENABLE_RESIZER: () => _class($yResizer, 'y-resizer'),
+  //   state.emit('SET_RESIZER_POSITION', { size, position })
+  // },
 })
 
 const resizerUpdateInterval = _delayInterval(resizerUpdate, 500)

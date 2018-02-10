@@ -2,7 +2,6 @@ import _events from '_/events' // eslint-disable-line
 import _eventsRemove from '_/events-remove' // eslint-disable-line
 import _caster from '__/caster' // eslint-disable-line
 
-const { assign } = Object
 const { round } = Math
 
 const calcPosition = (count, size) => count * size
@@ -18,6 +17,8 @@ export default (container, { y }) => {
       max,
     } = y
 
+    let state = 'enabled'
+
     let startY = null
 
     let step = 0
@@ -25,18 +26,15 @@ export default (container, { y }) => {
     let previousCount = count
     let lastCount = count
     let containerSize = calcPosition(count, size)
+    let maxLimit = max
 
     const { init, update } = _caster('init', 'update')
 
-    const _update = ({ count: settedCount }) => {
-      if (typeof settedCount === 'number') {
-        count = settedCount
-      }
-
+    const _update = () => {
       if (count < min) {
         count = min
-      } else if (count > max) {
-        count = max
+      } else if (count > maxLimit) {
+        count = maxLimit
       }
 
       if (count !== lastCount) {
@@ -52,32 +50,34 @@ export default (container, { y }) => {
       }
     }
 
-    const mousemove = ({ clientY: currentY }) => {
+    const change = ({ clientY: currentY }) => {
       step = round((currentY - startY) / size)
 
       count = previousCount + step
 
-      _update({ count })
+      _update()
     }
 
     const unbind = () => {
       previousCount = count
 
       _eventsRemove(window, {
-        mousemove,
+        mousemove: change,
+        mouseup: unbind,
+      })
+    }
+
+    const activate = ({ clientY }) => {
+      startY = clientY
+
+      _events(window, {
+        mousemove: change,
         mouseup: unbind,
       })
     }
 
     _events(activator, {
-      mousedown: ({ clientY }) => {
-        startY = clientY
-
-        _events(window, {
-          mousemove,
-          mouseup: unbind,
-        })
-      },
+      mousedown: activate,
     })
 
     const on = listeners => {
@@ -96,14 +96,14 @@ export default (container, { y }) => {
       }
     }
 
-    const set = ({ count: settedCount }) => {
+    const setCount = settedCount => {
       if (typeof settedCount === 'number') {
         count = settedCount
 
         if (count < min) {
           count = min
-        } else if (count > max) {
-          count = max
+        } else if (count > maxLimit) {
+          count = maxLimit
         }
 
         if (count !== lastCount) {
@@ -122,9 +122,41 @@ export default (container, { y }) => {
       }
     }
 
+    const setState = type => {
+      state = type
+
+      switch (state) {
+        case 'enabled': {
+          _events(activator, {
+            mousedown: activate,
+          })
+
+          break
+        }
+        case 'disabled': {
+          _eventsRemove(activator, {
+            mousedown: activate,
+          })
+
+          unbind()
+
+          break
+        }
+        default: {
+          break
+        }
+      }
+    }
+
+    const setMax = value => {
+      maxLimit = value
+    }
+
     return {
       on,
-      set,
+      setCount,
+      setMax,
+      setState,
     }
   }
 }

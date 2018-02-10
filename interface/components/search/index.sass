@@ -8,6 +8,7 @@ $searchPaddingLeft: 13px
 $clearSize: $searchHeight
 $inputWidth: $searchWidth - $searchPaddingLeft - $clearSize
 $svgSize: 10px
+$fontSize: 16.5px
 
 .search
   position: absolute
@@ -26,9 +27,9 @@ $svgSize: 10px
     left: $searchPaddingLeft
     width: $inputWidth
     height: $searchHeight
-    font-size: 16.5px
+    font-size: $fontSize
     color: $white
-    +text-neon(0.15px, fade-out($white, 0.8))
+    // +text-neon(0.15px, fade-out($white, 0.8))
 
   .clear
     position: absolute
@@ -36,7 +37,7 @@ $svgSize: 10px
     width: $clearSize
     height: $clearSize
     fill: $white
-    +svg-neon(0.5px, $white)
+    // +svg-neon(0.5px, $white)
     cursor: pointer
     transition: 0.2s
 
@@ -51,5 +52,5 @@ $svgSize: 10px
       fill: fade-out($white, 0.5)
 
 ::-webkit-input-placeholder
-  font-size: 16.5px
-  color: fade-out($white, 0.45)
+  font-size: $fontSize
+  color: fade-out($white, 0.75)

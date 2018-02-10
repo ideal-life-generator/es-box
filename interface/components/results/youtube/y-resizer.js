@@ -7,8 +7,8 @@ export default _resizer($youtubeSongs, {
   y: {
     activator: $yResizer,
     count: state.resizerLength,
-    min: 1,
-    max: 100,
+    min: state.resizerMin,
+    max: state.resizerMax,
     size: itemHeight,
   },
 })

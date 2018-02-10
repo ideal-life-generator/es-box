@@ -4,7 +4,8 @@
 
 $resultsTop: 25px
 $resultsWidth: 1236px
-$itemHeight: 55px
+$itemHeight: 90px
+$thumbnailHeight: 90px
 $titleHeight: 25px
 
 .results
@@ -25,9 +26,17 @@ $titleHeight: 25px
         position: absolute
         width: $resultsWidth
         height: $itemHeight
+
+        .thumbnail
+          position: absolute
+          left: 5px
+          top: ($itemHeight - $thumbnailHeight) / 2
+          width: 120px
+          height: $thumbnailHeight
+
         .title
           position: absolute
-          left: 10px
+          left: 150px
           top: ($itemHeight - $titleHeight) / 2
           height: $titleHeight
           color: transparentize($white, 0.1)
@@ -48,6 +57,8 @@ $titleHeight: 25px
     border-top: 1px solid transparentize($violet, 0.5)
     user-select: none
     cursor: ns-resize
-    &.disabled
-      border-color: transparentize($violet, 0.8)
-      cursor: default
+    // &.disabled
+    //   border-color: transparentize($violet, 0.8)
+    //   cursor: default
+    // &.bottom
+    //   border-bottom: 1px solid transparentize(red, 0.5)
