@@ -1,37 +1,13 @@
 import { makeExecutableSchema } from 'graphql-tools'
 import _normalizeKey from '_/normalize-key' // eslint-disable-line
-
-export const userSongsMock = [{
-  id: 0,
-  title: 'Evol Intent - Middle of the night',
-}, {
-  id: 1,
-  title: 'Bungle - You',
-}, {
-  id: 2,
-  title: 'Makoto - Wue',
-}, {
-  id: 3,
-  title: 'BCee - Think Twice',
-}, {
-  id: 4,
-  title: 'Bungle - Back To Mars',
-}, {
-  id: 5,
-  title: 'Wiz Khalifa - Got Me Some More',
-}, {
-  id: 6,
-  title: 'One Punch Man - BATTLE!! (Extended)',
-}, {
-  id: 7,
-  title: 'The Weeknd - Starboy (official) ft. Daft Punk',
-}].map(data => Object.assign(data, { key: _normalizeKey(data.title) }))
+// import fetch from './youtube/utils/fetch'
+// import { search } from './youtube'
 
 const typeDefs = `
 type Song {
   id: ID!
   title: String!
-  key: String!
+  thumbnail: String!
 }
 
 type SongsPagination {
@@ -40,8 +16,7 @@ type SongsPagination {
   total: Int!
 }
 
-type User {
-  name: String
+type Youtube {
   songs(
     key: String
     cursor: Int
@@ -50,7 +25,7 @@ type User {
 }
 
 type Query {
-  user: User
+  youtube: Youtube
 }
 
 type Schema {
@@ -60,30 +35,17 @@ type Schema {
 
 const resolvers = {
   Query: {
-    user: () => ({ name: 'Vlad' }),
+    youtube: () => ({}),
   },
-  User: {
-    songs: (user, params) => {
-      let items
+  Youtube: {
+    songs: async (youtube, params) => {
+      // try {
+      //   const { data } = await search({ key: null, count: 5 })
 
-      if (params.key) {
-        items = params.key ? userSongsMock.filter(userSong => userSong.key.includes(params.key)) : userSongsMock
-      } else {
-        items = userSongsMock
-      }
+      //   return data
+      // } catch (error) {
 
-      if (params.cursor && params.count) {
-        items = items.slice(params.cursor, params.cursor + params.count)
-      } else if (params.cursor) {
-        items = items.slice(params.cursor)
-      } else if (params.count) {
-        items = items.slice(0, params.count)
-      }
-
-      const { length: count } = items
-      const { length: total } = userSongsMock
-
-      return { items, count, total }
+      // }
     },
   },
 }

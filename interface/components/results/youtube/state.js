@@ -1,7 +1,7 @@
 import _state from '__/state' // eslint-disable-line
 import _assign from '__/assign' // eslint-disable-line
 import searchState from '../../search/state'
-import { search } from '../../../../youtube'
+import { search } from '../../../api/youtube'
 
 const { now } = Date
 
@@ -104,7 +104,7 @@ export const fetchItems = async () => {
 
   // const { resizerUpdateTime: resizerUpdateTimeBeforeRequest } = state
 
-  const { items, count, total } = await search({
+  const { data: { items, count, total } } = await search({
     key: searchState.normalizedValue,
     count: state.lastManualResizerLength ? state.lastManualResizerLength : state.resizerLength,
   })

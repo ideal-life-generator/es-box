@@ -1,4 +1,5 @@
 import { resolve } from 'path'
+import { BannerPlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
 import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
 import ReloadServerPlugin from 'reload-server-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
 import {
@@ -37,8 +38,12 @@ const graphql = {
 }
 
 export default !PRODUCTION ? merge(graphql, {
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   plugins: [
+    new BannerPlugin({
+      raw: true,
+      banner: 'import "source-map-support/register"',
+    }),
     new ReloadServerPlugin({
       script: 'build/graphql.js',
     }),

@@ -50,8 +50,8 @@ export const uglify = new UglifyJSPlugin()
 export const nodeExternals = webpackNodeExternals()
 
 export const definePlugin = new DefinePlugin({
-  PRODUCTION,
-  SERVER,
+  PRODUCTION: `${PRODUCTION}`,
+  SERVER: `${SERVER}`,
   'process.env': {
     NODE_ENV: `"${PRODUCTION ? 'production' : 'development'}"`,
   },
