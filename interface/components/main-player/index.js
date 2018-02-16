@@ -2,7 +2,7 @@ import _animateStyle from '_/animate-style' // eslint-disable-line
 import _events from '_/events' // eslint-disable-line
 import _append from '_/append' // eslint-disable-line
 import _remove from '_/remove' // eslint-disable-line
-import { $mainIcon, $player } from './elements'
+import { $mainIcon, $mainPlayer } from './elements'
 import { clonePlayIcon, clonePauseIcon } from './cloners'
 import state, { play, pause } from './state'
 import { animationDuration } from './settings'
@@ -57,4 +57,4 @@ state.on({
 
 _append($mainIcon, newPlayIcon())
 
-export default $player
+export default $mainPlayer

@@ -21,8 +21,8 @@ _events($clear, {
 })
 
 state.on({
-  UPDATE_CLEAR: async ({ clear }) => {
-    if (clear) {
+  UPDATE_CLEAR: async () => {
+    if (state.clear) {
       _append($search, $clear)
 
       _animateStyle($clear, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })

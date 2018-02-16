@@ -5,7 +5,7 @@ import { fetchItems } from '../results/youtube/state'
 
 const state = _state({
   value: '',
-  normalizedValue: '',
+  normalizedValue: 'one punch man - battle',
   clear: false,
 })
 
@@ -14,6 +14,8 @@ const fetchItemsDelay = _delay(fetchItems, 500)
 export const setValue = (value, force) => {
   state.value = value
   state.normalizedValue = _normalizeKey(value)
+
+  window.history.pushState(null, state.value, state.normalizedValue)
 
   if (value && !state.clear) {
     state.clear = true

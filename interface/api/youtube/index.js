@@ -6,7 +6,7 @@ const normalize = ({ pageInfo: { totalResults }, items, items: { length: count }
     id: { videoId: id },
     snippet: {
       title,
-      thumbnails: { default: { url: thumbnail } },
+      thumbnails: { high: { url: thumbnail } },
     },
   }) => ({
     id,

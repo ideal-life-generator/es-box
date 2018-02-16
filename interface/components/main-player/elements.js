@@ -14,7 +14,7 @@ export const $mainIcon = _({
   class: 'main-icon',
 })
 
-export const $player = _({
-  class: 'player',
+export const $mainPlayer = _({
+  class: 'main-player',
   append: [$mainIcon],
 })

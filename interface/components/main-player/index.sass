@@ -1,17 +1,17 @@
 @import "../../styles/variables.sass"
 @import "../main.sass"
 
-$playerWidth: $mainWidth
-$playerTop: 10px
-$playerBottom: 10px
-$playerHeight: 19px
-$iconSize: $playerHeight
+$mainPlayerWidth: $mainWidth
+$mainPlayerTop: 10px
+$mainPlayerBottom: 10px
+$mainPlayerHeight: 19px
+$iconSize: $mainPlayerHeight
 
-.player
+.main-player
   position: absolute
-  top: $playerTop
-  // width: $playerWidth
-  height: $playerHeight
+  top: $mainPlayerTop
+  // width: $mainPlayerWidth
+  height: $mainPlayerHeight
 
   .main-icon
     position: absolute
@@ -22,3 +22,4 @@ $iconSize: $playerHeight
 
     .icon
       position: absolute
+      fill: none

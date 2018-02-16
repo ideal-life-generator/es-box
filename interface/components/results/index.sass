@@ -2,11 +2,19 @@
 @import "../../styles/variables.sass"
 @import "../search/index.sass"
 
-$resultsTop: 0px
+$resultsTop: 25px
 $resultsWidth: $mainWidth
-$itemHeight: 150px
+$itemHeight: 146.25px
+$playerWidth: $itemHeight / 0.75
+$playerHeight: $playerWidth * 0.75
+$playWidth: 30px
+$playHeight: 33.88px
 $thumbnailHeight: 90px
 $titleHeight: 25px
+
+@value itemHeight #{$itemHeight}
+
+// https://www.viget.com/articles/sharing-data-between-sass-and-javascript-with-json/
 
 .results
   position: absolute
@@ -26,26 +34,41 @@ $titleHeight: 25px
         width: $resultsWidth
         height: $itemHeight
 
-        .thumbnail
+        .player
           position: absolute
-          left: 5px
-          top: ($itemHeight - $thumbnailHeight) / 2
-          width: 120px
-          height: $thumbnailHeight
+          width: $playerWidth
+          height: $playerHeight
+          // border: 1px solid white
+          // box-sizing: border-box
+
+          .video
+            width: $playerWidth
+            height: $playerHeight
+
+          .main-button
+            position: absolute
+            left: ($playerWidth / 2) - ($playWidth / 2)
+            top: ($playerHeight / 2) - ($playHeight / 2)
+            width: $playWidth
+            height: $playHeight
+            stroke: transparentize($white, 0.2)
+            fill: transparentize(black, 0.4)
+            cursor: pointer
+            .icon
+              position: absolute
+
+          .thumbnail
+            position: absolute
+            width: $playerWidth
 
         .title
           position: absolute
-          left: 150px
+          left: $playerWidth + 45px
           top: ($itemHeight - $titleHeight) / 2
           height: $titleHeight
           text-overflow: ellipsis
           white-space: nowrap
           overflow: hidden
-
-        .video
-          position: absolute
-          left: 800px
-          height: $thumbnailHeight   
 
     .separator
       position: absolute
