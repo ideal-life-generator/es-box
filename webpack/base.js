@@ -36,7 +36,7 @@ export const sassRule = {
 }
 
 export const fileRule = {
-  test: /\.(png|jpg)$/,
+  test: /\.(svg|png|jpg)$/,
   exclude: /node_modules/,
   use: 'file-loader',
 }

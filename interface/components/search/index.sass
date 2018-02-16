@@ -1,8 +1,10 @@
 @import "../../styles/mixins.sass"
 @import "../../styles/variables.sass"
+@import "../main.sass"
+@import "../player/index.sass"
 
-$searchTop: 80px
-$searchWidth: 1236px
+$searchTop: $playerTop + $playerBottom + $playerHeight
+$searchWidth: $mainWidth
 $searchHeight: 39px
 $searchPaddingLeft: 13px
 $clearSize: $searchHeight
@@ -12,7 +14,6 @@ $fontSize: 16.5px
 
 .search
   position: absolute
-  left: 150px
   top: $searchTop
   width: $searchWidth
   height: $searchHeight
@@ -28,7 +29,6 @@ $fontSize: 16.5px
     width: $inputWidth
     height: $searchHeight
     font-size: $fontSize
-    color: $white
     // +text-neon(0.15px, fade-out($white, 0.8))
 
   .clear

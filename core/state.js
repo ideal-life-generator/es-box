@@ -25,7 +25,7 @@ export default state => {
       throw new Error(`Subscribers for ${name} not defined`)
     }
 
-    subscribersMap[name].forEach(subscriber => subscriber(state, ...args))
+    subscribersMap[name].forEach(subscriber => subscriber(...args))
   }
 
   const on = subscribers => {

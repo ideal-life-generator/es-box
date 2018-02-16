@@ -1,0 +1,24 @@
+@import "../../styles/variables.sass"
+@import "../main.sass"
+
+$playerWidth: $mainWidth
+$playerTop: 10px
+$playerBottom: 10px
+$playerHeight: 19px
+$iconSize: $playerHeight
+
+.player
+  position: absolute
+  top: $playerTop
+  // width: $playerWidth
+  height: $playerHeight
+
+  .main-icon
+    position: absolute
+    width: 18px
+    height: $iconSize
+    stroke: transparentize($violet, 0.2)
+    cursor: pointer
+
+    .icon
+      position: absolute

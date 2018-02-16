@@ -11,8 +11,8 @@ import yResizer from './y-resizer'
 (async () => await fetchItems())()
 
 state.on({
-  ITEMS_UPDATED: ({ items, count }) => collection({ items, count }),
-  SET_RESIZER_POSITION: (data, { size, position }) => {
+  ITEMS_UPDATED: () => collection(state),
+  SET_RESIZER_POSITION: ({ size, position }) => {
     _coords($youtubeSongs, { height: size })
     _coords($yResizer, { y: position })
   },

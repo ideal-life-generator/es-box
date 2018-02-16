@@ -4,12 +4,12 @@ import _append from '_/append' // eslint-disable-line
 import _remove from '_/remove' // eslint-disable-line
 import _assign from '__/assign' // eslint-disable-line
 import _delay from '__/delay' // eslint-disable-line
-import cloneClearIcon from '../../helpers/clear-icon'
+import clearIcon from '../icons/clear'
 
 export const $clear = _({
   el: 'button',
   class: 'clear',
-  append: cloneClearIcon(),
+  append: clearIcon(),
 })
 
 export const $input = _({

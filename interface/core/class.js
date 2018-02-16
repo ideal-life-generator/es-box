@@ -1,1 +1,1 @@
-export default (node, names) => node.className = names
+export default (node, names) => node.setAttribute('class', names)

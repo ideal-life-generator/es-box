@@ -2,15 +2,14 @@
 @import "../../styles/variables.sass"
 @import "../search/index.sass"
 
-$resultsTop: 25px
-$resultsWidth: 1236px
+$resultsTop: 0px
+$resultsWidth: $mainWidth
 $itemHeight: 150px
 $thumbnailHeight: 90px
 $titleHeight: 25px
 
 .results
   position: absolute
-  left: 150px
   top: $searchTop + $searchHeight + $resultsTop
   width: $resultsWidth
   border-radius: 0.5px
@@ -39,7 +38,6 @@ $titleHeight: 25px
           left: 150px
           top: ($itemHeight - $titleHeight) / 2
           height: $titleHeight
-          color: transparentize($white, 0.1)
           text-overflow: ellipsis
           white-space: nowrap
           overflow: hidden
