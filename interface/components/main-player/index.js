@@ -4,7 +4,7 @@ import _append from '_/append' // eslint-disable-line
 import _remove from '_/remove' // eslint-disable-line
 import { $mainIcon, $mainPlayer } from './elements'
 import { clonePlayIcon, clonePauseIcon } from './cloners'
-import state, { play, pause } from './state'
+import { on, play, pause } from './state'
 import { animationDuration } from './settings'
 import './index.sass'
 
@@ -28,7 +28,7 @@ const newPauseIcon = () => {
   return $pauseIcon
 }
 
-state.on({
+on({
   SHOW_PLAY: () => {
     const $playIcon = newPlayIcon()
 

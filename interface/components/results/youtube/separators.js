@@ -1,11 +1,11 @@
 import _separators from '_/separators' // eslint-disable-line
 import _animateStyle from '_/animate-style' // eslint-disable-line
 import { itemHeight, animationDuration } from '../settings'
-import { separator } from '../cloners'
+import { cloneSeparator } from '../cloners'
 import { $separators } from './elements'
 
 export default _separators($separators, {
-  create: i => separator({
+  create: i => cloneSeparator({
     coords: { y: i * itemHeight },
     animateStyle: [{ duration: animationDuration }, { opacity: 0 }, { opacity: 1 }],
   }),

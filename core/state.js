@@ -1,24 +1,12 @@
 // import deepAssign from 'deep-assign'
 import _caster from '__/caster' // eslint-disable-line
 
-const { assign, keys } = Object
+const { keys } = Object
 
-export default state => {
+export default () => {
   const subscribersMap = {}
 
   const emit = (name, ...args) => {
-    // if (helpers) {
-    //   keys(data).forEach(key => {
-    //     const { [key]: stateValue } = state
-    //     const { [key]: dataValue } = data
-    //     const { [key]: helper } = helpers
-
-    //     if (stateValue !== dataValue && helper) {
-    //       helper(state, data)
-    //     }
-    //   })
-    // }
-
     const { [name]: subscribers } = subscribersMap
 
     if (!subscribers) {
@@ -40,8 +28,8 @@ export default state => {
     })
   }
 
-  return assign(state, {
+  return {
     emit,
     on,
-  })
+  }
 }

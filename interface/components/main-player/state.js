@@ -1,23 +1,27 @@
 import _state from '__/state' // eslint-disable-line
 
-const state = _state({
-  activeMainButton: 'WAITING',
-})
+const state = {
+  state: 'WAITING',
+}
+
+export default state
+
+export const { emit, on } = _state(state)
 
 const deactivateMainButton = $element => {
-  switch (state.activeMainButton) {
+  switch (state.state) {
     case 'WAITING': {
-      state.emit('HIDE_PLAY', $element)
+      emit('HIDE_PLAY', $element)
 
       break
     }
     case 'PLAY': {
-      state.emit('HIDE_PLAY', $element)
+      emit('HIDE_PLAY', $element)
 
       break
     }
     case 'PAUSE': {
-      state.emit('HIDE_PAUSE', $element)
+      emit('HIDE_PAUSE', $element)
 
       break
     }
@@ -30,17 +34,15 @@ const deactivateMainButton = $element => {
 export const play = $element => {
   deactivateMainButton($element)
 
-  state.activeMainButton = 'PAUSE'
+  state.state = 'PAUSE'
 
-  state.emit('SHOW_PAUSE')
+  emit('SHOW_PAUSE')
 }
 
 export const pause = $element => {
   deactivateMainButton($element)
 
-  state.activeMainButton = 'PLAY'
+  state.state = 'PLAY'
 
-  state.emit('SHOW_PLAY')
+  emit('SHOW_PLAY')
 }
-
-export default state

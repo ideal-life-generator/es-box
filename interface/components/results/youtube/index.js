@@ -3,14 +3,14 @@ import _coords from '_/coords' // eslint-disable-line
 import _delayInterval from '__/delay-interval' // eslint-disable-line
 import _class from '_/class' // eslint-disable-line
 import { $youtubeSongs, $separators, $yResizer } from './elements'
-import { container } from '../cloners'
+import { cloneContainer } from '../cloners'
 import collection from './collection'
-import state, { fetchItems, resizerUpdate } from './state'
+import state, { emit, on, fetchItems, resizerUpdate } from './state'
 import yResizer from './y-resizer'
 
 (async () => await fetchItems())()
 
-state.on({
+on({
   ITEMS_UPDATED: () => collection(state),
   SET_RESIZER_POSITION: ({ size, position }) => {
     _coords($youtubeSongs, { height: size })
@@ -28,7 +28,7 @@ state.on({
   // RESIZER_CHANGE_COUNT: ({ resizerLength }) => {
   //   const { size, position } = yResizer.setCount(resizerLength)
 
-  //   state.emit('SET_RESIZER_POSITION', { size, position })
+  //   emit('SET_RESIZER_POSITION', { size, position })
   // },
 })
 
@@ -36,15 +36,15 @@ const resizerUpdateInterval = _delayInterval(resizerUpdate, 500)
 
 yResizer.on({
   init: ({ size, position }) => {
-    state.emit('SET_RESIZER_POSITION', { size, position })
+    emit('SET_RESIZER_POSITION', { size, position })
   },
   update: ({ size, position, count }) => {
-    state.emit('SET_RESIZER_POSITION', { size, position })
+    emit('SET_RESIZER_POSITION', { size, position })
 
     resizerUpdateInterval(count)
   },
 })
 
-export default container({
+export default cloneContainer({
   append: [$youtubeSongs, $separators, $yResizer],
 })

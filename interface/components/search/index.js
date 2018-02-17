@@ -4,7 +4,7 @@ import _append from '_/append' // eslint-disable-line
 import _remove from '_/remove' // eslint-disable-line
 import _assign from '__/assign' // eslint-disable-line
 import { animationDuration } from './settings'
-import state, { setValue } from './state'
+import state, { on, setValue } from './state'
 import { $search, $input, $clear } from './elements'
 import './index.sass'
 
@@ -20,7 +20,7 @@ _events($clear, {
   },
 })
 
-state.on({
+on({
   UPDATE_CLEAR: async () => {
     if (state.clear) {
       _append($search, $clear)

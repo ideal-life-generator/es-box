@@ -5,7 +5,7 @@ import { search } from '../../../api/youtube'
 
 const { now } = Date
 
-const state = _state({
+const state = {
   fetching: false,
   items: null,
   count: null,
@@ -17,7 +17,11 @@ const state = _state({
   resizerDisabled: false,
   lastManualResizerLength: null,
   lastResizerMax: null,
-})
+}
+
+export default state
+
+export const { emit, on } = _state(state)
 
 // const countChanged = () => {
 //   // j gyuh jgu
@@ -43,7 +47,7 @@ const state = _state({
 //     if (count <= resizerMin) {
 //       state.resizerDisabled = true
 
-//       state.emit('RESIZER_DISABLED')
+//       emit('RESIZER_DISABLED')
 //     }
 
 //     _assign(state, {
@@ -51,8 +55,8 @@ const state = _state({
 //       resizerLength: count,
 //     })
 
-//     state.emit('RESIZER_MAX_CHANGE')
-//     state.emit('RESIZER_CHANGE_COUNT')
+//     emit('RESIZER_MAX_CHANGE')
+//     emit('RESIZER_CHANGE_COUNT')
 //   } else if (lastManualResizerLength && lastResizerMax && count > resizerLength) {
 //     if (count < lastManualResizerLength) {
 //       _assign(state, {
@@ -69,11 +73,11 @@ const state = _state({
 //     }
 
 //     if (count > resizerMin && resizerDisabled) {
-//       state.emit('RESIZER_ENABLED')
+//       emit('RESIZER_ENABLED')
 //     }
 
-//     state.emit('RESIZER_MAX_CHANGE')
-//     state.emit('RESIZER_CHANGE_COUNT')
+//     emit('RESIZER_MAX_CHANGE')
+//     emit('RESIZER_CHANGE_COUNT')
 //   }
 // }
 
@@ -123,7 +127,7 @@ export const fetchItems = async () => {
   //   countChanged()
   // }
 
-  state.emit('ITEMS_UPDATED')
+  emit('ITEMS_UPDATED')
 }
 
 export const resizerUpdate = resizerLength => {
@@ -132,5 +136,3 @@ export const resizerUpdate = resizerLength => {
 
   fetchItems()
 }
-
-export default state
