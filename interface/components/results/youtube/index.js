@@ -3,7 +3,7 @@ import _coords from '_/coords' // eslint-disable-line
 import _delayInterval from '__/delay-interval' // eslint-disable-line
 import _class from '_/class' // eslint-disable-line
 import { $youtubeSongs, $separators, $yResizer } from './elements'
-import { cloneContainer } from '../cloners'
+import { container as cloneContainer } from '../cloners'
 import collection from './collection'
 import state, { emit, on, fetchItems, resizerUpdate } from './state'
 import yResizer from './y-resizer'

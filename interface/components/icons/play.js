@@ -4,7 +4,7 @@ import cloner_ from '_/cloner' // eslint-disable-line
 export default cloner_({
   svg: true,
   attributes: {
-    viewBox: '0 0 18.01 20.34',
+    viewBox: '0 0 18 20.36',
     stroke: 'inherit',
   },
   append: _({

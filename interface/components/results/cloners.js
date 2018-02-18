@@ -1,33 +1,42 @@
 import _cloner from '_/cloner' // eslint-disable-line
+import { $play, $pause } from './elements'
 
-export const cloneContainer = _cloner()
+export const container = _cloner()
 
-export const cloneList = _cloner({
+export const list = _cloner({
   el: 'ul',
   class: 'list',
 })
 
-export const cloneItem = _cloner({
+export const item = _cloner({
   el: 'li',
   style: { opacity: 0 },
 })
 
-export const cloneThumbnail = _cloner({
-  el: 'img',
-  class: 'thumbnail',
+export const content = _cloner({
+  el: 'div',
+  class: 'content',
 })
 
-export const cloneTitle = _cloner({
+export const play = _cloner({
+  node: $play,
+}, true)
+
+export const pause = _cloner({
+  node: $pause,
+}, true)
+
+export const title = _cloner({
   el: 'p',
   class: 'title',
 })
 
-export const cloneSeparators = _cloner({ el: 'ul' })
+export const separators = _cloner({ el: 'ul' })
 
-export const cloneSeparator = _cloner({
+export const separator = _cloner({
   class: 'separator',
 })
 
-export const cloneScroll = _cloner({
+export const scroll = _cloner({
   class: 'scroll',
 })

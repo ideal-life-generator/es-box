@@ -1,65 +1,92 @@
 import _append from '_/append' // eslint-disable-line
 import _remove from '_/remove' // eslint-disable-line
 import _attributes from '_/attributes' // eslint-disable-line
+import _cloner from '_/cloner' // eslint-disable-line
 import _animateStyle from '_/animate-style' // eslint-disable-line
 import {
   clonePlayer,
+  cloneThumbnail,
+  cloneSource,
+  cloneVideo,
   cloneMainButton,
   clonePlay,
   clonePause,
-  cloneVideo,
-  // cloneThumbnail,
-  cloneSource,
 } from './cloners'
 import createState from './create-state'
 import { animationDuration } from './settings'
+import './index.sass'
 
 export default () => {
   const { state, emit, on } = createState()
 
-  const $source = cloneSource()
-  let $play = clonePlay({
+  let $thumbnail = cloneThumbnail()
+  let $mainButton = cloneMainButton({
     events: {
-      click: () => emit('PLAY'),
-      // click: () => state.emit('CHANGE_VIDEO_STATE', item, 'PLAY'),
+      mouseenter: event => event.stopPropagation(),
+      mouseleave: event => event.stopPropagation(),
     },
+    // animateStyle: [{ duration: animationDuration }, { opacity: 0 }, { opacity: 1 }],
   })
-  let $pause
-  const $mainButton = cloneMainButton({ append: $play })
-  // const $thumbnail = cloneThumbnail()
-  const $video = cloneVideo({ append: $source })
+  const ncloneMainButton = _cloner({
+    node: $mainButton,
+  })
+  const $source = cloneSource()
+  const $video = cloneVideo({
+    events: {
+      play: () => {
+        state.playback = 'PLAY'
+      },
+      pause: () => {
+        state.playback = 'PAUSE'
+      },
+    },
+    append: $source,
+  })
   const $player = clonePlayer({
-    append: [$video, $mainButton],
+    events: {
+      click: () => {
+        if ($video.paused) {
+          if ($thumbnail) {
+            emit('HIDE_THUMBNAIL')
+          }
+
+          emit('PLAY')
+        } else {
+          emit('PAUSE')
+        }
+      },
+    },
+    append: [$video, $thumbnail],
   })
 
   on({
+    SET_THUMBNAIL: thumbnail => {
+      _attributes($thumbnail, { src: thumbnail })
+    },
+    HIDE_THUMBNAIL: () => {
+      _remove($thumbnail)
+
+      $thumbnail = null
+    },
     PLAY: () => {
       $video.play()
 
-      _animateStyle($play, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }, $el => _remove($el))
-      $play = null
-
-      $pause = clonePause({
-        events: {
-          click: () => emit('PAUSE'),
-        },
+      const $play = clonePlay()
+      $mainButton = ncloneMainButton({ append: $play })
+      _animateStyle($mainButton, { duration: 150 }, { opacity: 0 }, { opacity: 1 }, $element => {
+        _animateStyle($element, { duration: 150 }, { opacity: 1 }, { opacity: 0 }, $selement => _remove($selement))
       })
-      _animateStyle($pause, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })
-      _append($mainButton, $pause)
+      _append($player, $mainButton)
     },
     PAUSE: () => {
       $video.pause()
 
-      _animateStyle($pause, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }, $el => _remove($el))
-      $pause = null
-
-      $play = clonePlay({
-        events: {
-          click: () => emit('PLAY'),
-        },
+      const $pause = clonePause()
+      $mainButton = ncloneMainButton({ append: $pause })
+      _animateStyle($mainButton, { duration: 150 }, { opacity: 0 }, { opacity: 1 }, $element => {
+        _animateStyle($element, { duration: 150 }, { opacity: 1 }, { opacity: 0 }, $selement => _remove($selement))
       })
-      _animateStyle($play, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })
-      _append($mainButton, $play)
+      _append($player, $mainButton)
     },
     SET_SOURCE: source => _attributes($source, { src: source }),
   })

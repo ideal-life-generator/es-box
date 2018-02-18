@@ -5,6 +5,11 @@ export const clonePlayer = _cloner({
   class: 'player',
 })
 
+export const cloneThumbnail = _cloner({
+  el: 'img',
+  class: 'thumbnail',
+})
+
 export const cloneVideo = _cloner({
   el: 'video',
   class: 'video',

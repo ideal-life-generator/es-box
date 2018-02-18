@@ -1,0 +1,57 @@
+@import "../../styles/mixins.sass"
+@import "../../styles/variables.sass"
+@import "../search/index.sass"
+
+$resultsTop: 25px
+$resultsWidth: $mainWidth
+$itemHeight: 146.25px
+$playerWidth: $itemHeight / 0.75
+$playerHeight: $playerWidth * 0.75
+$playWidth: 30px
+$playHeight: 33.88px
+$thumbnailHeight: 90px
+$titleHeight: 25px
+
+.player
+  position: absolute
+  width: $playerWidth
+  height: $playerHeight
+  overflow: hidden
+
+  .video
+    position: absolute
+    width: $playerWidth
+    height: $playerHeight
+    overflow: hidden
+
+  .main-button
+    position: absolute
+    left: ($playerWidth / 2) - ($playWidth / 2)
+    top: ($playerHeight / 2) - ($playHeight / 2)
+    width: $playWidth
+    height: $playHeight
+    cursor: pointer
+
+    .icon
+      position: absolute
+
+      &.play
+        stroke: transparentize($white, 0.2)
+        fill: transparentize(black, 0.4)
+
+      &.pause
+        stroke: transparentize($white, 0.2)
+        fill: transparentize(black, 0.4)
+
+  .thumbnail
+    position: absolute
+    width: $playerWidth
+
+  .title
+    position: absolute
+    left: $playerWidth + 45px
+    top: ($itemHeight - $titleHeight) / 2
+    height: $titleHeight
+    text-overflow: ellipsis
+    white-space: nowrap
+    overflow: hidden

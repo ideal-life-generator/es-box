@@ -1,4 +1,7 @@
-import { cloneList, cloneSeparators } from '../cloners'
+import {
+  list as cloneList,
+  separators as cloneSeparators,
+} from '../cloners'
 import yResizer from '../../../helpers/yresizer'
 
 export const $youtubeSongs = cloneList()

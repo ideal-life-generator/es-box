@@ -7,6 +7,7 @@ $resultsWidth: $mainWidth
 $itemHeight: 146.25px
 $playerWidth: $itemHeight / 0.75
 $playerHeight: $playerWidth * 0.75
+$contentPaddingLeft: $playerWidth + 20px
 $playWidth: 30px
 $playHeight: 33.88px
 $thumbnailHeight: 90px
@@ -34,41 +35,27 @@ $titleHeight: 25px
         width: $resultsWidth
         height: $itemHeight
 
-        .player
+        .content
           position: absolute
-          width: $playerWidth
-          height: $playerHeight
-          // border: 1px solid white
-          // box-sizing: border-box
+          left: $contentPaddingLeft
+          width: $resultsWidth - $contentPaddingLeft
+          height: $itemHeight
 
-          .video
-            width: $playerWidth
-            height: $playerHeight
-
-          .main-button
+          .icon
             position: absolute
-            left: ($playerWidth / 2) - ($playWidth / 2)
-            top: ($playerHeight / 2) - ($playHeight / 2)
-            width: $playWidth
-            height: $playHeight
+            top: 20px
+            width: 18px
             stroke: transparentize($white, 0.2)
-            fill: transparentize(black, 0.4)
+            fill: none
             cursor: pointer
-            .icon
-              position: absolute
 
-          .thumbnail
+            .play
+
+          .title
             position: absolute
-            width: $playerWidth
-
-        .title
-          position: absolute
-          left: $playerWidth + 45px
-          top: ($itemHeight - $titleHeight) / 2
-          height: $titleHeight
-          text-overflow: ellipsis
-          white-space: nowrap
-          overflow: hidden
+            top: 50px
+            height: $titleHeight
+            font-size: 13.5px
 
     .separator
       position: absolute

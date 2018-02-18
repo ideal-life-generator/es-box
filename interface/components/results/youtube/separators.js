@@ -1,7 +1,7 @@
 import _separators from '_/separators' // eslint-disable-line
 import _animateStyle from '_/animate-style' // eslint-disable-line
 import { itemHeight, animationDuration } from '../settings'
-import { cloneSeparator } from '../cloners'
+import { separator as cloneSeparator } from '../cloners'
 import { $separators } from './elements'
 
 export default _separators($separators, {
