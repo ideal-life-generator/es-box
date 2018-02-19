@@ -51,7 +51,7 @@ export default merge(interf, !PRODUCTION ? {
   devServer: {
     port: DEV_SERVER_PORT,
     hot: true,
-    inline: true,
+    inline: false,
     historyApiFallback: true,
     stats,
   },

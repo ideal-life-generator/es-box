@@ -1,5 +1,5 @@
 import _cloner from '_/cloner' // eslint-disable-line
-import { $play, $pause } from './elements'
+// import { $play, $pause } from './elements'
 
 export const clonePlayer = _cloner({
   class: 'player',
@@ -25,14 +25,14 @@ export const cloneSource = _cloner({
   attributes: { type: 'video/mp4' },
 })
 
-export const cloneMainButton = _cloner({
-  class: 'main-button',
-})
+// export const cloneMainButton = _cloner({
+//   class: 'main-button',
+// })
 
-export const clonePlay = _cloner({
-  node: $play,
-}, true)
+// export const clonePlay = _cloner({
+//   node: $play,
+// }, true)
 
-export const clonePause = _cloner({
-  node: $pause,
-}, true)
+// export const clonePause = _cloner({
+//   node: $pause,
+// }, true)

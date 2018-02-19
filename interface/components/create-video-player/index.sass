@@ -1,12 +1,9 @@
-@import "../../styles/mixins.sass"
 @import "../../styles/variables.sass"
-@import "../search/index.sass"
 
-$resultsTop: 25px
-$resultsWidth: $mainWidth
 $itemHeight: 146.25px
-$playerWidth: $itemHeight / 0.75
-$playerHeight: $playerWidth * 0.75
+$playerWidth: 195px
+$playerHeight: 110px
+$playerTop: ($itemHeight - $playerHeight) / 2
 $playWidth: 30px
 $playHeight: 33.88px
 $thumbnailHeight: 90px
@@ -14,8 +11,10 @@ $titleHeight: 25px
 
 .player
   position: absolute
+  top: $playerTop
   width: $playerWidth
   height: $playerHeight
+  cursor: pointer
   overflow: hidden
 
   .video
@@ -24,28 +23,29 @@ $titleHeight: 25px
     height: $playerHeight
     overflow: hidden
 
-  .main-button
-    position: absolute
-    left: ($playerWidth / 2) - ($playWidth / 2)
-    top: ($playerHeight / 2) - ($playHeight / 2)
-    width: $playWidth
-    height: $playHeight
-    cursor: pointer
+  // .main-button
+  //   position: absolute
+  //   left: ($playerWidth / 2) - ($playWidth / 2)
+  //   top: ($playerHeight / 2) - ($playHeight / 2)
+  //   width: $playWidth
+  //   height: $playHeight
+  //   cursor: pointer
 
-    .icon
-      position: absolute
+  //   .icon
+  //     position: absolute
 
-      &.play
-        stroke: transparentize($white, 0.2)
-        fill: transparentize(black, 0.4)
+  //     &.play
+  //       stroke: transparentize($white, 0.2)
+  //       fill: transparentize(black, 0.4)
 
-      &.pause
-        stroke: transparentize($white, 0.2)
-        fill: transparentize(black, 0.4)
+  //     &.pause
+  //       stroke: transparentize($white, 0.2)
+  //       fill: transparentize(black, 0.4)
 
   .thumbnail
     position: absolute
     width: $playerWidth
+    height: $playerHeight
 
   .title
     position: absolute

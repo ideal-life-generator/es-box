@@ -1,17 +1,21 @@
 @import "../../styles/mixins.sass"
 @import "../../styles/variables.sass"
 @import "../search/index.sass"
+@import "../create-video-player/index.sass"
 
 $resultsTop: 25px
 $resultsWidth: $mainWidth
 $itemHeight: 146.25px
-$playerWidth: $itemHeight / 0.75
-$playerHeight: $playerWidth * 0.75
 $contentPaddingLeft: $playerWidth + 20px
+$contentWidth: $resultsWidth - $contentPaddingLeft
+$playbackTop: 20px
+$playbackWidth: 18px
+$playbackHeight: 20.36px
 $playWidth: 30px
 $playHeight: 33.88px
-$thumbnailHeight: 90px
+$titleTop: 50px
 $titleHeight: 25px
+$progressTop: $itemHeight
 
 @value itemHeight #{$itemHeight}
 
@@ -38,24 +42,36 @@ $titleHeight: 25px
         .content
           position: absolute
           left: $contentPaddingLeft
-          width: $resultsWidth - $contentPaddingLeft
+          width: $contentWidth
           height: $itemHeight
 
-          .icon
+          .playback
             position: absolute
-            top: 20px
-            width: 18px
-            stroke: transparentize($white, 0.2)
-            fill: none
+            top: $playbackTop
+            width: $playbackWidth
+            height: $playbackHeight
             cursor: pointer
 
-            .play
+            .icon
+              position: absolute
+              stroke: transparentize($white, 0.2)
+              fill: none
+
+            &.hover .icon
+              stroke: transparentize($violet, 0.2)
 
           .title
             position: absolute
-            top: 50px
+            top: $titleTop
             height: $titleHeight
             font-size: 13.5px
+
+          .progress
+            position: absolute
+            top: 128px
+            width: $contentWidth
+            height: 1px
+            background-color: $white
 
     .separator
       position: absolute

@@ -5,7 +5,7 @@ import { fetchItems } from '../results/youtube/state'
 
 const state = {
   value: '',
-  normalizedValue: 'One Punch Man - BATTLE!! (Extended)',
+  normalizedValue: 'starboy',
   clear: false,
 }
 

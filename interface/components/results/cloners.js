@@ -18,6 +18,10 @@ export const content = _cloner({
   class: 'content',
 })
 
+export const playback = _cloner({
+  class: 'playback',
+}, true)
+
 export const play = _cloner({
   node: $play,
 }, true)
@@ -29,6 +33,10 @@ export const pause = _cloner({
 export const title = _cloner({
   el: 'p',
   class: 'title',
+})
+
+export const progress = _cloner({
+  class: 'progress',
 })
 
 export const separators = _cloner({ el: 'ul' })

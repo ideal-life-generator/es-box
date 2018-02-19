@@ -5,6 +5,8 @@ import _append from '_/append' // eslint-disable-line
 import _remove from '_/remove' // eslint-disable-line
 import _animateCoords from '_/animate-coords' // eslint-disable-line
 import _animateStyle from '_/animate-style' // eslint-disable-line
+import _classAdd from '_/class-add' // eslint-disable-line
+import _classRemove from '_/class-remove' // eslint-disable-line
 import { $youtubeSongs } from './elements'
 import * as clone from '../cloners'
 import { itemHeight, animationDuration } from '../settings'
@@ -13,21 +15,63 @@ import createPlayer from '../../create-video-player'
 
 const collection = _collection($youtubeSongs, {
   create: i => {
-    const { $player, emit } = createPlayer()
-    const $play = clone.play()
+    const player = createPlayer()
+
+    player.on({
+      PLAYBACK_HOVER: () => _classAdd($playback, 'hover'),
+      PLAYBACK_HOVER_ENDED: () => _classRemove($playback, 'hover'),
+      PLAY: () => {
+        _animateStyle($playbackIcon, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }, $element => _remove($element))
+
+        $playbackIcon = clone.pause({
+          events: {
+            click: () => player.emit('PAUSE'),
+            mouseenter: () => player.emit('PLAYBACK_HOVER'),
+            mouseleave: () => player.emit('PLAYBACK_HOVER_ENDED'),
+          },
+        })
+
+        _animateStyle($playbackIcon, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })
+        _append($playback, $playbackIcon)
+      },
+      PAUSE: () => {
+        _animateStyle($playbackIcon, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }, $element => _remove($element))
+
+        $playbackIcon = clone.play({
+          events: {
+            click: () => player.emit('PLAY'),
+            mouseenter: () => player.emit('PLAYBACK_HOVER'),
+            mouseleave: () => player.emit('PLAYBACK_HOVER_ENDED'),
+          },
+        })
+
+        _animateStyle($playbackIcon, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })
+        _append($playback, $playbackIcon)
+      },
+    })
+
+    let $playbackIcon = clone.play({
+      events: {
+        click: () => player.emit('PLAY'),
+        mouseenter: () => player.emit('PLAYBACK_HOVER'),
+        mouseleave: () => player.emit('PLAYBACK_HOVER_ENDED'),
+      },
+    })
+    const $playback = clone.playback({ append: $playbackIcon })
     const $title = clone.title()
+    const $progress = clone.progress()
     const $content = clone.content({
-      append: [$play, $title],
+      append: [$playback, $title, $progress],
     })
 
     return {
       $item: clone.item({
         coords: { y: i * itemHeight },
         animateStyle: [{ duration: animationDuration }, { opacity: 0 }, { opacity: 1 }],
-        append: [$player, $content],
+        append: [player.$player, $content],
       }),
       $title,
-      player: { emit },
+      player,
     }
   },
   update: {
