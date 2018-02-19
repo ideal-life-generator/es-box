@@ -1,17 +1,13 @@
 @import "../../styles/variables.sass"
 
-$itemHeight: 146.25px
-$playerWidth: 195px
+$playerWidth: 200px
 $playerHeight: 110px
-$playerTop: ($itemHeight - $playerHeight) / 2
-$playWidth: 30px
-$playHeight: 33.88px
+// $playWidth: 30px
+// $playHeight: 33.88px
 $thumbnailHeight: 90px
-$titleHeight: 25px
 
 .player
   position: absolute
-  top: $playerTop
   width: $playerWidth
   height: $playerHeight
   cursor: pointer
@@ -46,12 +42,3 @@ $titleHeight: 25px
     position: absolute
     width: $playerWidth
     height: $playerHeight
-
-  .title
-    position: absolute
-    left: $playerWidth + 45px
-    top: ($itemHeight - $titleHeight) / 2
-    height: $titleHeight
-    text-overflow: ellipsis
-    white-space: nowrap
-    overflow: hidden

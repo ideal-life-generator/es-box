@@ -4,8 +4,9 @@
 $mainPlayerWidth: $mainWidth
 $mainPlayerTop: 10px
 $mainPlayerBottom: 10px
-$mainPlayerHeight: 19px
-$iconSize: $mainPlayerHeight
+$mainPlayerHeight: 20.36px
+$iconWidth: 18px
+$iconHeight: $mainPlayerHeight
 
 .main-player
   position: absolute
@@ -13,13 +14,13 @@ $iconSize: $mainPlayerHeight
   // width: $mainPlayerWidth
   height: $mainPlayerHeight
 
-  .main-icon
+  .playback
     position: absolute
-    width: 18px
-    height: $iconSize
     stroke: transparentize($violet, 0.2)
     cursor: pointer
 
     .icon
       position: absolute
+      width: $iconWidth
+      height: $iconHeight
       fill: none

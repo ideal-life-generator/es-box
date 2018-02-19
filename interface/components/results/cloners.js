@@ -10,12 +10,16 @@ export const list = _cloner({
 
 export const item = _cloner({
   el: 'li',
+  class: 'item',
   style: { opacity: 0 },
 })
 
 export const content = _cloner({
-  el: 'div',
   class: 'content',
+})
+
+export const info = _cloner({
+  class: 'info',
 })
 
 export const playback = _cloner({
@@ -35,13 +39,13 @@ export const title = _cloner({
   class: 'title',
 })
 
-export const progress = _cloner({
-  class: 'progress',
+export const separators = _cloner({
+  el: 'ul',
+  class: 'separators',
 })
 
-export const separators = _cloner({ el: 'ul' })
-
 export const separator = _cloner({
+  el: 'li',
   class: 'separator',
 })
 

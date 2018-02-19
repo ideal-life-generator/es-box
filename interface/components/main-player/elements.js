@@ -10,11 +10,11 @@ export const $pause = pauseIcon({
   class: 'icon',
 })
 
-export const $mainIcon = _({
-  class: 'main-icon',
+export const $playback = _({
+  class: 'playback',
 })
 
 export const $mainPlayer = _({
   class: 'main-player',
-  append: [$mainIcon],
+  append: [$playback],
 })

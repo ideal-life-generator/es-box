@@ -12,7 +12,7 @@ import {
   // clonePlay,
   // clonePause,
 } from './cloners'
-import createState from './create-state'
+import createState from './state'
 // import { animationDuration } from './settings'
 import './index.sass'
 
@@ -73,7 +73,6 @@ export default () => {
 
       $video.play()
 
-
       // const $play = clonePlay()
       // $mainButton = ncloneMainButton({ append: $play })
       // _animateStyle($mainButton, { duration: 150 }, { opacity: 0 }, { opacity: 1 }, $element => {
@@ -94,5 +93,5 @@ export default () => {
     SET_SOURCE: source => _attributes($source, { src: source }),
   })
 
-  return { $player, state, emit, on }
+  return { $player, $video, state, emit, on }
 }

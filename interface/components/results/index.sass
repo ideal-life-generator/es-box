@@ -5,17 +5,20 @@
 
 $resultsTop: 25px
 $resultsWidth: $mainWidth
-$itemHeight: 146.25px
-$contentPaddingLeft: $playerWidth + 20px
-$contentWidth: $resultsWidth - $contentPaddingLeft
-$playbackTop: 20px
+$itemWidth: $resultsWidth
+$itemHeight: 150px
+$contentHeight: 110px
+$contentTop: ($itemHeight - $contentHeight) / 2
+$infoHeight: $contentHeight
+$infoPaddingLeft: $playerWidth + 20px
+$infoWidth: $itemWidth - $infoPaddingLeft
 $playbackWidth: 18px
 $playbackHeight: 20.36px
-$playWidth: 30px
-$playHeight: 33.88px
-$titleTop: 50px
-$titleHeight: 25px
-$progressTop: $itemHeight
+$titleTop: 27px
+$titleHeight: 20px
+$progressHeight: 1px
+$progressTop: $infoHeight - $progressHeight
+$progressTimeHeight: 19.2px
 
 @value itemHeight #{$itemHeight}
 
@@ -24,36 +27,38 @@ $progressTop: $itemHeight
 .results
   position: absolute
   top: $searchTop + $searchHeight + $resultsTop
-  width: $resultsWidth
+  width: $itemWidth
   border-radius: 0.5px
 
-  ul
+  .list
     position: absolute
-    width: $resultsWidth
-    &.list
+    width: $itemWidth
+
+    .item
       position: absolute
-      width: $resultsWidth
+      width: $itemWidth
+      height: $itemHeight
 
-      li
+      .content
         position: absolute
-        width: $resultsWidth
-        height: $itemHeight
+        top: $contentTop
+        width: $itemWidth
+        height: $contentHeight
 
-        .content
+        .info
           position: absolute
-          left: $contentPaddingLeft
-          width: $contentWidth
-          height: $itemHeight
+          left: $infoPaddingLeft
+          width: $infoWidth
+          height: $infoHeight
 
           .playback
             position: absolute
-            top: $playbackTop
-            width: $playbackWidth
-            height: $playbackHeight
             cursor: pointer
 
             .icon
               position: absolute
+              width: $playbackWidth
+              height: $playbackHeight
               stroke: transparentize($white, 0.2)
               fill: none
 
@@ -64,24 +69,50 @@ $progressTop: $itemHeight
             position: absolute
             top: $titleTop
             height: $titleHeight
-            font-size: 13.5px
+            line-height: $titleHeight
+            font-size: 14.5px
 
           .progress
             position: absolute
-            top: 128px
-            width: $contentWidth
-            height: 1px
-            background-color: $white
+            top: $progressTop
+            width: $infoWidth
+            border-top: $progressHeight solid transparentize($white, 0.2)
+            cursor: pointer
+            user-select: none
+
+            .cursor
+              position: absolute
+              left: 150px
+
+              .point
+                position: absolute
+                width: 1px
+                height: 1px
+                background-color: transparentize($violet, 0.2)
+
+              .time
+                position: absolute
+                top: -25px
+                left: $playbackWidth + 15px
+                font-size: 13.5px
+                font-weight: 300
+
+                span
+                  line-height: 25px
+
+  .separators
+    position: absolute
+    width: $itemWidth
 
     .separator
       position: absolute
-      width: $resultsWidth
+      width: $itemWidth
       border-bottom: 1px solid transparentize($white, 0.8)
       opacity: 0
 
   .y-resizer
     position: absolute
-    width: $resultsWidth
+    width: $itemWidth
     height: 8px
     border-top: 1px solid transparentize($violet, 0.5)
     user-select: none
