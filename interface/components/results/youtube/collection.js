@@ -61,6 +61,12 @@ const collection = _collection($youtubeSongs, {
         fadeIn($playbackIcon)
         _append($playback, $playbackIcon)
       },
+      DURATION_CHANGED: () => {
+        progress.setDuration(player.state.duration)
+      },
+      CURRENT_TIME_CHANGED: () => {
+        progress.setCurrentTime(player.state.currentTime)
+      },
     })
 
     const $playback = clone.playback({ append: $playbackIcon })
@@ -81,7 +87,7 @@ const collection = _collection($youtubeSongs, {
       append: [player.$player, $info],
     })
     const $item = clone.item({
-      coords: { y: i * itemHeight },
+      coords: { top: i * itemHeight },
       animateStyle: [{ duration: animationDuration }, { opacity: 0 }, { opacity: 1 }],
       append: $content,
     })
@@ -99,7 +105,7 @@ const collection = _collection($youtubeSongs, {
     title: ({ $title }, title) => _text($title, title),
   },
   move: ({ $item }, { previousIndex, nextIndex }) =>
-    _animateCoords($item, { duration: animationDuration }, { y: previousIndex * itemHeight }, { y: nextIndex * itemHeight }),
+    _animateCoords($item, { duration: animationDuration }, { top: previousIndex * itemHeight }, { top: nextIndex * itemHeight }),
   remove: async ({ $item }) => await _animateStyle($item, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }),
 })
 

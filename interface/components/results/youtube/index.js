@@ -14,7 +14,7 @@ on({
   ITEMS_UPDATED: () => collection(state),
   SET_RESIZER_POSITION: ({ size, position }) => {
     _coords($youtubeSongs, { height: size })
-    _coords($yResizer, { y: position })
+    _coords($yResizer, { top: position })
   },
   // RESIZER_MAX_CHANGE: ({ resizerMax }) => {
   //   yResizer.setMax(resizerMax)

@@ -5,7 +5,7 @@ import { fetchItems } from '../results/youtube/state'
 
 const state = {
   value: '',
-  normalizedValue: 'black betles',
+  normalizedValue: 'starboy',
   clear: false,
 }
 

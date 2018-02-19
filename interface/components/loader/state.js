@@ -3,13 +3,27 @@ import _assign from '__/assign' // eslint-disable-line
 
 export default () => {
   const state = {
+    position: {
+      left: null,
+      top: null,
+    },
+    size: null,
     loading: false,
-    playback: null,
-    duration: null,
-    currentTime: null,
   }
 
   const { emit, on } = _state(state)
+
+  const setPosition = position => {
+    _assign(state.position, position)
+
+    emit('POSITION_CHANGED')
+  }
+
+  const setSize = size => {
+    state.size = size
+
+    emit('SIZE_CHANGED')
+  }
 
   const setLoading = loading => {
     state.loading = loading
@@ -21,24 +35,12 @@ export default () => {
     }
   }
 
-  const setDuration = duration => {
-    state.duration = duration
-
-    emit('DURATION_CHANGED')
-  }
-
-  const setCurrentTime = currentTime => {
-    state.currentTime = currentTime
-
-    emit('CURRENT_TIME_CHANGED')
-  }
-
   return {
     state,
     emit,
     on,
+    setPosition,
+    setSize,
     setLoading,
-    setDuration,
-    setCurrentTime,
   }
 }

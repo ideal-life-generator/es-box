@@ -2,6 +2,9 @@
 
 $playerWidth: 200px
 $playerHeight: 110px
+$loaderSize: 25px
+$loaderLeft: ($playerWidth - $loaderSize) / 2
+$loaderTop: ($playerHeight - $loaderSize) / 2
 // $playWidth: 30px
 // $playHeight: 33.88px
 $thumbnailHeight: 90px
@@ -12,6 +15,12 @@ $thumbnailHeight: 90px
   height: $playerHeight
   cursor: pointer
   overflow: hidden
+
+  .loader
+    left: $loaderLeft
+    top: $loaderTop
+    width: $loaderSize
+    height: $loaderSize
 
   .video
     position: absolute

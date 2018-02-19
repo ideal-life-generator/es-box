@@ -1,40 +1,25 @@
-import style_ from '_/style' // eslint-disable-line
-import assign_ from '__/assign' // eslint-disable-line
+import _style from '_/style' // eslint-disable-line
+import _assign from '__/assign' // eslint-disable-line
 
 const { keys } = Object
 const { isArray } = Array
 
-const parseKey = key => {
-  switch (key) {
-    case 'x': {
-      return 'left'
-    }
-    case 'y': {
-      return 'top'
-    }
-    default: {
-      return key
-    }
-  }
-}
-
-export default function params_(node, params) {
+export default function _params(node, params) {
   if (isArray(node)) {
-    node.forEach(n => params_(n, params))
+    node.forEach(n => _params(n, params))
   } else {
     const style = {}
 
     keys(params).forEach(key => {
       const value = params[key]
-      const parsedKey = parseKey(key)
 
       if (typeof value === 'number') {
-        style[parsedKey] = `${value}px`
+        style[key] = `${value}px`
       } else if (value === null) {
-        style[parsedKey] = null
+        style[key] = null
       }
     })
 
-    style_(node, assign_(style, { position: 'absolute' }))
+    _style(node, _assign(style, { position: 'absolute' }))
   }
 }

@@ -14,10 +14,18 @@ import {
 } from './cloners'
 import createState from './state'
 // import { animationDuration } from './settings'
+import createLoader from '../loader'
 import './index.sass'
 
 export default () => {
-  const { state, emit, on } = createState()
+  const {
+    state,
+    emit,
+    on,
+    setLoading,
+    setDuration,
+    setCurrentTime,
+  } = createState()
 
   let $thumbnail = cloneThumbnail()
   // let $mainButton = cloneMainButton({
@@ -32,14 +40,37 @@ export default () => {
   // })
   const $source = cloneSource()
   const $video = cloneVideo({
-    events: {
+    events: $element => ({
+      loadstart: () => {
+        setLoading(true)
+      },
+      canplay: () => {
+        setLoading(false)
+      },
+      loadedmetadata: () => {
+        const {
+          duration,
+          currentTime,
+        } = $element
+
+        setDuration(duration)
+        setCurrentTime(currentTime)
+      },
+      timeupdate: () => {
+        const { currentTime } = $element
+
+        setCurrentTime(currentTime)
+      },
+      // canplay: () => {
+
+      // },
       play: () => {
         state.playback = 'PLAY'
       },
       pause: () => {
         state.playback = 'PAUSE'
       },
-    },
+    }),
     append: $source,
   })
   const $player = clonePlayer({
@@ -54,10 +85,17 @@ export default () => {
         }
       },
     },
-    append: [$video, $thumbnail],
+    append: [$video/*, $thumbnail*/],
   })
+  const loader = createLoader($player)
 
   on({
+    LOADING: () => {
+      loader.setLoading(true)
+    },
+    LOADED: () => {
+      loader.setLoading(false)
+    },
     SET_THUMBNAIL: thumbnail => {
       _attributes($thumbnail, { src: thumbnail })
     },
@@ -93,5 +131,14 @@ export default () => {
     SET_SOURCE: source => _attributes($source, { src: source }),
   })
 
-  return { $player, $video, state, emit, on }
+  return {
+    $player,
+    $video,
+    state,
+    emit,
+    on,
+    setLoading,
+    setDuration,
+    setCurrentTime,
+  }
 }

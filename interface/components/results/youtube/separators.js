@@ -6,7 +6,7 @@ import { $separators } from './elements'
 
 export default _separators($separators, {
   create: i => cloneSeparator({
-    coords: { y: i * itemHeight },
+    coords: { top: i * itemHeight },
     animateStyle: [{ duration: animationDuration }, { opacity: 0 }, { opacity: 1 }],
   }),
   remove: async $separator => await _animateStyle($separator, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }),
