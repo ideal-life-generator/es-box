@@ -1,5 +1,5 @@
-import createElement_ from '_/create-element' // eslint-disable-line
-import createSvg_ from '_/create-svg' // eslint-disable-line
+import createElement_ from '_/create-element'
+import createSvg_ from '_/create-svg'
 
 export default ({ el, svg }) => {
   if (svg) return createSvg_(typeof svg === 'string' ? svg : 'svg')

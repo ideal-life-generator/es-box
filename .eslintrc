@@ -3,15 +3,18 @@
     "browser": true,
     "node": true
   },
-  "parserOptions": {
-     "parser": "babel-eslint",
-  },
+  "parser": "babel-eslint",
   plugins: ["import"],
   "extends": [
     "airbnb-base",
     "plugin:import/errors",
     "plugin:import/warnings"
   ],
+  "settings": {
+    "import/resolver": {
+      "babel-module": {}
+    }
+  },
   "rules": {
     "semi": [1, "never"],
     "comma-dangle": [1, "always-multiline"],

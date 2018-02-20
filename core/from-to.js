@@ -1,9 +1,11 @@
+const { keys } = Object
+
 const calculateNumber = (from, to) => cursor => from + ((to - from) * cursor)
 
-const calculateObject = (keys, from, to) => {
+const calculateObject = (paramsKeys, from, to) => {
   const calculateHandlers = {}
 
-  keys.forEach(key => {
+  paramsKeys.forEach(key => {
     const fromNumber = from[key]
     const toNumber = to[key]
 
@@ -13,7 +15,7 @@ const calculateObject = (keys, from, to) => {
   return cursor => {
     const current = {}
 
-    keys.forEach(key => current[key] = calculateHandlers[key](cursor))
+    paramsKeys.forEach(key => current[key] = calculateHandlers[key](cursor))
 
     return current
   }
@@ -26,7 +28,7 @@ export default (from, to, { duration }, callback) => new Promise(resolve => {
   if (typeof from === 'number' && typeof to === 'number') {
     calculate = calculateNumber(from, to)
   } else if (typeof from === 'object' && typeof to === 'object') {
-    calculate = calculateObject(Object.keys(to), from, to)
+    calculate = calculateObject(keys(from), from, to)
   }
 
   const tick = () => {

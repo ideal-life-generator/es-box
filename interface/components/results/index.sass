@@ -1,7 +1,7 @@
 @import "../../styles/mixins.sass"
 @import "../../styles/variables.sass"
 @import "../search/index.sass"
-@import "../video-player/index.sass"
+@import "../video-player.sass"
 
 $resultsTop: 25px
 $resultsWidth: $mainWidth
@@ -53,17 +53,15 @@ $progressTimeHeight: 19.2px
 
           .playback
             position: absolute
+            stroke: transparentize($white, 0.2)
             cursor: pointer
 
             .icon
               position: absolute
               width: $playbackWidth
               height: $playbackHeight
-              stroke: transparentize($white, 0.2)
+              stroke: inherit
               fill: none
-
-            &.hover .icon
-              stroke: transparentize($violet, 0.2)
 
           .title
             position: absolute
@@ -73,32 +71,8 @@ $progressTimeHeight: 19.2px
             font-size: 14.5px
 
           .progress
-            position: absolute
             top: $progressTop
             width: $infoWidth
-            border-top: $progressHeight solid transparentize($white, 0.2)
-            cursor: pointer
-            user-select: none
-
-            .cursor
-              position: absolute
-              left: 150px
-
-              .point
-                position: absolute
-                width: 1px
-                height: 1px
-                background-color: transparentize($violet, 0.2)
-
-              .time
-                position: absolute
-                top: -25px
-                left: $playbackWidth + 15px
-                font-size: 13.5px
-                font-weight: 300
-
-                span
-                  line-height: 25px
 
   .separators
     position: absolute

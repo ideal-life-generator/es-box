@@ -1,6 +1,6 @@
 import { resolve } from 'path'
-import { DefinePlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
-import webpackNodeExternals from 'webpack-node-externals' // eslint-disable-line import/no-extraneous-dependencies
+import { DefinePlugin } from 'webpack'
+import webpackNodeExternals from 'webpack-node-externals'
 import UglifyJSPlugin from 'uglifyjs-webpack-plugin'
 
 export const { env: { PRODUCTION, SERVER } } = process

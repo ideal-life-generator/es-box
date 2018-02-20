@@ -1,6 +1,6 @@
-import _events from '_/events' // eslint-disable-line
-import _eventsRemove from '_/events-remove' // eslint-disable-line
-import _caster from '__/caster' // eslint-disable-line
+import _events from '_/events'
+import _eventsRemove from '_/events-remove'
+import _caster from '__/caster'
 
 const { round } = Math
 

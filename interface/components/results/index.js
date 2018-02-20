@@ -1,4 +1,4 @@
-import _ from '_' // eslint-disable-line
+import _ from '_'
 // import ﾟuserSongs from './user-songs'
 import $youtubeSongs from './youtube'
 import './index.sass'

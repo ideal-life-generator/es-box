@@ -1,9 +1,11 @@
 import fetch from './utils/fetch'
 
+const normalizeIds = ({ items }) => items.map(({ id: { videoId: id } }) => id).join(',')
+
 const normalize = ({ pageInfo: { totalResults }, items, items: { length: count } }) => ({
   count,
   items: items.map(({
-    id: { videoId: id },
+    id,
     snippet: {
       title,
       thumbnails: { medium: { url: thumbnailUrl } },
@@ -17,11 +19,21 @@ const normalize = ({ pageInfo: { totalResults }, items, items: { length: count }
 })
 
 export const search = async ({ key, count }) => {
-  const { data } = await fetch('search', {
+  const { data: ids } = await fetch('search', {
     query: {
       q: key,
       maxResults: count,
-      part: 'snippet',
+      type: 'video',
+      part: 'id',
+    },
+  })
+
+  const normalizedIds = normalizeIds(ids)
+
+  const { data } = await fetch('videos', {
+    query: {
+      id: normalizedIds,
+      part: 'snippet,contentDetails',
     },
   })
 

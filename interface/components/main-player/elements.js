@@ -1,4 +1,4 @@
-import _ from '_' // eslint-disable-line
+import _ from '_'
 import playIcon from '../icons/play'
 import pauseIcon from '../icons/pause'
 

@@ -1,5 +1,5 @@
-import fromTo_ from '__/from-to' // eslint-disable-line
-import coords_ from '_/coords' // eslint-disable-line
+import fromTo_ from '__/from-to'
+import coords_ from '_/coords'
 
-export default (node, coords, from, to, callback) =>
-  fromTo_(from, to, coords, current => coords_(node, current), callback)
+export default (node, from, to, options, callback) =>
+  fromTo_(from, to, options, current => coords_(node, current), callback)

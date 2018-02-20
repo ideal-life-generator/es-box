@@ -1,4 +1,4 @@
-import _cloner from '_/cloner' // eslint-disable-line
+import _cloner from '_/cloner'
 import { $play, $pause } from './elements'
 
 export const container = _cloner()

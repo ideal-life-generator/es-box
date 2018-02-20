@@ -1,4 +1,4 @@
-import assign_ from '__/assign' // eslint-disable-line
+import assign_ from '__/assign'
 
 const { stringify } = JSON
 

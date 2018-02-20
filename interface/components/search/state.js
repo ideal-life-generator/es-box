@@ -1,6 +1,6 @@
-import _state from '__/state' // eslint-disable-line
-import _normalizeKey from '__/normalize-key' // eslint-disable-line
-import _delay from '__/delay' // eslint-disable-line
+import _state from '__/state'
+import _normalizeKey from '__/normalize-key'
+import _delay from '__/delay'
 import { fetchItems } from '../results/youtube/state'
 
 const state = {

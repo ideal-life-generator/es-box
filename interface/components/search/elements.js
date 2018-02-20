@@ -1,9 +1,9 @@
-import _ from '_' // eslint-disable-line
-import _animateStyle from '_/animate-style' // eslint-disable-line
-import _append from '_/append' // eslint-disable-line
-import _remove from '_/remove' // eslint-disable-line
-import _assign from '__/assign' // eslint-disable-line
-import _delay from '__/delay' // eslint-disable-line
+import _ from '_'
+import _animateStyle from '_/animate-style'
+import _append from '_/append'
+import _remove from '_/remove'
+import _assign from '__/assign'
+import _delay from '__/delay'
 import clearIcon from '../icons/clear'
 
 export const $clear = _({

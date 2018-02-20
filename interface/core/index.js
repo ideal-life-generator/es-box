@@ -1,14 +1,14 @@
-import createNode_ from '_/create-node' // eslint-disable-line
-import attributes_ from '_/attributes' // eslint-disable-line
-import coords_ from '_/coords' // eslint-disable-line
-import class_ from '_/class' // eslint-disable-line
-import style_ from '_/style' // eslint-disable-line
-import text_ from '_/text' // eslint-disable-line
-import append_ from '_/append' // eslint-disable-line
-import events_ from '_/events' // eslint-disable-line
-import assign_ from '__/assign' // eslint-disable-line
-import animateStyle_ from '_/animate-style' // eslint-disable-line
-import animateCoords_ from '_/animate-coords' // eslint-disable-line
+import createNode_ from '_/create-node'
+import attributes_ from '_/attributes'
+import coords_ from '_/coords'
+import class_ from '_/class'
+import style_ from '_/style'
+import text_ from '_/text'
+import append_ from '_/append'
+import events_ from '_/events'
+import assign_ from '__/assign'
+import animateStyle_ from '_/animate-style'
+import animateCoords_ from '_/animate-coords'
 
 export default ({
   el,
@@ -23,6 +23,7 @@ export default ({
   events,
   animateStyle,
   animateCoords,
+  created,
   ...assign
 }) => {
   if (!node) node = createNode_({ el, svg })
@@ -37,6 +38,8 @@ export default ({
   if (animateStyle) animateStyle_.call(null, node, ...animateStyle)
   if (animateCoords) animateCoords_.call(null, node, ...animateCoords)
   if (assign) assign_(node, assign)
+
+  if (created) created(node)
 
   return node
 }

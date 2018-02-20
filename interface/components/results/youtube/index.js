@@ -1,7 +1,5 @@
-import _collection from '_/collection' // eslint-disable-line
-import _coords from '_/coords' // eslint-disable-line
-import _delayInterval from '__/delay-interval' // eslint-disable-line
-import _class from '_/class' // eslint-disable-line
+import _coords from '_/coords'
+import _delayInterval from '__/delay-interval'
 import { $youtubeSongs, $separators, $yResizer } from './elements'
 import { container as cloneContainer } from '../cloners'
 import collection from './collection'

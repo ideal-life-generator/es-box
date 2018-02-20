@@ -1,6 +1,6 @@
-@import "../../styles/variables.sass"
+@import "../styles/variables.sass"
 
-$playerWidth: 200px
+$playerWidth: 195px
 $playerHeight: 110px
 $loaderSize: 25px
 $loaderLeft: ($playerWidth - $loaderSize) / 2
@@ -15,6 +15,12 @@ $thumbnailHeight: 90px
   height: $playerHeight
   cursor: pointer
   overflow: hidden
+
+  .thumbnail
+    position: absolute
+    width: $playerWidth
+    height: $playerHeight
+    z-index: 1
 
   .loader
     left: $loaderLeft
@@ -46,8 +52,3 @@ $thumbnailHeight: 90px
   //     &.pause
   //       stroke: transparentize($white, 0.2)
   //       fill: transparentize(black, 0.4)
-
-  .thumbnail
-    position: absolute
-    width: $playerWidth
-    height: $playerHeight

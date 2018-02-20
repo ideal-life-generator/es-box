@@ -1,5 +1,5 @@
-import _state from '__/state' // eslint-disable-line
-import _assign from '__/assign' // eslint-disable-line
+import _state from '__/state'
+import _assign from '__/assign'
 import searchState from '../../search/state'
 import { search } from '../../../api/youtube'
 

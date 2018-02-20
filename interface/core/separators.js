@@ -1,5 +1,5 @@
-import append_ from '_/append' // eslint-disable-line
-import remove_ from '_/remove' // eslint-disable-line
+import append_ from '_/append'
+import remove_ from '_/remove'
 
 export default (parent, { create, remove }) => {
   const separators = []

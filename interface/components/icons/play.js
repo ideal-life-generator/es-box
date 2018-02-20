@@ -1,5 +1,5 @@
-import _ from '_' // eslint-disable-line
-import cloner_ from '_/cloner' // eslint-disable-line
+import _ from '_'
+import cloner_ from '_/cloner'
 
 export default cloner_({
   svg: true,

@@ -1,5 +1,5 @@
 // import deepAssign from 'deep-assign'
-import _caster from '__/caster' // eslint-disable-line
+import _caster from '__/caster'
 
 const { keys } = Object
 
@@ -9,11 +9,11 @@ export default () => {
   const emit = (name, ...args) => {
     const { [name]: subscribers } = subscribersMap
 
-    if (!subscribers) {
-      throw new Error(`Subscribers for ${name} not defined`)
+    if (subscribers) {
+      subscribersMap[name].forEach(subscriber => subscriber(...args))
+    } else {
+      console.warn(`Subscribers for ${name} not defined`)
     }
-
-    subscribersMap[name].forEach(subscriber => subscriber(...args))
   }
 
   const on = subscribers => {

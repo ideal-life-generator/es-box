@@ -1,4 +1,4 @@
-import _ from '_' // eslint-disable-line
+import _ from '_'
 import $mainPlayer from './main-player'
 import $search from './search'
 import $results from './results'

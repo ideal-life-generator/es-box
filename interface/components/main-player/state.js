@@ -1,4 +1,4 @@
-import _state from '__/state' // eslint-disable-line
+import _state from '__/state'
 
 const state = {
   state: 'PAUSE',

@@ -1,7 +1,6 @@
-import { resolve } from 'path'
-import { BannerPlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
-import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
-import ReloadServerPlugin from 'reload-server-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
+import { BannerPlugin } from 'webpack'
+import merge from 'webpack-merge'
+import ReloadServerPlugin from 'reload-server-webpack-plugin'
 import {
   PRODUCTION,
   outputPath,
@@ -26,9 +25,6 @@ const graphql = {
       babelRule,
       vueRule,
     ],
-  },
-  resolve: {
-    alias: { _: resolve('core') },
   },
   stats,
   externals: nodeExternals,

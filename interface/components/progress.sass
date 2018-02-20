@@ -1,0 +1,30 @@
+@import "../styles/mixins.sass"
+@import "../styles/variables.sass"
+
+$progressHeight: 1px
+
+.progress
+  position: absolute
+  border-top: $progressHeight solid transparentize($white, 0.8)
+  cursor: pointer
+  user-select: none
+
+  .cursor
+    position: absolute
+    left: 150px
+
+    .point
+      position: absolute
+      width: 1px
+      height: 1px
+      background-color: transparentize($violet, 0.2)
+
+    .time
+      position: absolute
+      top: -25px
+      left: 15px
+      font-size: 13.5px
+      font-weight: 300
+
+      span
+        line-height: 25px

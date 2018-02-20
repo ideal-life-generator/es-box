@@ -1,5 +1,5 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import _normalizeKey from '_/normalize-key' // eslint-disable-line
+import _normalizeKey from '_/normalize-key'
 
 const typeDefs = `
 type YoutubeResult {

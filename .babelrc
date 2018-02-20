@@ -9,6 +9,12 @@
       "regenerator": true
     }],
     "dynamic-import-node",
-    "transform-decorators-legacy"
+    "transform-decorators-legacy",
+    ["module-resolver", {
+      "alias": {
+        "__": "./core",
+        "_": "./interface/core",
+      },
+    }],
   ]
 }

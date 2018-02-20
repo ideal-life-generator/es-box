@@ -1,7 +1,7 @@
 import clone from 'fast-clone'
-import append_ from '_/append' // eslint-disable-line
-import before_ from '_/before' // eslint-disable-line
-import resolve_ from '__/resolve' // eslint-disable-line
+import append_ from '_/append'
+import before_ from '_/before'
+import resolve_ from '__/resolve'
 
 const { assign, keys } = Object
 const { isArray } = Array

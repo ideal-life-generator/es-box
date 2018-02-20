@@ -1,14 +1,14 @@
-import $ from '_' // eslint-disable-line
-import $collection from '_/collection' // eslint-disable-line
-import $params from '_/params' // eslint-disable-line
-import $text from '_/text' // eslint-disable-line
-import $events from '_/events' // eslint-disable-line
-import $eventsRemove from '_/events-remove' // eslint-disable-line
-import $animateStyle from '_/animate-style' // eslint-disable-line
-import $animateParams from '_/animate-params' // eslint-disable-line
-import $separator from '_/separator' // eslint-disable-line
-import { $take } from '_/broadcast' // eslint-disable-line
-import { $key } from '_/normalize' // eslint-disable-line
+import $ from '_'
+import $collection from '_/collection'
+import $params from '_/params'
+import $text from '_/text'
+import $events from '_/events'
+import $eventsRemove from '_/events-remove'
+import $animateStyle from '_/animate-style'
+import $animateParams from '_/animate-params'
+import $separator from '_/separator'
+import { $take } from '_/broadcast'
+import { $key } from '_/normalize'
 import ﾟresults from './'
 import {
   $containerﾟ,

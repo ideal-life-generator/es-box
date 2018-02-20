@@ -1,4 +1,4 @@
-import _ from '_' // eslint-disable-line
+import _ from '_'
 import './logo.sass'
 
 export default _({

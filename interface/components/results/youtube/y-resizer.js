@@ -1,4 +1,4 @@
-import _resizer from '_/resizer' // eslint-disable-line
+import _resizer from '_/resizer'
 import { $youtubeSongs, $yResizer } from './elements'
 import state from './state'
 import { itemHeight } from '../settings'

@@ -1,7 +1,7 @@
-import _animateStyle from '_/animate-style' // eslint-disable-line
-import _events from '_/events' // eslint-disable-line
-import _append from '_/append' // eslint-disable-line
-import _remove from '_/remove' // eslint-disable-line
+import _animateStyle from '_/animate-style'
+import _events from '_/events'
+import _append from '_/append'
+import _remove from '_/remove'
 import { $playback, $mainPlayer } from './elements'
 import * as clone from './cloners'
 import { on, play, pause } from './state'

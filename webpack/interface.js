@@ -1,7 +1,7 @@
 import { resolve } from 'path'
-import { HotModuleReplacementPlugin } from 'webpack' // eslint-disable-line import/no-extraneous-dependencies
-import merge from 'webpack-merge' // eslint-disable-line import/no-extraneous-dependencies
-import HtmlWebpackPlugin from 'html-webpack-plugin' // eslint-disable-line import/no-extraneous-dependencies
+import { HotModuleReplacementPlugin } from 'webpack'
+import merge from 'webpack-merge'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
 import {
   PRODUCTION,
   outputPath,
@@ -29,12 +29,6 @@ const interf = {
       sassRule,
       fileRule,
     ],
-  },
-  resolve: {
-    alias: {
-      __: resolve('core'),
-      _: resolve('interface/core'),
-    },
   },
   stats,
   plugins: [

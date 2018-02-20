@@ -1,112 +1,97 @@
-import _collection from '_/collection' // eslint-disable-line
-import _attributes from '_/attributes' // eslint-disable-line
-import _text from '_/text' // eslint-disable-line
-import _append from '_/append' // eslint-disable-line
-import _remove from '_/remove' // eslint-disable-line
-import _animateCoords from '_/animate-coords' // eslint-disable-line
-import _animateStyle from '_/animate-style' // eslint-disable-line
-import _classAdd from '_/class-add' // eslint-disable-line
-import _classRemove from '_/class-remove' // eslint-disable-line
+import _collection from '_/collection'
+import _text from '_/text'
 import { $youtubeSongs } from './elements'
 import * as clone from '../cloners'
-import { width, itemHeight, animationDuration } from '../settings'
+import { itemHeight } from '../settings'
 import separators from './separators'
-import createPlayer from '../../video-player'
-import createProgress from '../../progress'
-
-const fadeIn = $element =>
-  _animateStyle($element, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })
-
-const fadeOut = ($element, callback) =>
-  _animateStyle($element, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }, callback)
+import VideoPlayer from '../../video-player'
+import Progress from '../../progress'
+import {
+  show,
+  hide,
+  showAppend,
+  hideRemove,
+  moveTop,
+  changeColor,
+} from '../../../utils/animations'
 
 const collection = _collection($youtubeSongs, {
   create: i => {
-    const player = createPlayer()
+    const progress = new Progress()
 
     const createPlay = () => clone.play({
       events: {
-        click: () => player.emit('PLAY'),
-        mouseenter: () => player.emit('PLAYBACK_HOVER'),
-        mouseleave: () => player.emit('PLAYBACK_HOVER_ENDED'),
+        click: () => videoPlayer.subscriber.emit('PLAY'),
+        mouseenter: () => videoPlayer.subscriber.emit('PLAYBACK_HOVER'),
+        mouseleave: () => videoPlayer.subscriber.emit('PLAYBACK_HOVER_ENDED'),
       },
     })
 
     const createPause = () => clone.pause({
       events: {
-        click: () => player.emit('PAUSE'),
-        mouseenter: () => player.emit('PLAYBACK_HOVER'),
-        mouseleave: () => player.emit('PLAYBACK_HOVER_ENDED'),
+        click: () => videoPlayer.subscriber.emit('PAUSE'),
+        mouseenter: () => videoPlayer.subscriber.emit('PLAYBACK_HOVER'),
+        mouseleave: () => videoPlayer.subscriber.emit('PLAYBACK_HOVER_ENDED'),
       },
     })
 
-    let $playbackIcon = createPlay()
-
-    player.on({
-      PLAYBACK_HOVER: () => _classAdd($playback, 'hover'),
-      PLAYBACK_HOVER_ENDED: () => _classRemove($playback, 'hover'),
+    const videoPlayer = new VideoPlayer()
+    videoPlayer.subscriber.on({
+      PLAYBACK_HOVER: () => changeColor($playback, 'stroke', { r: 255, g: 255, b: 255, a: 0.8 }, { r: 255, g: 0, b: 222, a: 0.8 }),
+      PLAYBACK_HOVER_ENDED: () => changeColor($playback, 'stroke', { r: 255, g: 0, b: 222, a: 0.8 }, { r: 255, g: 255, b: 255, a: 0.8 }),
       PLAY: () => {
-        fadeOut($playbackIcon, $element => _remove($element))
+        hideRemove($playbackIcon)
 
         $playbackIcon = createPause()
 
-        fadeIn($playbackIcon)
-        _append($playback, $playbackIcon)
+        showAppend($playback, $playbackIcon)
       },
       PAUSE: () => {
-        fadeOut($playbackIcon, $element => _remove($element))
+        hideRemove($playbackIcon)
 
         $playbackIcon = createPlay()
 
-        fadeIn($playbackIcon)
-        _append($playback, $playbackIcon)
+        showAppend($playback, $playbackIcon)
       },
       DURATION_CHANGED: () => {
-        progress.setDuration(player.state.duration)
+        progress.setDuration(videoPlayer.state.duration)
       },
       CURRENT_TIME_CHANGED: () => {
-        progress.setCurrentTime(player.state.currentTime)
+        progress.setCurrentTime(videoPlayer.state.currentTime)
       },
     })
+    videoPlayer.setCurrentTime(0)
+
+    let $playbackIcon = createPlay()
 
     const $playback = clone.playback({ append: $playbackIcon })
     const $title = clone.title()
-
-    const progress = createProgress({
-      width,
-      time: {
-        minutes: 2,
-        seconds: 31,
-      },
-    })
 
     const $info = clone.info({
       append: [$playback, $title, progress.$progress],
     })
     const $content = clone.content({
-      append: [player.$player, $info],
+      append: [videoPlayer.$player, $info],
     })
     const $item = clone.item({
       coords: { top: i * itemHeight },
-      animateStyle: [{ duration: animationDuration }, { opacity: 0 }, { opacity: 1 }],
       append: $content,
+      created: $element => show($element),
     })
 
     return {
       $item,
       $title,
-      player,
+      videoPlayer,
     }
   },
   update: {
-    thumbnailUrl: ({ player }, thumbnailUrl) => player.emit('SET_THUMBNAIL', thumbnailUrl),
-    id: ({ player }, id) => player.emit('SET_SOURCE', `http://localhost:3001/youtube/mp3/${id}`),
-    // videoState: async ({ $video }, videoState) => {},
+    thumbnailUrl: ({ videoPlayer }, thumbnailUrl) => videoPlayer.subscriber.emit('SET_THUMBNAIL', thumbnailUrl),
+    id: ({ videoPlayer }, id) => videoPlayer.subscriber.emit('SET_SOURCE', `http://localhost:3001/youtube/mp3/${id}`),
     title: ({ $title }, title) => _text($title, title),
   },
-  move: ({ $item }, { previousIndex, nextIndex }) =>
-    _animateCoords($item, { duration: animationDuration }, { top: previousIndex * itemHeight }, { top: nextIndex * itemHeight }),
-  remove: async ({ $item }) => await _animateStyle($item, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }),
+  move: ({ $item }, { previousIndex, nextIndex }) => moveTop($item, previousIndex * itemHeight, nextIndex * itemHeight),
+  remove: ({ $item }) => hide($item),
 })
 
 collection.on(separators)

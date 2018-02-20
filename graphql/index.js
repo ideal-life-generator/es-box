@@ -1,5 +1,5 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import _normalizeKey from '_/normalize-key' // eslint-disable-line
+import _normalizeKey from '__/normalize-key'
 // import fetch from './youtube/utils/fetch'
 // import { search } from './youtube'
 

@@ -1,4 +1,4 @@
-import _fetch from '_/fetch' // eslint-disable-line
+import _fetch from '_/fetch'
 import { YOUTUBE_API_URL, YOUTUBE_API_KEY } from '../../../../config'
 
 export default _fetch({
