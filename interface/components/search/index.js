@@ -1,11 +1,8 @@
 import _events from '_/events'
-import _animateStyle from '_/animate-style'
-import _append from '_/append'
-import _remove from '_/remove'
 import _assign from '__/assign'
-import { animationDuration } from './settings'
 import state, { on, setValue } from './state'
 import { $search, $input, $clear } from './elements'
+import { showAppend, hideRemove } from '../../utils/animations'
 import './index.sass'
 
 _events($input, {
@@ -21,15 +18,11 @@ _events($clear, {
 })
 
 on({
-  UPDATE_CLEAR: async () => {
+  UPDATE_CLEAR: () => {
     if (state.clear) {
-      _append($search, $clear)
-
-      _animateStyle($clear, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })
+      showAppend($search, $clear)
     } else {
-      await _animateStyle($clear, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 })
-
-      _remove($clear)
+      hideRemove($clear)
     }
   },
 })

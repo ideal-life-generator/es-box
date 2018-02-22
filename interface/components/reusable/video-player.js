@@ -1,7 +1,9 @@
 import Subscriber from '__/subscriber'
 import _cloner from '_/cloner'
 import _remove from '_/remove'
+import _assign from '__/assign'
 import _attributes from '_/attributes'
+import _coords from '_/coords'
 import Loader from './loader'
 import './video-player.sass'
 
@@ -22,15 +24,16 @@ export const cloneSource = _cloner({
 
 export default class VideoPlayer {
   state = {
-    playback: null,
-    duration: null,
+    width: null,
+    height: null,
+    paused: true,
     currentTime: null,
   }
 
   $thumbnail = cloneThumbnail()
   $source = cloneSource()
   $video = cloneVideo({
-    events: $element => ({
+    events: {
       loadstart: () => {
         const { setLoading } = this
 
@@ -41,29 +44,12 @@ export default class VideoPlayer {
 
         setLoading(false)
       },
-      loadedmetadata: () => {
-        const { setDuration } = this
-        const { duration } = $element
-
-        setDuration(duration)
-      },
-      timeupdate: () => {
-        const { setCurrentTime } = this
-        const { currentTime } = $element
-
-        setCurrentTime(currentTime)
-      },
-      play: () => {
-        const { state } = this
-
-        state.playback = 'PLAY'
-      },
       pause: () => {
         const { state } = this
 
-        state.playback = 'PAUSE'
+        state.paused = 'PAUSE'
       },
-    }),
+    },
     append: this.$source,
   })
   loader = new Loader()
@@ -80,12 +66,12 @@ export default class VideoPlayer {
         emit('PLAYBACK_HOVER_ENDED')
       },
       click: () => {
-        const { $video: { paused }, subscriber: { emit } } = this
+        const { state: { paused }, play, pause } = this
 
         if (paused) {
-          emit('PLAY')
+          play()
         } else {
-          emit('PAUSE')
+          pause()
         }
       },
     },
@@ -93,6 +79,16 @@ export default class VideoPlayer {
   })
 
   subscriber = new Subscriber({
+    SIZE_CHANGED: () => {
+      const { state: { width, height }, $player } = this
+
+      _coords($player, { width, height })
+    },
+    SET_CURRENT_TIME: () => {
+      const { state: { currentTime }, $video } = this
+
+      $video.currentTime = currentTime
+    },
     LOADING: () => {
       const { loader: { setLoading } } = this
 
@@ -116,13 +112,32 @@ export default class VideoPlayer {
       this.$thumbnail = null
     },
     PLAY: () => {
-      const { $thumbnail, $video, subscriber: { emit } } = this
+      const {
+        state,
+        $thumbnail,
+        $video,
+        subscriber: { emit },
+      } = this
+
+      $video.play()
+
+      const updater = () => {
+        const { currentTime } = $video
+
+        state.currentTime = currentTime
+
+        emit('CURRENT_TIME_CHANGED')
+
+        if (!state.paused) {
+          requestAnimationFrame(updater)
+        }
+      }
+
+      updater()
 
       if ($thumbnail) {
         emit('HIDE_THUMBNAIL')
       }
-
-      $video.play()
     },
     PAUSE: () => {
       const { $video } = this
@@ -136,10 +151,24 @@ export default class VideoPlayer {
     },
   })
 
+  setSize = ({ width, height }) => {
+    const { state, subscriber: { emit } } = this
+
+    _assign(state, { width, height })
+
+    emit('SIZE_CHANGED')
+  }
+
+  setCurrentTime = currentTime => {
+    const { state, subscriber: { emit } } = this
+
+    state.currentTime = currentTime
+
+    emit('SET_CURRENT_TIME')
+  }
+
   setLoading = loading => {
-    const {
-      loader: { subscriber: { emit } },
-    } = this
+    const { loader: { subscriber: { emit } } } = this
 
     if (loading) {
       emit('LOADING')
@@ -148,25 +177,38 @@ export default class VideoPlayer {
     }
   }
 
-  setDuration = duration => {
+  play = () => {
     const { state, subscriber: { emit } } = this
 
-    state.duration = duration
+    state.paused = false
 
-    emit('DURATION_CHANGED')
+    emit('PLAY')
   }
 
-  setCurrentTime = currentTime => {
+  pause = () => {
     const { state, subscriber: { emit } } = this
 
-    state.currentTime = currentTime
+    state.paused = true
 
-    emit('CURRENT_TIME_CHANGED')
+    emit('PAUSE')
   }
 
   constructor(options = {}) {
-    const { subscribers, currentTime } = options
-    const { setCurrentTime, subscriber: { on } } = this
+    const {
+      width,
+      height,
+      subscribers,
+      currentTime,
+    } = options
+    const {
+      setSize,
+      setCurrentTime,
+      subscriber: { on },
+    } = this
+
+    if (typeof width === 'number' || typeof height === 'number') {
+      setSize({ width, height })
+    }
 
     if (subscribers) {
       on(subscribers)

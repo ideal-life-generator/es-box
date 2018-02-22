@@ -1,6 +1,6 @@
 import Subscriber from '__/subscriber'
 import _cloner from '_/cloner'
-import { show, hide } from '../utils/animations'
+import { show, hide } from '../../utils/animations'
 import './loader.sass'
 
 export const cloneLoader = _cloner({ class: 'loader' })

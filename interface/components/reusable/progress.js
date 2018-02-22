@@ -1,7 +1,8 @@
 import Subscriber from '__/subscriber'
 import _cloner from '_/cloner'
+import _style from '_/style'
 import _text from '_/text'
-import parseTime from '../utils/parse-time'
+import parseTime from '../../utils/parse-time'
 import './progress.sass'
 
 export const cloneCursor = _cloner({ class: 'cursor' })
@@ -9,10 +10,12 @@ export const clonePoint = _cloner({ class: 'point' })
 export const cloneTimeNumber = _cloner({ el: 'span', class: 'number' })
 export const cloneTimeSeparator = _cloner({ el: 'span', text: ':' }, true)
 export const cloneTime = _cloner({ class: 'time' })
+export const cloneCurrent = _cloner({ class: 'current' })
 export const cloneProgress = _cloner({ class: 'progress' })
 
 export default class Progress {
   state = {
+    width: null,
     duration: null,
     currentTime: null,
   }
@@ -23,24 +26,27 @@ export default class Progress {
   $currentTimeSeconds = cloneTimeNumber()
   $currentTime = cloneTime({ append: [this.$currentTimeMinutes, this.$currentTimeSeparator, this.$currentTimeSeconds] })
   $cursor = cloneCursor({ append: [this.$point, this.$currentTime] })
-  $progress = cloneProgress({ append: [this.$cursor] })
+  $current = cloneCurrent({ append: this.$cursor })
+  $progress = cloneProgress({ append: this.$current })
 
   subscriber = new Subscriber({
-    DURATION_CHANGED: () => {
-      // const { duration } = state
-
-      // const minutes = round(duration / 60)
-      // const seconds = floor(duration % 60)
-
-      // _text($durationMinutes, minutes)
-      // _text($durationSeconds, seconds)
-    },
-    CURRENT_TIME_CHANGED: () => {
+    UPDATE_WIDTH: () => {},
+    UPDATE_CURRENT: () => {
       const {
-        state: { currentTime },
+        state: {
+          width,
+          duration,
+          currentTime,
+        },
+        $current,
         $currentTimeMinutes,
         $currentTimeSeconds,
       } = this
+
+      const currentPosition = width * (currentTime / duration)
+
+      _style($current, { width: `${currentPosition}px` })
+
       const { minutes, seconds } = parseTime(currentTime)
 
       _text($currentTimeMinutes, minutes)
@@ -48,12 +54,20 @@ export default class Progress {
     },
   })
 
+  setWidth = width => {
+    const { state, subscriber: { emit } } = this
+
+    state.width = width
+
+    emit('UPDATE_WIDTH')
+  }
+
   setDuration = duration => {
     const { state, subscriber: { emit } } = this
 
     state.duration = duration
 
-    emit('DURATION_CHANGED')
+    emit('UPDATE_CURRENT')
   }
 
   setCurrentTime = currentTime => {
@@ -61,12 +75,24 @@ export default class Progress {
 
     state.currentTime = currentTime
 
-    emit('CURRENT_TIME_CHANGED')
+    emit('UPDATE_CURRENT')
   }
 
   constructor(options = {}) {
-    const { duration, currentTime } = options
-    const { setDuration, setCurrentTime } = this
+    const {
+      width,
+      duration,
+      currentTime,
+    } = options
+    const {
+      setDuration,
+      setCurrentTime,
+      setWidth,
+    } = this
+
+    if (width) {
+      setWidth(width)
+    }
 
     if (duration) {
       setDuration(duration)

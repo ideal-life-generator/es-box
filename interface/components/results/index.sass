@@ -1,13 +1,13 @@
 @import "../../styles/mixins.sass"
 @import "../../styles/variables.sass"
 @import "../search/index.sass"
-@import "../video-player.sass"
+@import "../reusable/video-player.sass"
 
 $resultsTop: 25px
 $resultsWidth: $mainWidth
 $itemWidth: $resultsWidth
-$itemHeight: 150px
-$contentHeight: 110px
+$itemHeight: 220px
+$contentHeight: 180px
 $contentTop: ($itemHeight - $contentHeight) / 2
 $infoHeight: $contentHeight
 $infoPaddingLeft: $playerWidth + 20px
@@ -21,6 +21,8 @@ $progressTop: $infoHeight - $progressHeight
 $progressTimeHeight: 19.2px
 
 @value itemHeight #{$itemHeight}
+@value contentHeight #{$contentHeight}
+@value infoWidth #{$infoWidth}
 
 // https://www.viget.com/articles/sharing-data-between-sass-and-javascript-with-json/
 

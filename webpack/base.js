@@ -32,7 +32,7 @@ export const vueRule = {
 export const sassRule = {
   test: /\.sass$/,
   exclude: /node_modules/,
-  use: ['style-loader', 'css-loader', 'sass-loader'],
+  use: ['style-loader', 'css-loader', 'sass-loader', 'js-to-styles-var-loader'],
 }
 
 export const fileRule = {

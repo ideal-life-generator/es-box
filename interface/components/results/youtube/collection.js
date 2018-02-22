@@ -2,10 +2,10 @@ import _collection from '_/collection'
 import _text from '_/text'
 import { $youtubeSongs } from './elements'
 import * as clone from '../cloners'
-import { itemHeight } from '../settings'
+import { itemHeight, infoWidth } from '../settings'
 import separators from './separators'
-import VideoPlayer from '../../video-player'
-import Progress from '../../progress'
+import VideoPlayer from '../../reusable/video-player'
+import Progress from '../../reusable/progress'
 import {
   show,
   hide,
@@ -17,7 +17,7 @@ import {
 
 const collection = _collection($youtubeSongs, {
   create: i => {
-    const progress = new Progress()
+    const progress = new Progress({ width: infoWidth })
 
     const createPlay = () => clone.play({
       events: {
@@ -35,7 +35,7 @@ const collection = _collection($youtubeSongs, {
       },
     })
 
-    const videoPlayer = new VideoPlayer()
+    const videoPlayer = new VideoPlayer({ width: 195, height: 110 })
     videoPlayer.subscriber.on({
       PLAYBACK_HOVER: () => changeColor($playback, 'stroke', { r: 255, g: 255, b: 255, a: 0.8 }, { r: 255, g: 0, b: 222, a: 0.8 }),
       PLAYBACK_HOVER_ENDED: () => changeColor($playback, 'stroke', { r: 255, g: 0, b: 222, a: 0.8 }, { r: 255, g: 255, b: 255, a: 0.8 }),
@@ -52,9 +52,6 @@ const collection = _collection($youtubeSongs, {
         $playbackIcon = createPlay()
 
         showAppend($playback, $playbackIcon)
-      },
-      DURATION_CHANGED: () => {
-        progress.setDuration(videoPlayer.state.duration)
       },
       CURRENT_TIME_CHANGED: () => {
         progress.setCurrentTime(videoPlayer.state.currentTime)
@@ -83,10 +80,12 @@ const collection = _collection($youtubeSongs, {
       $item,
       $title,
       videoPlayer,
+      progress,
     }
   },
   update: {
     thumbnailUrl: ({ videoPlayer }, thumbnailUrl) => videoPlayer.subscriber.emit('SET_THUMBNAIL', thumbnailUrl),
+    duration: ({ progress }, duration) => progress.setDuration(duration),
     id: ({ videoPlayer }, id) => videoPlayer.subscriber.emit('SET_SOURCE', `http://localhost:3001/youtube/mp3/${id}`),
     title: ({ $title }, title) => _text($title, title),
   },
