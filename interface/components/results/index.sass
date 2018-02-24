@@ -6,23 +6,12 @@
 $resultsTop: 25px
 $resultsWidth: $mainWidth
 $itemWidth: $resultsWidth
-$itemHeight: 220px
-$contentHeight: 180px
-$contentTop: ($itemHeight - $contentHeight) / 2
-$infoHeight: $contentHeight
-$infoPaddingLeft: $playerWidth + 20px
-$infoWidth: $itemWidth - $infoPaddingLeft
-$playbackWidth: 18px
-$playbackHeight: 20.36px
-$titleTop: 27px
-$titleHeight: 20px
-$progressHeight: 1px
-$progressTop: $infoHeight - $progressHeight
-$progressTimeHeight: 19.2px
 
-@value itemHeight #{$itemHeight}
-@value contentHeight #{$contentHeight}
-@value infoWidth #{$infoWidth}
+$smallItemHeight: 220px
+$normalItemHeight: 380px
+
+@value smallItemHeight #{$smallItemHeight}
+@value normalItemHeight #{$normalItemHeight}
 
 // https://www.viget.com/articles/sharing-data-between-sass-and-javascript-with-json/
 
@@ -39,19 +28,13 @@ $progressTimeHeight: 19.2px
     .item
       position: absolute
       width: $itemWidth
-      height: $itemHeight
 
       .content
         position: absolute
-        top: $contentTop
         width: $itemWidth
-        height: $contentHeight
 
         .info
           position: absolute
-          left: $infoPaddingLeft
-          width: $infoWidth
-          height: $infoHeight
 
           .playback
             position: absolute
@@ -60,21 +43,13 @@ $progressTimeHeight: 19.2px
 
             .icon
               position: absolute
-              width: $playbackWidth
-              height: $playbackHeight
               stroke: inherit
               fill: none
 
           .title
             position: absolute
-            top: $titleTop
-            height: $titleHeight
-            line-height: $titleHeight
-            font-size: 14.5px
 
           .progress
-            top: $progressTop
-            width: $infoWidth
 
   .separators
     position: absolute
@@ -98,3 +73,71 @@ $progressTimeHeight: 19.2px
     //   cursor: default
     // &.bottom
     //   border-bottom: 1px solid transparentize(red, 0.5)
+
+  &.small
+    $itemHeight: $smallItemHeight
+    $contentTop: 20px
+    $contentHeight: $itemHeight - ($contentTop * 2)
+    $infoHeight: $contentHeight
+    $playerWidth: 195px
+    $playerHeight: $contentHeight
+    $loaderSize: 25px
+    $loaderLeft: ($playerWidth - $loaderSize) / 2
+    $loaderTop: ($playerHeight - $loaderSize) / 2
+    $thumbnailHeight: 90px
+    $infoPaddingLeft: 20px
+    $infoLeft: $playerWidth + $infoPaddingLeft
+    $infoWidth: $itemWidth - $infoLeft
+    $playbackWidth: 18px
+    $playbackHeight: 20.36px
+    $titleTop: 27px
+    $titleHeight: 20px
+    $progressHeight: 1px
+    $progressTop: $infoHeight - $progressHeight
+    $progressTimeHeight: 20px
+
+    .list
+      .item
+        height: $itemHeight
+
+        .content
+          top: $contentTop
+          height: $contentHeight
+
+          .player
+            width: $playerWidth
+            height: $playerHeight
+
+            .video
+              width: $playerWidth
+              height: $playerHeight
+
+            .loader
+              left: $loaderLeft
+              top: $loaderTop
+              width: $loaderSize
+              height: $loaderSize
+
+            .thumbnail
+              width: $playerWidth
+              height: $playerHeight
+
+          .info
+            left: $infoLeft
+            width: $infoWidth
+            height: $infoHeight
+
+            .playback
+              .icon
+                width: $playbackWidth
+                height: $playbackHeight
+
+            .title
+              top: $titleTop
+              height: $titleHeight
+              line-height: $titleHeight
+              font-size: 14.5px
+
+            .progress
+              top: $progressTop
+              width: $infoWidth

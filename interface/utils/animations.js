@@ -19,6 +19,12 @@ export const hide = $element =>
   _animateStyle($element, { opacity: 1 }, { opacity: 0 }, { duration: animationDuration }, () =>
     _style($element, { display: 'none' }))
 
+export const hideShowSwitch = ($from, $to) => {
+  hide($from)
+
+  show($to)
+}
+
 export const showAppend = ($parent, $element) => {
   _animateStyle($element, { opacity: 0 }, { opacity: 1 }, { duration: animationDuration })
 
@@ -34,3 +40,11 @@ export const moveTop = ($element, from, to) =>
 export const changeColor = ($element, key, from, to) =>
   _fromTo(from, to, { duration: animationDuration }, ({ r, g, b, a }) =>
     _style($element, { [key]: `rgba(${round(r)}, ${round(g)}, ${round(b)}, ${a.toFixed(5)})` }))
+
+export const whitePrimary = ($element, key) =>
+  _fromTo({ g: 255, b: 255 }, { g: 0, b: 222 }, { duration: animationDuration }, ({ g, b }) =>
+    _style($element, { [key]: `rgba(255, ${round(g)}, ${round(b)}, 0.8)` }))
+
+export const primaryWhite = ($element, key) =>
+  _fromTo({ g: 0, b: 222 }, { g: 255, b: 255 }, { duration: animationDuration }, ({ g, b }) =>
+    _style($element, { [key]: `rgba(255, ${round(g)}, ${round(b)}, 0.8)` }))

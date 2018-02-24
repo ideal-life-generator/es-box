@@ -6,7 +6,74 @@ import collection from './collection'
 import state, { emit, on, fetchItems, resizerUpdate } from './state'
 import yResizer from './y-resizer'
 
-(async () => await fetchItems())()
+export const cloneList = _cloner({ el: 'ul', class: 'list' })
+export const cloneSeparators = _cloner({ el: 'ul', class: 'separators' })
+export const cloneSeparator = _cloner({ el: 'li', class: 'separator' })
+export const cloneYResizer = _cloner({ class: 'y-resizer' })
+
+export default class YoutubeSongs {
+  state = {
+    itemHeight: null,
+  }
+
+  // separators = new Separators({
+
+  // })
+  // yResizer = new YResizer()
+  collection = new Collection({
+    create: index => {
+      const { itemHeight } = this
+
+      const item = new Item({ index })
+
+      _coords(item.$item, { top: i * itemHeight })
+
+      return item
+    },
+    update: {
+      thumbnailUrl: (item, thumbnailUrl) => item.setThumbnail(thumbnailUrl),
+      duration: (item, duration) => item.setDuration(duration),
+      id: (item, id) => item.setSource(`http://localhost:3001/youtube/mp3/${id}`),
+      title: (item, title) => item.setTitle(title),
+      // title: (item, title) => _text($title, title),
+    },
+    move: ({ $item }, { previousIndex, nextIndex }) => moveTop($item, previousIndex * itemHeight, nextIndex * itemHeight),
+    remove: ({ $item }) => hide($item),
+  })
+  $youtubeSongs = cloneList()
+  // $separators = cloneSeparators()
+  // $yResizer = _({ class: 'y-resizer' })
+  $container = _({ append: [this.$youtubeSongs] })
+
+  subscriber = new Subscriber({
+    CHANGE_ITEM_HEIGHT: () => {
+      const {
+        state: { itemHeight },
+        collection,
+        separators,
+        yResizer,
+      } = this
+
+      collection.setItemHeight(itemHeight)
+      separators.setItemHeight(itemHeight)
+      yResizer.setItemHeight(itemHeight)
+    },
+  })
+
+  changeItemHeight = itemHeight => {
+    const { subscriber: { emit } } = this
+
+    state.itemHeight = itemHeight
+
+    emit('CHANGE_ITEM_HEIGHT')
+  }
+
+  constructor() {
+    const { collection } = this
+
+    collection.fetchItems()
+  }
+}
 
 on({
   ITEMS_UPDATED: () => collection(state),
@@ -43,6 +110,6 @@ yResizer.on({
   },
 })
 
-export default cloneContainer({
-  append: [$youtubeSongs, $separators, $yResizer],
-})
+// export default cloneContainer({
+//   append: [$youtubeSongs, $separators, $yResizer],
+// })

@@ -3,14 +3,15 @@ import _cloner from '_/cloner'
 import { show, hide } from '../../utils/animations'
 import './loader.sass'
 
-export const cloneLoader = _cloner({ class: 'loader' })
 
 export default class Loader {
+  static cloneLoader = _cloner({ class: 'loader' })
+
   state = {
     loading: false,
   }
 
-  $loader = cloneLoader()
+  $loader = this.cloneLoader()
 
   subscriber = new Subscriber({
     LOADING: () => {

@@ -5,29 +5,29 @@ import _text from '_/text'
 import parseTime from '../../utils/parse-time'
 import './progress.sass'
 
-export const cloneCursor = _cloner({ class: 'cursor' })
-export const clonePoint = _cloner({ class: 'point' })
-export const cloneTimeNumber = _cloner({ el: 'span', class: 'number' })
-export const cloneTimeSeparator = _cloner({ el: 'span', text: ':' }, true)
-export const cloneTime = _cloner({ class: 'time' })
-export const cloneCurrent = _cloner({ class: 'current' })
-export const cloneProgress = _cloner({ class: 'progress' })
-
 export default class Progress {
+  static cloneCursor = _cloner({ class: 'cursor' })
+  static clonePoint = _cloner({ class: 'point' })
+  static cloneTimeNumber = _cloner({ el: 'span', class: 'number' })
+  static cloneTimeSeparator = _cloner({ el: 'span', text: ':' }, true)
+  static cloneTime = _cloner({ class: 'time' })
+  static cloneCurrent = _cloner({ class: 'current' })
+  static cloneProgress = _cloner({ class: 'progress' })
+
   state = {
     width: null,
     duration: null,
     currentTime: null,
   }
 
-  $point = clonePoint()
-  $currentTimeMinutes = cloneTimeNumber()
-  $currentTimeSeparator = cloneTimeSeparator()
-  $currentTimeSeconds = cloneTimeNumber()
-  $currentTime = cloneTime({ append: [this.$currentTimeMinutes, this.$currentTimeSeparator, this.$currentTimeSeconds] })
-  $cursor = cloneCursor({ append: [this.$point, this.$currentTime] })
-  $current = cloneCurrent({ append: this.$cursor })
-  $progress = cloneProgress({ append: this.$current })
+  $point = this.clonePoint()
+  $currentTimeMinutes = this.cloneTimeNumber()
+  $currentTimeSeparator = this.cloneTimeSeparator()
+  $currentTimeSeconds = this.cloneTimeNumber()
+  $currentTime = this.cloneTime({ append: [this.$currentTimeMinutes, this.$currentTimeSeparator, this.$currentTimeSeconds] })
+  $cursor = this.cloneCursor({ append: [this.$point, this.$currentTime] })
+  $current = this.cloneCurrent({ append: this.$cursor })
+  $progress = this.cloneProgress({ append: this.$current })
 
   subscriber = new Subscriber({
     UPDATE_WIDTH: () => {},

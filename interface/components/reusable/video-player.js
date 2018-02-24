@@ -7,22 +7,23 @@ import _coords from '_/coords'
 import Loader from './loader'
 import './video-player.sass'
 
-export const clonePlayer = _cloner({ class: 'player' })
-export const cloneThumbnail = _cloner({ el: 'img', class: 'thumbnail' })
-export const cloneVideo = _cloner({
-  el: 'video',
-  class: 'video',
-  attributes: {
-    controlslist: 'nodownload',
-  },
-})
-export const cloneSource = _cloner({
-  el: 'source',
-  class: 'source',
-  attributes: { type: 'video/mp4' },
-})
 
 export default class VideoPlayer {
+  static clonePlayer = _cloner({ class: 'player' })
+  static cloneThumbnail = _cloner({ el: 'img', class: 'thumbnail' })
+  static cloneVideo = _cloner({
+    el: 'video',
+    class: 'video',
+    attributes: {
+      controlslist: 'nodownload',
+    },
+  })
+  static cloneSource = _cloner({
+    el: 'source',
+    class: 'source',
+    attributes: { type: 'video/mp4' },
+  })
+
   state = {
     width: null,
     height: null,
@@ -30,9 +31,9 @@ export default class VideoPlayer {
     currentTime: null,
   }
 
-  $thumbnail = cloneThumbnail()
-  $source = cloneSource()
-  $video = cloneVideo({
+  $thumbnail = this.cloneThumbnail()
+  $source = this.cloneSource()
+  $video = this.cloneVideo({
     events: {
       loadstart: () => {
         const { setLoading } = this
@@ -53,7 +54,7 @@ export default class VideoPlayer {
     append: this.$source,
   })
   loader = new Loader()
-  $player = clonePlayer({
+  $player = this.clonePlayer({
     events: {
       mouseenter: () => {
         const { subscriber: { emit } } = this
