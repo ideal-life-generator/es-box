@@ -4,12 +4,7 @@ import VideoPlayer from '../../reusable/video-player'
 import Progress from '../../reusable/progress'
 import playIcon from '../../icons/play'
 import pauseIcon from '../../icons/video-pause'
-import {
-  show,
-  hideShowSwitch,
-  whitePrimary,
-  primaryWhite,
-} from '../../../utils/animations'
+import { show, hideShowSwitch, whitePrimary, primaryWhite } from '../../../utils/animations'
 
 export default class Item {
   state = {
@@ -30,14 +25,14 @@ export default class Item {
     class: 'icon pause',
     style: { opacity: 0, display: 'none' },
     events: {
-      click: () => this.videoPlayer.play(),
+      click: () => this.videoPlayer.pause(),
     },
   })
   $playback = _({
     class: 'playback',
     events: {
-      mouseenter: () => this.videoPlayer.subscriber.emit('PLAYBACK_HOVER', true),
-      mouseleave: () => this.videoPlayer.subscriber.emit('PLAYBACK_HOVER', false),
+      mouseenter: () => this.videoPlayer.hover(true),
+      mouseleave: () => this.videoPlayer.hover(false),
     },
     append: [this.$play, this.$pause],
   })

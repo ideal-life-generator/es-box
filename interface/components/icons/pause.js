@@ -3,6 +3,7 @@ import cloner_ from '_/cloner'
 
 export default cloner_({
   svg: true,
+  class: 'icon pause',
   attributes: {
     viewBox: '0 0 18 20.36',
     stroke: 'inherit',
