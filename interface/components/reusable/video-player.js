@@ -46,12 +46,12 @@ export default class VideoPlayer {
       mouseenter: () => {
         const { subscriber: { emit } } = this
 
-        emit('PLAYBACK_HOVER')
+        emit('PLAYBACK_ENTER')
       },
       mouseleave: () => {
         const { subscriber: { emit } } = this
 
-        emit('PLAYBACK_HOVER_ENDED')
+        emit('PLAYBACK_LEAVE')
       },
       click: () => {
         const { state: { paused }, play, pause } = this
@@ -181,9 +181,9 @@ export default class VideoPlayer {
     const { state: { hover } } = this
 
     if (hover) {
-      emit('PLAYBACK_HOVER')
+      emit('PLAYBACK_ENTER')
     } else {
-      emit('PLAYBACK_HOVER_ENDED')
+      emit('PLAYBACK_LEAVE')
     }
   }
 

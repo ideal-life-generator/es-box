@@ -4,7 +4,7 @@ import VideoPlayer from '../../reusable/video-player'
 import Progress from '../../reusable/progress'
 import playIcon from '../../icons/play'
 import pauseIcon from '../../icons/video-pause'
-import { show, hide, hideShowSwitch, whitePrimary, primaryWhite } from '../../../utils/animations'
+import { show, toggleSwitchHideShow, toggleColor } from '../../../utils/animations'
 
 export default class Item {
   state = {
@@ -15,7 +15,6 @@ export default class Item {
     title: null,
   }
 
-  playPauseSwitchToken = {}
   $play = playIcon({
     class: 'icon play',
     events: {
@@ -37,38 +36,15 @@ export default class Item {
     },
     append: [this.$play, this.$pause],
   })
-  progress = new Progress()
-  hideShowSwitch = (...args) => {
-    const {
-      hideToken: previousHideToken,
-      showToken: previousShowToken,
-    } = this
-
-    if (previousHideToken) {
-      const { reject } = previousHideToken
-
-      reject('Hide animation cancelation')
-    }
-
-    if (previousShowToken) {
-      const { reject } = previousShowToken
-
-      reject('Show animation cancelation')
-    }
-
-    this.hideToken = {}
-    this.showToken = {}
-
-    const { hideToken, showToken } = this
-
-    hideShowSwitch(...args, hideToken, showToken)
-  }
+  progress = new Progress({ width: 1030.15929 })
+  toggleSwitchHideShow = toggleSwitchHideShow(this.$play, this.$pause)
+  toggleWhiteViolet = toggleColor(this.$playback, 'stroke', { r: 255, g: 255, b: 255, a: 0.8 }, { g: 0, b: 222 })
   videoPlayer = new VideoPlayer({
-    PLAYBACK_HOVER: () => console.log('PLAYBACK_HOVER') || whitePrimary(this.$playback, 'stroke'),
-    PLAYBACK_HOVER_ENDED: () => console.log('PLAYBACK_HOVER_ENDED') || primaryWhite(this.$playback, 'stroke'),
-    PLAY: () => this.hideShowSwitch(this.$play, this.$pause),
-    PAUSE: () => this.hideShowSwitch(this.$pause, this.$play),
-    CURRENT_TIME_CHANGED: currentTime => this.setCurrentTime(currentTime),
+    PLAYBACK_ENTER: () => this.toggleWhiteViolet(),
+    PLAYBACK_LEAVE: () => this.toggleWhiteViolet(),
+    PLAY: () => this.toggleSwitchHideShow(),
+    PAUSE: () => this.toggleSwitchHideShow(),
+    CURRENT_TIME_CHANGED: () => this.setCurrentTime(this.videoPlayer.state.currentTime),
   })
   $title = _({ el: 'p', class: 'title' })
   $info = _({
@@ -115,11 +91,11 @@ export default class Item {
       setTitle(title)
     }
 
-    if (duration) {
+    if (typeof duration === 'number') {
       setDuration(duration)
     }
 
-    if (currentTime) {
+    if (typeof currentTime === 'number') {
       setCurrentTime(currentTime)
     }
   }
@@ -149,9 +125,11 @@ export default class Item {
   }
 
   setDuration = duration => {
-    const { state } = this
+    const { state, progress } = this
 
     state.duration = duration
+
+    progress.setDuration(duration)
   }
 
   setCurrentTime = currentTime => {

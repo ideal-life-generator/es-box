@@ -18,7 +18,7 @@ export default class Progress {
   $currentTimeSeconds = _({ el: 'span', class: 'number' })
   $currentTime = _({ class: 'time', append: [this.$currentTimeMinutes, this.$currentTimeSeparator, this.$currentTimeSeconds] })
   $cursor = _({ class: 'cursor', append: [this.$point, this.$currentTime] })
-  $current = _({ class: 'current', append: this.$cursor })
+  $current = _({ class: 'current' })
   $progress = _({ class: 'progress', append: this.$current })
 
   subscriber = new Subscriber({

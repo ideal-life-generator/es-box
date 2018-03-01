@@ -19,10 +19,10 @@ export const hide = ($element, token) =>
   _animateStyle($element, { opacity: 1 }, { opacity: 0 }, { duration: animationDuration, token }, () =>
     _style($element, { display: 'none' }))
 
-export const hideShowSwitch = ($from, $to, hideToken, showToken) => {
-  hide($from, hideToken)
+export const hideShow = ($from, $to) => {
+  hide($from)
 
-  show($to, showToken)
+  show($to)
 }
 
 export const showAppend = ($parent, $element) => {
@@ -37,14 +37,66 @@ export const hideRemove = $element =>
 export const moveTop = ($element, from, to) =>
   _animateCoords($element, { top: from }, { top: to }, { duration: animationDuration })
 
-export const changeColor = ($element, key, from, to) =>
-  _fromTo(from, to, { duration: animationDuration }, ({ r, g, b, a }) =>
+export const changeOpacity = ($element, from, to, duration) =>
+  _fromTo(from, to, duration, ({ r, g, b, a }) =>
     _style($element, { [key]: `rgba(${round(r)}, ${round(g)}, ${round(b)}, ${a.toFixed(5)})` }))
 
-export const whitePrimary = ($element, key) =>
-  _fromTo({ g: 255, b: 255 }, { g: 0, b: 222 }, { duration: animationDuration }, ({ g, b }) =>
-    _style($element, { [key]: `rgba(255, ${round(g)}, ${round(b)}, 0.8)` }))
+export const changeColor = ($element, key, from, to, duration) =>
+  _fromTo(from, to, duration, ({ r, g, b, a }) =>
+    _style($element, { [key]: `rgba(${round(r)}, ${round(g)}, ${round(b)}, ${a.toFixed(5)})` }))
 
-export const primaryWhite = ($element, key) =>
-  _fromTo({ g: 0, b: 222 }, { g: 255, b: 255 }, { duration: animationDuration }, ({ g, b }) =>
-    _style($element, { [key]: `rgba(255, ${round(g)}, ${round(b)}, 0.8)` }))
+export const toggle = (from, to, handler) => {
+  const current = { ...from }
+  let forward = true
+  let forwardToken
+  let backToken
+
+  const resolvePrevious = token => {
+    const { progress, cancel, cursor } = token
+    let duration = animationDuration
+
+    if (progress) {
+      cancel()
+
+      duration *= cursor
+    }
+
+    return duration
+  }
+
+  return () => {
+    if (forward) {
+      const duration = resolvePrevious(backToken)
+
+      forwardToken = handler(current, to, duration, forward)
+
+      forward = false
+    } else {
+      const duration = resolvePrevious(forwardToken)
+
+      backToken = handler(current, from, duration, forward)
+
+      forward = true
+    }
+  }
+}
+
+export const toggleSwitchHideShow = ($first, $second) =>
+  toggle({ first: 1, second: 0 }, { first: 0, second: 1 }, async (from, to, duration, forward) => {
+    if (forward) {
+      _style($second, { display: 'initial' })
+
+      const { promise } = _fromTo(from, to, animationDuration, ({ first, second }) => {
+        _style($first, { opacity: first })
+
+        _style($second, { opacity: second })
+      })
+
+      await promise
+
+      _style($first, { display: 'none' })
+    }
+  })
+
+export const toggleColor = ($element, key, back, forward) =>
+  toggle(back, forward, (from, to, duration) => changeColor($element, key, from, to, duration))

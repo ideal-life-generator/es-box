@@ -1,9 +1,10 @@
 const { floor } = Math
 
 export default time => {
-  const minutes = floor(time / 60)
+  const pureMinutes = floor(time / 60)
   const pureSeconds = floor(time % 60)
-  const seconds = pureSeconds < 10 ? `0${pureSeconds}` : pureSeconds
+  const minutes = pureMinutes.toString()
+  const seconds = pureSeconds < 10 ? `0${pureSeconds}` : pureSeconds.toString()
 
   return {
     minutes,

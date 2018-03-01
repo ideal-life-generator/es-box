@@ -51,7 +51,7 @@ export default class YoutubeSongs {
     create: index => {
       const { state: { itemHeight } } = this
 
-      const item = new Item({ index })
+      const item = new Item({ index, currentTime: 0 })
 
       _coords(item.$item, { top: index * itemHeight })
 
