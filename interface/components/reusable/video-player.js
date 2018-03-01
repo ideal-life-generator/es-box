@@ -1,39 +1,30 @@
+import _ from '_'
 import Subscriber from '__/subscriber'
-import _cloner from '_/cloner'
 import _remove from '_/remove'
-import _assign from '__/assign'
 import _attributes from '_/attributes'
 import _coords from '_/coords'
 import Loader from './loader'
 import './video-player.sass'
 
-
 export default class VideoPlayer {
-  static clonePlayer = _cloner({ class: 'player' })
-  static cloneThumbnail = _cloner({ el: 'img', class: 'thumbnail' })
-  static cloneVideo = _cloner({
+  state = {
+    paused: true,
+    hover: false,
+    currentTime: null,
+  }
+
+  $thumbnail = _({ el: 'img', class: 'thumbnail' })
+  $source = _({
+    el: 'source',
+    class: 'source',
+    attributes: { type: 'video/mp4' },
+  })
+  $video = _({
     el: 'video',
     class: 'video',
     attributes: {
       controlslist: 'nodownload',
     },
-  })
-  static cloneSource = _cloner({
-    el: 'source',
-    class: 'source',
-    attributes: { type: 'video/mp4' },
-  })
-
-  state = {
-    width: null,
-    height: null,
-    paused: true,
-    currentTime: null,
-  }
-
-  $thumbnail = this.cloneThumbnail()
-  $source = this.cloneSource()
-  $video = this.cloneVideo({
     events: {
       loadstart: () => {
         const { setLoading } = this
@@ -45,16 +36,12 @@ export default class VideoPlayer {
 
         setLoading(false)
       },
-      pause: () => {
-        const { state } = this
-
-        state.paused = 'PAUSE'
-      },
     },
     append: this.$source,
   })
   loader = new Loader()
-  $player = this.clonePlayer({
+  $player = _({
+    class: 'player',
     events: {
       mouseenter: () => {
         const { subscriber: { emit } } = this
@@ -100,10 +87,10 @@ export default class VideoPlayer {
 
       setLoading(false)
     },
-    SET_THUMBNAIL: thumbnail => {
-      const { $thumbnail } = this
+    THUMBNAIL_URL_CHANGED: () => {
+      const { state: { thumbnailUrl }, $thumbnail } = this
 
-      _attributes($thumbnail, { src: thumbnail })
+      _attributes($thumbnail, { src: thumbnailUrl })
     },
     HIDE_THUMBNAIL: () => {
       const { $thumbnail } = this
@@ -145,19 +132,27 @@ export default class VideoPlayer {
 
       $video.pause()
     },
-    SET_SOURCE: source => {
-      const { $source } = this
+    SOURCE_CHANGED: () => {
+      const { state: { source }, $source } = this
 
       _attributes($source, { src: source })
     },
   })
 
-  setSize = ({ width, height }) => {
+  setThumbnailUrl = thumbnailUrl => {
     const { state, subscriber: { emit } } = this
 
-    _assign(state, { width, height })
+    state.thumbnailUrl = thumbnailUrl
 
-    emit('SIZE_CHANGED')
+    emit('THUMBNAIL_URL_CHANGED')
+  }
+
+  setSource = source => {
+    const { state, subscriber: { emit } } = this
+
+    state.source = source
+
+    emit('SOURCE_CHANGED')
   }
 
   setCurrentTime = currentTime => {
@@ -178,6 +173,20 @@ export default class VideoPlayer {
     }
   }
 
+  hover = option => {
+    const { state, subscriber: { emit } } = this
+
+    state.hover = option
+
+    const { state: { hover } } = this
+
+    if (hover) {
+      emit('PLAYBACK_HOVER')
+    } else {
+      emit('PLAYBACK_HOVER_ENDED')
+    }
+  }
+
   play = () => {
     const { state, subscriber: { emit } } = this
 
@@ -194,25 +203,23 @@ export default class VideoPlayer {
     emit('PAUSE')
   }
 
-  constructor(options = {}) {
+  constructor(subscribers, options = {}) {
     const {
-      width,
-      height,
-      subscribers,
+      source,
       currentTime,
     } = options
     const {
-      setSize,
+      setSource,
       setCurrentTime,
       subscriber: { on },
     } = this
 
-    if (typeof width === 'number' || typeof height === 'number') {
-      setSize({ width, height })
-    }
-
     if (subscribers) {
       on(subscribers)
+    }
+
+    if (source) {
+      setSource(source)
     }
 
     if (typeof currentTime === 'number') {

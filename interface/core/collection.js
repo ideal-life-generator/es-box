@@ -1,9 +1,10 @@
 import clone from 'fast-clone'
-import append_ from '_/append'
-import before_ from '_/before'
-import resolve_ from '__/resolve'
+import Subscriber from '__/subscriber'
+import _append from '_/append'
+import _assign from '__/assign'
+import _before from '_/before'
+import _resolve from '__/resolve'
 
-const { assign, keys } = Object
 const { isArray } = Array
 
 const getDifference = (next, previous) => {
@@ -32,7 +33,7 @@ const getDifference = (next, previous) => {
   return difference
 }
 
-const resolveUpdate = (data, elements, update) => {
+const resolveUpdate = (elements, data, update) => {
   Object.keys(data).forEach(key => {
     const { [key]: value } = data
     const { [key]: updateHandler } = update
@@ -58,22 +59,73 @@ const getByIndex = (map, index) => {
   return foundValue
 }
 
-export default (parent, methods) => {
-  let elements
-  let previousElements = new Map()
-  let previousItems = []
-  let previousCount = 0
+export default class Collection {
+  $parent = null
+  elements = new Map()
+  items = []
+  count = 0
+  methods = {}
 
-  const listeners = {
-    create: [],
-    remove: [],
-  }
+  subscriber = new Subscriber({
+    CREATE: ({ item, index }, beforeElements) => {
+      const {
+        $parent,
+        methods: { create },
+        elements,
+        subscriber: { emit },
+      } = this
 
-  const emit = (name, ...args) => listeners[name].forEach(listener => listener(...args))
+      const createdElements = create(index)
 
-  const on = listener => keys(listener).forEach(key => listeners[key].push(listener[key]))
+      emit('UPDATE', createdElements, item)
 
-  const $update = async ({ items, count }) => {
+      if (beforeElements) {
+        _before(createdElements.$item, beforeElements.$item)
+      } else {
+        _append($parent, createdElements.$item)
+      }
+
+      elements.set(item.id, createdElements)
+    },
+    UPDATE: (elements, difference) => {
+      const { methods: { update } } = this
+
+      resolveUpdate(elements, difference, update)
+    },
+    MOVE: (elements, { previousIndex, index }, beforeElements) => {
+      const {
+        $parent,
+        methods: { move },
+      } = this
+
+      if (beforeElements) {
+        _before(elements.$item, beforeElements.$item)
+      } else {
+        _append($parent, elements.$item)
+      }
+
+      move(elements, { previousIndex, index })
+    },
+    REMOVE: async elements => {
+      const { methods: { remove } } = this
+
+      await _resolve(remove(elements))
+
+      elements.$item.remove()
+    },
+    COUNT: counts => {
+      const {
+        $parent,
+        methods: { count },
+      } = this
+
+      if (count) {
+        count($parent, counts)
+      }
+    },
+  })
+
+  setItems = ({ items, count }) => {
     if (!isArray(items)) {
       throw `Expected data items array, take ${items}`
     }
@@ -82,80 +134,67 @@ export default (parent, methods) => {
       throw `Expected data count number, take ${count}`
     }
 
-    elements = new Map()
+    const {
+      items: previousItems,
+      count: previousCount,
+      elements: previousElements,
+      subscriber: { emit },
+    } = this
 
-    previousItems.forEach(async (previousItem, previousIndex) => {
-      const foundElements = previousElements.get(previousItem.id)
-      const nextIndex = items.findIndex(nextItem => previousItem.id === nextItem.id)
+    const elements = new Map()
 
-      if (nextIndex >= 0) {
-        const nextElements = foundElements
-        const { [nextIndex]: nextItem } = items
+    previousItems.forEach((previousItem, previousIndex) => {
+      const itemElements = previousElements.get(previousItem.id)
+      const index = items.findIndex(nextItem => previousItem.id === nextItem.id)
+
+      if (index >= 0) {
+        const { [index]: nextItem } = items
         const difference = getDifference(nextItem, previousItem)
 
         if (difference) {
-          resolveUpdate(difference, nextElements, methods.update)
+          emit('UPDATE', itemElements, difference)
         }
 
-        if (previousIndex !== nextIndex) {
-          const beforeElements_ = getByIndex(previousElements, nextIndex)
+        if (previousIndex !== index) {
+          const beforeElements = getByIndex(previousElements, index)
 
-          if (beforeElements_) {
-            before_(nextElements.$item, beforeElements_.$item)
-          } else {
-            append_(parent, nextElements.$item)
-          }
-
-          methods.move(nextElements, { previousIndex, nextIndex })
+          emit('MOVE', itemElements, { previousIndex, index }, beforeElements)
         }
 
-        elements.set(previousItem.id, nextElements)
+        elements.set(previousItem.id, itemElements)
       } else {
-        const removeResolver = methods.remove(foundElements)
-
-        if (removeResolver instanceof Promise) {
-          await removeResolver
-        }
-
-        foundElements.$item.remove()
-
-        emit('remove', count)
+        emit('REMOVE', itemElements)
       }
     })
 
-    items.forEach((nextItem, nextIndex) => {
-      const previousIndex = previousItems.findIndex(previousItem => nextItem.id === previousItem.id)
+    items.forEach((item, index) => {
+      const previousIndex = previousItems.findIndex(previousItem => item.id === previousItem.id)
 
       if (previousIndex === -1) {
-        const createdElements = methods.create(nextIndex)
+        const beforeElements = getByIndex(previousElements, index)
 
-        resolveUpdate(nextItem, createdElements, methods.update)
-
-        const beforeElements = getByIndex(previousElements, nextIndex)
-
-        if (beforeElements) {
-          before_(createdElements.$item, beforeElements.$item)
-        } else {
-          append_(parent, createdElements.$item)
-        }
-
-        elements.set(nextItem.id, createdElements)
-
-        emit('create', count)
+        emit('CREATE', { item, index }, beforeElements)
       }
     })
 
-    if (methods.count && count !== previousCount) {
-      methods.count(parent, { previousCount, count })
+    if (count && count !== previousCount) {
+      emit('COUNT', { previousCount, count })
     }
 
-    previousItems = clone(items)
-    previousCount = count
-
-    previousElements = elements
+    this.items = clone(items)
+    this.elements = elements
+    this.count = count
   }
 
-  return assign($update, {
-    on,
-  })
+  setMethods = methods => {
+    _assign(this.methods, methods)
+  }
+
+  constructor($parent, methods = {}) {
+    const { setMethods } = this
+
+    this.$parent = $parent
+
+    setMethods(methods)
+  }
 }

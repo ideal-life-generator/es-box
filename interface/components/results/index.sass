@@ -7,8 +7,8 @@ $resultsTop: 25px
 $resultsWidth: $mainWidth
 $itemWidth: $resultsWidth
 
-$smallItemHeight: 220px
-$normalItemHeight: 380px
+$smallItemHeight: 145px
+$normalItemHeight: 220px
 
 @value smallItemHeight #{$smallItemHeight}
 @value normalItemHeight #{$normalItemHeight}
@@ -74,13 +74,13 @@ $normalItemHeight: 380px
     // &.bottom
     //   border-bottom: 1px solid transparentize(red, 0.5)
 
-  &.small
+  .small
     $itemHeight: $smallItemHeight
     $contentTop: 20px
     $contentHeight: $itemHeight - ($contentTop * 2)
     $infoHeight: $contentHeight
-    $playerWidth: 195px
     $playerHeight: $contentHeight
+    $playerWidth: $playerHeight / 0.565
     $loaderSize: 25px
     $loaderLeft: ($playerWidth - $loaderSize) / 2
     $loaderTop: ($playerHeight - $loaderSize) / 2

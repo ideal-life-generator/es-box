@@ -1,3 +1,5 @@
+import _assign from '__/assign'
+
 const { keys } = Object
 
 const calculateNumber = (from, to) => cursor => from + ((to - from) * cursor)
@@ -21,7 +23,9 @@ const calculateObject = (paramsKeys, from, to) => {
   }
 }
 
-export default (from, to, { duration }, callback) => new Promise(resolve => {
+export default (from, to, { duration = 150, token = {} }, handler) => new Promise((resolve, reject) => {
+  _assign(token, { resolve, reject })
+
   const startedAt = Date.now()
 
   let calculate
@@ -38,11 +42,11 @@ export default (from, to, { duration }, callback) => new Promise(resolve => {
       const cursor = timeLeft / duration
       const current = calculate(cursor)
 
-      callback(current)
+      handler(current)
     } else {
       clearInterval(intervalId) // eslint-disable-line no-use-before-define
 
-      callback(to)
+      handler(to)
 
       resolve()
     }

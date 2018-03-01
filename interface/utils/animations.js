@@ -9,20 +9,20 @@ const { round } = Math
 
 export const animationDuration = 150
 
-export const show = $element => {
-  _animateStyle($element, { opacity: 0 }, { opacity: 1 }, { duration: animationDuration })
+export const show = ($element, token) => {
+  _animateStyle($element, { opacity: 0 }, { opacity: 1 }, { duration: animationDuration, token })
 
   _style($element, { display: 'initial' })
 }
 
-export const hide = $element =>
-  _animateStyle($element, { opacity: 1 }, { opacity: 0 }, { duration: animationDuration }, () =>
+export const hide = ($element, token) =>
+  _animateStyle($element, { opacity: 1 }, { opacity: 0 }, { duration: animationDuration, token }, () =>
     _style($element, { display: 'none' }))
 
-export const hideShowSwitch = ($from, $to) => {
-  hide($from)
+export const hideShowSwitch = ($from, $to, hideToken, showToken) => {
+  hide($from, hideToken)
 
-  show($to)
+  show($to, showToken)
 }
 
 export const showAppend = ($parent, $element) => {

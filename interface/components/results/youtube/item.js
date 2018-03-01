@@ -4,17 +4,18 @@ import VideoPlayer from '../../reusable/video-player'
 import Progress from '../../reusable/progress'
 import playIcon from '../../icons/play'
 import pauseIcon from '../../icons/video-pause'
-import { show, hideShowSwitch, whitePrimary, primaryWhite } from '../../../utils/animations'
+import { show, hide, hideShowSwitch, whitePrimary, primaryWhite } from '../../../utils/animations'
 
 export default class Item {
   state = {
     source: null,
     thumbnailUrl: null,
-    title: null,
     duration: null,
     currentTime: null,
+    title: null,
   }
 
+  playPauseSwitchToken = {}
   $play = playIcon({
     class: 'icon play',
     events: {
@@ -37,11 +38,36 @@ export default class Item {
     append: [this.$play, this.$pause],
   })
   progress = new Progress()
+  hideShowSwitch = (...args) => {
+    const {
+      hideToken: previousHideToken,
+      showToken: previousShowToken,
+    } = this
+
+    if (previousHideToken) {
+      const { reject } = previousHideToken
+
+      reject('Hide animation cancelation')
+    }
+
+    if (previousShowToken) {
+      const { reject } = previousShowToken
+
+      reject('Show animation cancelation')
+    }
+
+    this.hideToken = {}
+    this.showToken = {}
+
+    const { hideToken, showToken } = this
+
+    hideShowSwitch(...args, hideToken, showToken)
+  }
   videoPlayer = new VideoPlayer({
-    PLAYBACK_HOVER: () => whitePrimary(this.$playback, 'stroke'),
-    PLAYBACK_HOVER_ENDED: () => primaryWhite(this.$playback, 'stroke'),
-    PLAY: () => hideShowSwitch(this.$play, this.$pause),
-    PAUSE: () => hideShowSwitch(this.$pause, this.$play),
+    PLAYBACK_HOVER: () => console.log('PLAYBACK_HOVER') || whitePrimary(this.$playback, 'stroke'),
+    PLAYBACK_HOVER_ENDED: () => console.log('PLAYBACK_HOVER_ENDED') || primaryWhite(this.$playback, 'stroke'),
+    PLAY: () => this.hideShowSwitch(this.$play, this.$pause),
+    PAUSE: () => this.hideShowSwitch(this.$pause, this.$play),
     CURRENT_TIME_CHANGED: currentTime => this.setCurrentTime(currentTime),
   })
   $title = _({ el: 'p', class: 'title' })
