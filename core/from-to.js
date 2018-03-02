@@ -1,6 +1,5 @@
-import _assign from '__/assign'
-
 const { keys } = Object
+const { stringify } = JSON
 
 const calculateCurrentNumber = (from, to) => cursor => from + ((to - from) * cursor)
 
@@ -38,19 +37,21 @@ const calculateCursor = (timeLeft, duration) => {
   return 1
 }
 
-export default (from, to, { duration = 150 }, handler) => {
+export default (from, to, handler, { duration = 150, token = {} }) => {
   if (typeof from !== typeof to) {
     throw new Error(`Should has similar from ${from} and to ${to} types`)
   }
 
-  const token = {}
-
-  token.promise = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     token.cancel = () => {
-      if (token.progress) {
-        reject(new Error('Canceled'))
+      const { progress, cursor } = token
+      const fromString = stringify(from)
+      const toString = stringify(to)
 
-        token.progress = false
+      if (progress) {
+        token.canceled = true
+
+        reject(new Error(`fromTo with paramethers from ${fromString} to ${toString} canceled on cursor ${cursor}`))
       }
     }
 
@@ -61,21 +62,23 @@ export default (from, to, { duration = 150 }, handler) => {
       const timeLeft = Date.now() - startedAt
       const cursor = calculateCursor(timeLeft, duration)
       const current = calculateCurrent(cursor)
+      const { canceled } = token
 
       handler(current)
 
-      this.cursor = cursor
-      this.current = current
+      token.cursor = cursor
 
-      if (timeLeft < duration) {
+      if (timeLeft < duration && !canceled) {
         requestAnimationFrame(tick)
       } else {
+        token.progress = false
+
         resolve()
       }
     }
 
+    token.progress = true
+
     requestAnimationFrame(tick)
   })
-
-  return token
 }

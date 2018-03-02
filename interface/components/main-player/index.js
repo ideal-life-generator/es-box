@@ -1,48 +1,56 @@
-import _animateStyle from '_/animate-style'
-import _events from '_/events'
-import _append from '_/append'
-import _remove from '_/remove'
-import { $playback, $mainPlayer } from './elements'
-import * as clone from './cloners'
-import { on, play, pause } from './state'
-import { animationDuration } from './settings'
+import _ from '_'
+import Subscriber from '__/subscriber'
+import playIcon from '../icons/play'
+import pauseIcon from '../icons/pause'
+import { toggleSwitchHideShow } from '../../utils/animations'
 import './index.sass'
 
-let $playbackIcon = clone.play({
-  events: {
-    click: () => play(),
-  },
-})
+export default class MainPlayer {
+  state = {
+    play: false,
+  }
 
-_append($playback, $playbackIcon)
+  $play = playIcon({
+    class: 'icon',
+    events: {
+      click: () => this.play(),
+    },
+  })
+  $pause = pauseIcon({
+    class: 'icon',
+    events: {
+      click: () => this.pause(),
+    },
+  })
+  $playback = _({
+    class: 'playback',
+    append: [this.$play, this.$pause],
+  })
+  $mainPlayer = _({
+    class: 'main-player',
+    append: [this.$playback],
+  })
 
-on({
-  SHOW_PLAY: () => {
-    _animateStyle($playbackIcon, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }, $element => _remove($element))
+  toggleSwitchHideShow = toggleSwitchHideShow(this.$play, this.$pause)
 
-    $playbackIcon = clone.play({
-      events: {
-        click: () => play(),
-      },
-    })
+  subscriber = new Subscriber({
+    PLAY: () => this.toggleSwitchHideShow(false),
+    PAUSE: () => this.toggleSwitchHideShow(true),
+  })
 
-    _append($playback, $playbackIcon)
+  play = () => {
+    const { state, subscriber: { emit } } = this
 
-    _animateStyle($playbackIcon, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })
-  },
-  SHOW_PAUSE: () => {
-    _animateStyle($playbackIcon, { duration: animationDuration }, { opacity: 1 }, { opacity: 0 }, $element => _remove($element))
+    state.play = true
 
-    $playbackIcon = clone.pause({
-      events: {
-        click: () => pause(),
-      },
-    })
+    emit('PLAY')
+  }
 
-    _append($playback, $playbackIcon)
+  pause = () => {
+    const { state, subscriber: { emit } } = this
 
-    _animateStyle($playbackIcon, { duration: animationDuration }, { opacity: 0 }, { opacity: 1 })
-  },
-})
+    state.play = false
 
-export default $mainPlayer
+    emit('PAUSE')
+  }
+}

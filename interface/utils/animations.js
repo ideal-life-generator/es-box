@@ -46,14 +46,13 @@ export const changeColor = ($element, key, from, to, duration) =>
     _style($element, { [key]: `rgba(${round(r)}, ${round(g)}, ${round(b)}, ${a.toFixed(5)})` }))
 
 export const toggle = (from, to, handler) => {
-  const current = { ...from }
-  let forward = true
+  const current = { ...to }
   let forwardToken
   let backToken
 
-  const resolvePrevious = token => {
+  const resolvePrevious = (token = {}) => {
     const { progress, cancel, cursor } = token
-    let duration = animationDuration
+    let duration = 500
 
     if (progress) {
       cancel()
@@ -64,39 +63,50 @@ export const toggle = (from, to, handler) => {
     return duration
   }
 
-  return () => {
+  return forward => {
     if (forward) {
       const duration = resolvePrevious(backToken)
 
-      forwardToken = handler(current, to, duration, forward)
+      forwardToken = {}
 
-      forward = false
+      handler(current, to, forward, { duration, token: forwardToken })
     } else {
       const duration = resolvePrevious(forwardToken)
 
-      backToken = handler(current, from, duration, forward)
+      backToken = {}
 
-      forward = true
+      handler(current, from, forward, { duration, token: backToken })
     }
   }
 }
 
-export const toggleSwitchHideShow = ($first, $second) =>
-  toggle({ first: 1, second: 0 }, { first: 0, second: 1 }, async (from, to, duration, forward) => {
-    if (forward) {
-      _style($second, { display: 'initial' })
+export const toggleSwitchHideShow = ($first, $second) => {
+  _style($second, { display: 'none', opacity: 0 })
 
-      const { promise } = _fromTo(from, to, animationDuration, ({ first, second }) => {
+  return toggle({ first: 0, second: 1 }, { first: 1, second: 0 }, async (current, to, forward, options) => {
+    if (forward) {
+      _style($first, { display: 'initial' })
+
+      await _fromTo(current, to, ({ first, second }) => {
         _style($first, { opacity: first })
 
         _style($second, { opacity: second })
-      })
+      }, options)
 
-      await promise
+      _style($second, { display: 'none' })
+    } else {
+      _style($second, { display: 'initial' })
+
+      await _fromTo(current, to, ({ first, second }) => {
+        _style($first, { opacity: first })
+
+        _style($second, { opacity: second })
+      }, options)
 
       _style($first, { display: 'none' })
     }
   })
+}
 
 export const toggleColor = ($element, key, back, forward) =>
   toggle(back, forward, (from, to, duration) => changeColor($element, key, from, to, duration))
