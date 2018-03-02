@@ -7,7 +7,7 @@ import _remove from '_/remove'
 
 const { round } = Math
 
-export const animationDuration = 150
+export const animationDuration = 1500
 
 export const show = ($element, token) => {
   _animateStyle($element, { opacity: 0 }, { opacity: 1 }, { duration: animationDuration, token })
@@ -52,7 +52,7 @@ export const toggle = (from, to, handler) => {
 
   const resolvePrevious = (token = {}) => {
     const { progress, cancel, cursor } = token
-    let duration = 500
+    let duration = animationDuration
 
     if (progress) {
       cancel()

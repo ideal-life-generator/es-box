@@ -16,13 +16,23 @@ $iconHeight: $mainPlayerHeight
 
   .playback
     position: absolute
-    stroke: transparentize($violet, 0.2)
     cursor: pointer
+
+    &::after
+      $size: 35px
+      content: ''
+      position: absolute
+      left: ($iconWidth - $size) / 2
+      top: ($iconHeight - $size) / 2
+      width: $size
+      height: $size
+      border-radius: $size / 2
 
     .icon
       position: absolute
       width: $iconWidth
       height: $iconHeight
+      stroke: transparentize($violet, 0.2)
       fill: none
 
       &.hide

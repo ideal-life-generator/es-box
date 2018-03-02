@@ -7,24 +7,25 @@ import './index.sass'
 
 export default class MainPlayer {
   state = {
-    play: false,
+    pausing: true,
   }
 
-  $play = playIcon({
-    class: 'icon',
-    events: {
-      click: () => this.play(),
-    },
-  })
-  $pause = pauseIcon({
-    class: 'icon',
-    events: {
-      click: () => this.pause(),
-    },
-  })
+  $play = playIcon({ class: 'icon' })
+  $pause = pauseIcon({ class: 'icon' })
   $playback = _({
     class: 'playback',
     append: [this.$play, this.$pause],
+    events: {
+      click: () => {
+        const { state: { pausing }, play, pause } = this
+
+        if (pausing) {
+          play()
+        } else {
+          pause()
+        }
+      },
+    },
   })
   $mainPlayer = _({
     class: 'main-player',
@@ -41,7 +42,7 @@ export default class MainPlayer {
   play = () => {
     const { state, subscriber: { emit } } = this
 
-    state.play = true
+    state.pausing = false
 
     emit('PLAY')
   }
@@ -49,7 +50,7 @@ export default class MainPlayer {
   pause = () => {
     const { state, subscriber: { emit } } = this
 
-    state.play = false
+    state.pausing = true
 
     emit('PAUSE')
   }
