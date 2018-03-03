@@ -9,7 +9,7 @@ $searchHeight: 39px
 $searchPaddingLeft: 13px
 $clearSize: $searchHeight
 $inputWidth: $searchWidth - $searchPaddingLeft - $clearSize
-$svgSize: 10px
+$svgSize: 15.1px
 $fontSize: 16.5px
 
 .search
@@ -35,7 +35,6 @@ $fontSize: 16.5px
     left: $searchPaddingLeft + $inputWidth
     width: $clearSize
     height: $clearSize
-    fill: $white
     cursor: pointer
 
     svg
@@ -44,6 +43,7 @@ $fontSize: 16.5px
       top: ($clearSize - $svgSize) / 2
       width: $svgSize
       height: $svgSize
+      stroke: transparentize($violet, 0.2)
 
     &:hover
       fill: fade-out($white, 0.5)

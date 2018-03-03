@@ -45,8 +45,8 @@ export const changeColor = ($element, key, from, to, duration) =>
   _fromTo(from, to, duration, ({ r, g, b, a }) =>
     _style($element, { [key]: `rgba(${round(r)}, ${round(g)}, ${round(b)}, ${a.toFixed(5)})` }))
 
-export const toggle = (from, to, handler) => {
-  const current = { ...from }
+export const toggle = (from, to, handler, reverce) => {
+  const current = !reverce ? { ...from } : { ...to }
   let forwardToken
   let backToken
 
@@ -80,7 +80,7 @@ export const toggle = (from, to, handler) => {
   }
 }
 
-export const toggleSwitchShowHide = ($first, $second) => {
+export const toggleSwitchShowHide = ($first, $second, reverce) => {
   _style($second, { display: 'none', opacity: 0 })
 
   return toggle({ first: 0, second: 1 }, { first: 1, second: 0 }, async (current, to, forward, options) => {
@@ -101,7 +101,7 @@ export const toggleSwitchShowHide = ($first, $second) => {
     } else {
       _style($first, { display: 'none' })
     }
-  })
+  }, reverce)
 }
 
 export const toggleShowHide = ($element) => {

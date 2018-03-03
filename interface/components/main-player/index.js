@@ -40,7 +40,7 @@ export const $playback = _({
 })
 export const $mainPlayer = _({ class: 'main-player', append: [$playback] })
 
-export const toggleSwitchShowHidePlayPause = toggleSwitchShowHide($play, $pause)
+export const toggleSwitchShowHidePlayPause = toggleSwitchShowHide($play, $pause, true)
 
 export const { emit, on } = new Subscriber({
   PLAY: () => toggleSwitchShowHidePlayPause(false),
