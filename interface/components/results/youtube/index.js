@@ -6,29 +6,78 @@ import _coords from '_/coords'
 import _assign from '__/assign'
 import Item from './item'
 import { moveTop, hide } from '../../../utils/animations'
-import searchState from '../../search/state'
+// import searchState from '../../search/state'
 import { search } from '../../../api/youtube'
 import {
   SMALL_ITEM_HEIGHT,
   NORMAL_ITEM_HEIGHT,
 } from '../settings'
 
-export default class YoutubeSongs {
-  static sizeTypes = {
-    SMALL: {
-      className: 'small',
-      itemHeight: SMALL_ITEM_HEIGHT,
-    },
-    NORMAL: {
-      className: 'normal',
-      itemHeight: NORMAL_ITEM_HEIGHT,
-    },
-  }
-
-  state = {
+const sizeTypes = {
+  SMALL: {
     className: 'small',
     itemHeight: SMALL_ITEM_HEIGHT,
-  }
+  },
+  NORMAL: {
+    className: 'normal',
+    itemHeight: NORMAL_ITEM_HEIGHT,
+  },
+}
+
+export const changeSizeType = sizeType => {
+  const { state, subscriber: { emit } } = this
+  const {
+    [sizeType]: {
+      className,
+      itemHeight,
+    },
+  } = sizeTypes
+
+  state.className = className
+  state.itemHeight = itemHeight
+
+  emit('SIZE_TYPE_CHANGED')
+}
+
+export const fetchItems = async () => {
+  const { state, subscriber: { emit } } = this
+
+  state.fetching = true
+
+  // const { resizerUpdateTime: resizerUpdateTimeBeforeRequest } = state
+
+  const { data: { items, count, total } } = await search({
+    key: searchState.normalizedValue,
+    count: state.lastManualResizerLength ? state.lastManualResizerLength : state.resizerLength,
+  })
+
+  _assign(state, {
+    fetching: false,
+    items,
+    count,
+    total,
+  })
+
+  // const { resizerUpdateTime: resizerUpdateTimeAfterRequest } = state
+
+  // if (resizerUpdateTimeAfterRequest <= resizerUpdateTimeBeforeRequest) {
+  //   totalChanged()
+  //   countChanged()
+  // }
+
+  emit('ITEMS_UPDATED')
+}
+
+const bind = () => {}
+
+const state = {
+  className: 'small',
+  itemHeight: SMALL_ITEM_HEIGHT,
+}
+
+export default {
+  @bind(changeSizeType, fetchItems)
+  state,
 
   // separators = new Separators({
   //   create: i => cloneSeparator({
@@ -46,8 +95,8 @@ export default class YoutubeSongs {
   //     size: itemHeight,
   //   },
   // })
-  $youtubeSongs = _({ el: 'ul', class: 'list' })
-  collection = new Collection(this.$youtubeSongs, {
+  $youtubeSongs: _({ el: 'ul', class: 'list' }),
+  collection: new Collection(this.$youtubeSongs, {
     create: index => {
       const { state: { itemHeight } } = this
 
@@ -69,12 +118,13 @@ export default class YoutubeSongs {
       moveTop($item, previousIndex * itemHeight, nextIndex * itemHeight)
     },
     remove: ({ $item }) => hide($item),
-  })
+  }),
   // $separators = cloneSeparators()
   // $yResizer = _({ class: 'y-resizer' })
-  $container = _({ append: [this.$youtubeSongs] })
+  $container: _({ append: [this.$youtubeSongs] }),
 
-  subscriber = new Subscriber({
+  @subscribe(subscriber)
+  subscribers: {
     ITEMS_UPDATED: () => {
       const { state, collection } = this
 
@@ -115,59 +165,9 @@ export default class YoutubeSongs {
 
       $youtubeSongs.changeItemHeight(itemHeight)
     },
-  })
-
-  changeSizeType = sizeType => {
-    const { state, subscriber: { emit } } = this
-    const {
-      sizeTypes: {
-        [sizeType]: {
-          className,
-          itemHeight,
-        },
-      },
-    } = YoutubeSongs
-
-    state.className = className
-    state.itemHeight = itemHeight
-
-    emit('SIZE_TYPE_CHANGED')
-  }
-
-  fetchItems = async () => {
-    const { state, subscriber: { emit } } = this
-
-    state.fetching = true
-
-    // const { resizerUpdateTime: resizerUpdateTimeBeforeRequest } = state
-
-    const { data: { items, count, total } } = await search({
-      key: searchState.normalizedValue,
-      count: state.lastManualResizerLength ? state.lastManualResizerLength : state.resizerLength,
-    })
-
-    _assign(state, {
-      fetching: false,
-      items,
-      count,
-      total,
-    })
-
-    // const { resizerUpdateTime: resizerUpdateTimeAfterRequest } = state
-
-    // if (resizerUpdateTimeAfterRequest <= resizerUpdateTimeBeforeRequest) {
-    //   totalChanged()
-    //   countChanged()
-    // }
-
-    emit('ITEMS_UPDATED')
-  }
-
-  constructor() {
-    const { changeSizeType, fetchItems } = this
-
-    changeSizeType('SMALL')
-
-    fetchItems()
-  }
+  },
 }
+
+changeSizeType('SMALL')
+
+fetchItems()

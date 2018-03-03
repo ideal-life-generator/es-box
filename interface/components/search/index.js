@@ -1,30 +1,76 @@
-import _events from '_/events'
+import _ from '_'
+import Subscriber from '__/subscriber'
 import _assign from '__/assign'
-import state, { on, setValue } from './state'
-import { $search, $input, $clear } from './elements'
-import { showAppend, hideRemove } from '../../utils/animations'
+import _normalizeKey from '__/normalize-key'
+import _delay from '__/delay'
+import clearIcon from '../icons/clear'
+import { toggleShowHide } from '../../utils/animations'
+// import { fetchItems } from '../results/youtube'
 import './index.sass'
 
-_events($input, {
-  input: ({ target: { value } }) => setValue(value),
-})
+const fetchItems = () => {}
 
-_events($clear, {
-  click: () => {
-    _assign($input, { value: '' })
+export const state = {
+  value: '',
+  normalizedValue: 'starboy',
+  clear: false,
+}
 
-    setValue('', true)
+export const fetchItemsDelay = _delay(fetchItems, 500)
+
+export const setValue = (value, force) => {
+  const { clear } = state
+
+  state.value = value
+  state.normalizedValue = _normalizeKey(value)
+
+  if (value && !clear) {
+    state.clear = true
+
+    emit('SHOW_CLEAR')
+  } else if (!value && clear) {
+    state.clear = false
+
+    emit('HIDE_CLEAR')
+  }
+
+  if (force) {
+    fetchItems()
+  } else {
+    fetchItemsDelay()
+  }
+}
+
+export const $clear = _({
+  el: 'button',
+  class: 'clear',
+  append: clearIcon(),
+  events: {
+    click: () => {
+      _assign($input, { value: '' })
+
+      setValue('', true)
+    },
   },
 })
 
-on({
-  UPDATE_CLEAR: () => {
-    if (state.clear) {
-      showAppend($search, $clear)
-    } else {
-      hideRemove($clear)
-    }
+export const $input = _({
+  el: 'input',
+  class: 'input',
+  placeholder: 'Search',
+  events: {
+    input: ({ target: { value } }) => setValue(value),
   },
 })
 
-export default $search
+export const $search = _({
+  class: 'search',
+  append: [$input, $clear],
+})
+
+export const toggleShowHideClear = toggleShowHide($clear)
+
+export const { emit, on } = new Subscriber({
+  SHOW_CLEAR: () => toggleShowHideClear(true),
+  HIDE_CLEAR: () => toggleShowHideClear(false),
+})

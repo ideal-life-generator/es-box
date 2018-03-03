@@ -19,7 +19,7 @@ export const hide = ($element, token) =>
   _animateStyle($element, { opacity: 1 }, { opacity: 0 }, { duration: animationDuration, token }, () =>
     _style($element, { display: 'none' }))
 
-export const hideShow = ($from, $to) => {
+export const showHide = ($from, $to) => {
   hide($from)
 
   show($to)
@@ -46,7 +46,7 @@ export const changeColor = ($element, key, from, to, duration) =>
     _style($element, { [key]: `rgba(${round(r)}, ${round(g)}, ${round(b)}, ${a.toFixed(5)})` }))
 
 export const toggle = (from, to, handler) => {
-  const current = { ...to }
+  const current = { ...from }
   let forwardToken
   let backToken
 
@@ -80,30 +80,42 @@ export const toggle = (from, to, handler) => {
   }
 }
 
-export const toggleSwitchHideShow = ($first, $second) => {
+export const toggleSwitchShowHide = ($first, $second) => {
   _style($second, { display: 'none', opacity: 0 })
 
   return toggle({ first: 0, second: 1 }, { first: 1, second: 0 }, async (current, to, forward, options) => {
     if (forward) {
       _style($first, { display: 'initial' })
-
-      await _fromTo(current, to, ({ first, second }) => {
-        _style($first, { opacity: first })
-
-        _style($second, { opacity: second })
-      }, options)
-
-      _style($second, { display: 'none' })
     } else {
       _style($second, { display: 'initial' })
+    }
 
-      await _fromTo(current, to, ({ first, second }) => {
-        _style($first, { opacity: first })
+    await _fromTo(current, to, ({ first, second }) => {
+      _style($first, { opacity: first })
 
-        _style($second, { opacity: second })
-      }, options)
+      _style($second, { opacity: second })
+    }, options)
 
+    if (forward) {
+      _style($second, { display: 'none' })
+    } else {
       _style($first, { display: 'none' })
+    }
+  })
+}
+
+export const toggleShowHide = ($element) => {
+  _style($element, { display: 'none', opacity: 0 })
+
+  return toggle({ opacity: 0 }, { opacity: 1 }, async (current, to, forward, options) => {
+    if (forward) {
+      _style($element, { display: 'initial' })
+    }
+
+    await _fromTo(current, to, style => _style($element, style), options)
+
+    if (!forward) {
+      _style($element, { display: 'none' })
     }
   })
 }
