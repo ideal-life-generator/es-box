@@ -1,12 +1,23 @@
 import _ from '_'
 // import ﾟuserSongs from './user-songs'
-import YoutubeSongs from './youtube'
-import './index.sass'
+import { $youtube } from './youtube'
+import {
+  smallItemHeight as smallItemHeightString,
+  normalItemHeight as normalItemHeightString,
+} from './index.sass'
 
-export default class Results {
-  youtubeSongs = new YoutubeSongs()
-  $results = _({
-    class: 'results',
-    append: [this.youtubeSongs.$container],
-  })
+export const sizeTypes = {
+  SMALL: {
+    className: 'small',
+    itemHeight: parseFloat(smallItemHeightString),
+  },
+  NORMAL: {
+    className: 'normal',
+    itemHeight: parseFloat(normalItemHeightString),
+  },
 }
+
+export const $results = _({
+  class: 'results',
+  append: [$youtube],
+})

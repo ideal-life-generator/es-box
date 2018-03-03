@@ -8,40 +8,28 @@ import Item from './item'
 import { moveTop, hide } from '../../../utils/animations'
 // import searchState from '../../search/state'
 import { search } from '../../../api/youtube'
-import {
-  SMALL_ITEM_HEIGHT,
-  NORMAL_ITEM_HEIGHT,
-} from '../settings'
+import { state as searchState } from '../../search'
 
-const sizeTypes = {
-  SMALL: {
-    className: 'small',
-    itemHeight: SMALL_ITEM_HEIGHT,
-  },
-  NORMAL: {
-    className: 'normal',
-    itemHeight: NORMAL_ITEM_HEIGHT,
-  },
+export const state = {
+  className: null,
+  itemHeight: null,
 }
 
 export const changeSizeType = sizeType => {
-  const { state, subscriber: { emit } } = this
-  const {
-    [sizeType]: {
-      className,
-      itemHeight,
-    },
-  } = sizeTypes
+  // const {
+  //   [sizeType]: {
+  //     className,
+  //     itemHeight,
+  //   },
+  // } = sizeTypes
 
-  state.className = className
-  state.itemHeight = itemHeight
+  state.className = 'small'
+  state.itemHeight = 145
 
   emit('SIZE_TYPE_CHANGED')
 }
 
 export const fetchItems = async () => {
-  const { state, subscriber: { emit } } = this
-
   state.fetching = true
 
   // const { resizerUpdateTime: resizerUpdateTimeBeforeRequest } = state
@@ -68,105 +56,82 @@ export const fetchItems = async () => {
   emit('ITEMS_UPDATED')
 }
 
-const bind = () => {}
+// separators = new Separators({
+//   create: i => cloneSeparator({
+//     coords: { top: i * itemHeight },
+//     created: $element => show($element),
+//   }),
+//   remove: $separator => hide($separator),
+// })
+// yResizer = new YResizer($youtube, {
+//   y: {
+//     activator: $yResizer,
+//     count: state.resizerLength,
+//     min: state.resizerMin,
+//     max: state.resizerMax,
+//     size: itemHeight,
+//   },
+// })
 
-const state = {
-  className: 'small',
-  itemHeight: SMALL_ITEM_HEIGHT,
-}
+export const $list = _({ el: 'ul', class: 'list' })
 
-export default {
-  @bind(changeSizeType, fetchItems)
-  state,
+export const collection = new Collection($list, {
+  create: index => {
+    const { itemHeight } = state
 
-  // separators = new Separators({
-  //   create: i => cloneSeparator({
-  //     coords: { top: i * itemHeight },
-  //     created: $element => show($element),
-  //   }),
-  //   remove: $separator => hide($separator),
-  // })
-  // yResizer = new YResizer($youtubeSongs, {
-  //   y: {
-  //     activator: $yResizer,
-  //     count: state.resizerLength,
-  //     min: state.resizerMin,
-  //     max: state.resizerMax,
-  //     size: itemHeight,
-  //   },
-  // })
-  $youtubeSongs: _({ el: 'ul', class: 'list' }),
-  collection: new Collection(this.$youtubeSongs, {
-    create: index => {
-      const { state: { itemHeight } } = this
+    const item = new Item({ index, currentTime: 0 })
 
-      const item = new Item({ index, currentTime: 0 })
+    _coords(item.$item, { top: index * itemHeight })
 
-      _coords(item.$item, { top: index * itemHeight })
-
-      return item
-    },
-    update: {
-      id: (item, id) => item.setSource(`http://localhost:3001/youtube/mp3/${id}`),
-      thumbnailUrl: (item, thumbnailUrl) => item.setThumbnailUrl(thumbnailUrl),
-      title: (item, title) => item.setTitle(title),
-      duration: (item, duration) => item.setDuration(duration),
-    },
-    move: ({ $item }, { previousIndex, nextIndex }) => {
-      const { state: { itemHeight } } = this
-
-      moveTop($item, previousIndex * itemHeight, nextIndex * itemHeight)
-    },
-    remove: ({ $item }) => hide($item),
-  }),
-  // $separators = cloneSeparators()
-  // $yResizer = _({ class: 'y-resizer' })
-  $container: _({ append: [this.$youtubeSongs] }),
-
-  @subscribe(subscriber)
-  subscribers: {
-    ITEMS_UPDATED: () => {
-      const { state, collection } = this
-
-      collection.setItems(state)
-    },
-    SIZE_TYPE_CHANGED: () => {
-      const {
-        state: {
-          className,
-          // itemHeight,
-        },
-        $container,
-        // separators,
-        // yResizer,
-      } = this
-
-      _classAdd($container, className)
-
-      // collection.setItemHeight(itemHeight)
-      // separators.setItemHeight(itemHeight)
-      // yResizer.setItemHeight(itemHeight)
-    },
-    SIZE_CHANGED: () => {
-      const {
-        sizeTypes,
-        state: { sizeType },
-        $results,
-        $youtubeSongs,
-      } = this
-      const {
-        [sizeType]: {
-          class: sizeClass,
-          itemHeight,
-        },
-      } = sizeTypes
-
-      _classAdd($results, sizeClass)
-
-      $youtubeSongs.changeItemHeight(itemHeight)
-    },
+    return item
   },
-}
+  update: {
+    id: (item, id) => item.setSource(`http://localhost:3001/youtube/mp3/${id}`),
+    thumbnailUrl: (item, thumbnailUrl) => item.setThumbnailUrl(thumbnailUrl),
+    title: (item, title) => item.setTitle(title),
+    duration: (item, duration) => item.setDuration(duration),
+  },
+  move: ({ $item }, { previousIndex, nextIndex }) => {
+    const { itemHeight } = state
+
+    moveTop($item, previousIndex * itemHeight, nextIndex * itemHeight)
+  },
+  remove: ({ $item }) => hide($item),
+})
+
+// $separators = cloneSeparators()
+// $yResizer = _({ class: 'y-resizer' })
+
+export const $youtube = _({ append: [$list] })
+
+export const { emit, on } = new Subscriber({
+  ITEMS_UPDATED: () => collection.setItems(state),
+  SIZE_TYPE_CHANGED: () => {
+    const { className } = state
+
+    _classAdd($youtube, className)
+
+    // collection.setItemHeight(itemHeight)
+    // separators.setItemHeight(itemHeight)
+    // yResizer.setItemHeight(itemHeight)
+  },
+  // SIZE_CHANGED: () => {
+  //   const {
+  //     $results,
+  //     $youtube,
+  //   } = this
+  //   const {
+  //     [sizeType]: {
+  //       class: sizeClass,
+  //       itemHeight,
+  //     },
+  //   } = sizeTypes
+
+  //   _classAdd($results, sizeClass)
+
+  //   $youtube.changeItemHeight(itemHeight)
+  // },
+})
 
 changeSizeType('SMALL')
 

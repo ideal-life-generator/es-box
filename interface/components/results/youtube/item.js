@@ -4,7 +4,11 @@ import VideoPlayer from '../../reusable/video-player'
 import Progress from '../../reusable/progress'
 import playIcon from '../../icons/play'
 import pauseIcon from '../../icons/video-pause'
-import { show, toggleSwitchHideShow, toggleColor } from '../../../utils/animations'
+import {
+  toggleShowHide,
+  toggleSwitchShowHide,
+  toggleColor,
+} from '../../../utils/animations'
 
 export default class Item {
   state = {
@@ -37,13 +41,13 @@ export default class Item {
     append: [this.$play, this.$pause],
   })
   progress = new Progress({ width: 1030.15929 })
-  toggleSwitchHideShow = toggleSwitchHideShow(this.$play, this.$pause)
-  toggleWhiteViolet = toggleColor(this.$playback, 'stroke', { r: 255, g: 255, b: 255, a: 0.8 }, { g: 0, b: 222 })
+  toggleSwitchShowHidePlayback = toggleSwitchShowHide(this.$play, this.$pause, true)
+  toggleWhiteViolet = toggleColor(this.$playback, { r: 255, g: 255, b: 255, a: 0.8 }, { g: 0, b: 222 }, 'stroke')
   videoPlayer = new VideoPlayer({
-    PLAYBACK_ENTER: () => this.toggleWhiteViolet(),
-    PLAYBACK_LEAVE: () => this.toggleWhiteViolet(),
-    PLAY: () => this.toggleSwitchHideShow(),
-    PAUSE: () => this.toggleSwitchHideShow(),
+    PLAYBACK_ENTER: () => this.toggleWhiteViolet(true),
+    PLAYBACK_LEAVE: () => this.toggleWhiteViolet(false),
+    PLAY: () => this.toggleSwitchShowHidePlayback(false),
+    PAUSE: () => this.toggleSwitchShowHidePlayback(true),
     CURRENT_TIME_CHANGED: () => this.setCurrentTime(this.videoPlayer.state.currentTime),
   })
   $title = _({ el: 'p', class: 'title' })
@@ -60,45 +64,8 @@ export default class Item {
     class: 'item',
     style: { opacity: 0 },
     append: this.$content,
-    created: $element => show($element),
   })
-
-  constructor(options = {}) {
-    const {
-      source,
-      thumbnailUrl,
-      title,
-      duration,
-      currentTime,
-    } = options
-    const {
-      setSource,
-      setThumbnailUrl,
-      setTitle,
-      setDuration,
-      setCurrentTime,
-    } = this
-
-    if (source) {
-      setSource(source)
-    }
-
-    if (thumbnailUrl) {
-      setThumbnailUrl(thumbnailUrl)
-    }
-
-    if (title) {
-      setTitle(title)
-    }
-
-    if (typeof duration === 'number') {
-      setDuration(duration)
-    }
-
-    if (typeof currentTime === 'number') {
-      setCurrentTime(currentTime)
-    }
-  }
+  toggleSwitchShowHideItem = toggleShowHide(this.$item)
 
   setSource = source => {
     const { state, videoPlayer } = this
@@ -138,5 +105,45 @@ export default class Item {
     state.currentTime = currentTime
 
     progress.setCurrentTime(currentTime)
+  }
+
+  constructor(options = {}) {
+    const {
+      source,
+      thumbnailUrl,
+      title,
+      duration,
+      currentTime,
+    } = options
+    const {
+      setSource,
+      setThumbnailUrl,
+      setTitle,
+      setDuration,
+      setCurrentTime,
+      toggleSwitchShowHideItem,
+    } = this
+
+    if (source) {
+      setSource(source)
+    }
+
+    if (thumbnailUrl) {
+      setThumbnailUrl(thumbnailUrl)
+    }
+
+    if (title) {
+      setTitle(title)
+    }
+
+    if (typeof duration === 'number') {
+      setDuration(duration)
+    }
+
+    if (typeof currentTime === 'number') {
+      setCurrentTime(currentTime)
+    }
+
+    toggleSwitchShowHideItem(true)
   }
 }

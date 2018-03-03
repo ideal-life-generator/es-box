@@ -1,6 +1,6 @@
 import _ from '_'
 import Subscriber from '__/subscriber'
-import { show, hide } from '../../utils/animations'
+import { toggleShowHide } from '../../utils/animations'
 import './loader.sass'
 
 
@@ -10,21 +10,22 @@ export default class Loader {
   }
 
   $loader = _({ class: 'loader' })
+  toggleShowHideLoader = toggleShowHide(this.$loader)
 
   subscriber = new Subscriber({
     LOADING: () => {
-      const { state, $loader } = this
+      const { state, toggleShowHideLoader } = this
 
       state.loading = true
 
-      show($loader)
+      toggleShowHideLoader(true)
     },
     LOADED: () => {
-      const { state, $loader } = this
+      const { state, toggleShowHideLoader } = this
 
       state.loading = false
 
-      hide($loader)
+      toggleShowHideLoader(false)
     },
   })
 
