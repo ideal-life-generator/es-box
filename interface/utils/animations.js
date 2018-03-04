@@ -3,15 +3,14 @@ import _style from '_/style'
 
 const { round } = Math
 
-export const animationDuration = 200
+export const animationDuration = 150
 
-export const toggle = (from, to, handler, reverce) => {
-  const current = !reverce ? { ...from } : { ...to }
+export const toggle = (from, to, handler) => {
   let forwardToken
   let backToken
 
   const resolvePrevious = (token = {}) => {
-    const { progress, cancel, cursor } = token
+    const { progress, cancel, cursor, current } = token
     let duration = animationDuration
 
     if (progress) {
@@ -20,27 +19,31 @@ export const toggle = (from, to, handler, reverce) => {
       duration *= cursor
     }
 
-    return duration
+    return {
+      current,
+      duration,
+    }
   }
 
   return forward => {
     if (forward) {
-      const duration = resolvePrevious(backToken)
+      const { current, duration } = resolvePrevious(backToken)
 
       forwardToken = {}
 
-      handler(current, to, forward, { duration, token: forwardToken })
+      handler(current || from, to, forward, { duration, token: forwardToken })
     } else {
-      const duration = resolvePrevious(forwardToken)
+      const { current, duration } = resolvePrevious(forwardToken)
 
       backToken = {}
 
-      handler(current, from, forward, { duration, token: backToken })
+      handler(current || to, from, forward, { duration, token: backToken })
     }
   }
 }
 
-export const toggleSwitchShowHide = ($first, $second, reverce) => {
+export const toggleSwitchShowHide = ($first, $second) => {
+  _style($first, { display: 'initial', opacity: 1 })
   _style($second, { display: 'none', opacity: 0 })
 
   return toggle({ first: 0, second: 1 }, { first: 1, second: 0 }, async (current, next, forward, options) => {
@@ -61,7 +64,7 @@ export const toggleSwitchShowHide = ($first, $second, reverce) => {
     } else {
       _style($first, { display: 'none' })
     }
-  }, reverce)
+  })
 }
 
 export const toggleShowHide = ($element) => {

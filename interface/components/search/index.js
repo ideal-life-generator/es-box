@@ -5,10 +5,8 @@ import _normalizeKey from '__/normalize-key'
 import _delay from '__/delay'
 import clearIcon from '../icons/clear'
 import { toggleShowHide } from '../../utils/animations'
-// import { fetchItems } from '../results/youtube'
+import { fetchItems } from '../results/youtube'
 import './index.sass'
-
-const fetchItems = () => {}
 
 export const state = {
   value: '',

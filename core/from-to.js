@@ -3,7 +3,7 @@ const { stringify } = JSON
 
 const calculateCurrentNumber = (from, to) => cursor => from + ((to - from) * cursor)
 
-const calculateCurrentObject = (from, to) => {
+const calculateCurrentObject = (from, to, current = {}) => {
   const calculateHandlers = {}
   const paramsKeys = keys(to)
 
@@ -15,9 +15,9 @@ const calculateCurrentObject = (from, to) => {
   })
 
   return cursor => {
-    paramsKeys.forEach(key => from[key] = calculateHandlers[key](cursor))
+    paramsKeys.forEach(key => current[key] = calculateHandlers[key](cursor))
 
-    return from
+    return current
   }
 }
 
@@ -45,28 +45,32 @@ export default (from, to, handler, { duration = 150, token = {} }) => {
   return new Promise((resolve, reject) => {
     token.cancel = () => {
       const { progress, cursor } = token
-      const fromString = stringify(from)
+      const currentString = stringify(current)
       const toString = stringify(to)
 
       if (progress) {
         token.canceled = true
 
-        reject(new Error(`fromTo with paramethers from ${fromString} to ${toString} canceled on cursor ${cursor}`))
+        reject(new Error(`fromTo with paramethers current ${currentString} to ${toString} canceled on cursor ${cursor}`))
       }
     }
 
+    let current = {}
     const startedAt = Date.now()
-    const calculateCurrent = generateCalculateCurrent(from, to)
+    const calculateCurrent = generateCalculateCurrent(from, to, current)
 
     const tick = () => {
       const timeLeft = Date.now() - startedAt
       const cursor = calculateCursor(timeLeft, duration)
-      const current = calculateCurrent(cursor)
-      const { canceled } = token
+
+      current = calculateCurrent(cursor)
+
+      token.current = current
+      token.cursor = cursor
 
       handler(current)
 
-      token.cursor = cursor
+      const { canceled } = token
 
       if (timeLeft < duration && !canceled) {
         requestAnimationFrame(tick)

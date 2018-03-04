@@ -23,6 +23,7 @@
     "spaced-comment": 0,
     "max-len": [1, 150],
     "no-console": 0,
+    "no-empty": 1,
     "import/prefer-default-export": 0,
     "arrow-body-style": 1,
     "no-bitwise": 1,
