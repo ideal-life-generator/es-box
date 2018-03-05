@@ -1,7 +1,9 @@
 import _ from '_'
 import Subscriber from '__/subscriber'
 import _style from '_/style'
+import _attributes from '_/attributes'
 import _text from '_/text'
+import _delayInterval from '__/delay-interval'
 import parseTime from '../../utils/parse-time'
 import './progress.sass'
 
@@ -12,14 +14,32 @@ export default class Progress {
     currentTime: null,
   }
 
-  $point = _({ class: 'point' })
-  $currentTimeMinutes = _({ el: 'span', class: 'number' })
-  $currentTimeSeparator = _({ el: 'span', text: ':' })
-  $currentTimeSeconds = _({ el: 'span', class: 'number' })
-  $currentTime = _({ class: 'time', append: [this.$currentTimeMinutes, this.$currentTimeSeparator, this.$currentTimeSeconds] })
-  $cursor = _({ class: 'cursor', append: [this.$point, this.$currentTime] })
-  $current = _({ class: 'current' })
-  $progress = _({ class: 'progress', append: this.$current })
+  // $point = _({ class: 'point' })
+  // $currentTimeMinutes = _({ el: 'span', class: 'number' })
+  // $currentTimeSeparator = _({ el: 'span', text: ':' })
+  // $currentTimeSeconds = _({ el: 'span', class: 'number' })
+  // $currentTime = _({ class: 'time', append: [this.$currentTimeMinutes, this.$currentTimeSeparator, this.$currentTimeSeconds] })
+  // $cursor = _({ class: 'cursor', append: [this.$point, this.$currentTime] })
+  // $current = _({ class: 'current' })
+  $all = _({
+    svg: 'line',
+    class: 'all',
+    attributes: {
+      x1: '0px',
+      y1: '0px',
+      x2: '1030.15929px',
+    },
+  })
+  $now = _({
+    svg: 'line',
+    class: 'now',
+    attributes: {
+      x1: '0px',
+      y1: '0px',
+      x2: '0px',
+    },
+  })
+  $progress = _({ svg: true, class: 'progress', append: [this.$all, this.$now] })
 
   subscriber = new Subscriber({
     UPDATE_WIDTH: () => {},
@@ -30,19 +50,33 @@ export default class Progress {
           duration,
           currentTime,
         },
-        $current,
+        $now,
         $currentTimeMinutes,
         $currentTimeSeconds,
       } = this
 
-      const currentPosition = width * (currentTime / duration)
+      const currentPosition = (currentTime / duration) * width
 
-      _style($current, { width: `${currentPosition}px` })
+      _attributes($now, {
+        x2: `${currentPosition}px`,
+      })
 
-      const { minutes, seconds } = parseTime(currentTime)
+      // _style($progress, {
+      //   borderImageSource: `
+      //     linear-gradient(
+      //       to right,
+      //       rgba(255, 0, 222, 0.2) 0px,
+      //       rgba(255, 0, 222, 0.8) ${currentPosition - 10}px,
+      //       rgba(255, 0, 222, 0.8) ${currentPosition}px,
+      //       rgba(255, 255, 255, 0.2) ${currentPosition + 10}px,
+      //       rgba(255, 255, 255, 0.2) ${width}px
+      //     )`,
+      // })
 
-      _text($currentTimeMinutes, minutes)
-      _text($currentTimeSeconds, seconds)
+      // const { minutes, seconds } = parseTime(currentTime)
+
+      // _text($currentTimeMinutes, minutes)
+      // _text($currentTimeSeconds, seconds)
     },
   })
 
@@ -62,12 +96,15 @@ export default class Progress {
     emit('UPDATE_CURRENT')
   }
 
+  updateCurrentTimeInterval = _delayInterval(() => this.subscriber.emit('UPDATE_CURRENT'), 100)
+
   setCurrentTime = currentTime => {
-    const { state, subscriber: { emit } } = this
+    const { state, updateCurrentTimeInterval } = this
 
     state.currentTime = currentTime
 
-    emit('UPDATE_CURRENT')
+    this.subscriber.emit('UPDATE_CURRENT')
+    // updateCurrentTimeInterval()
   }
 
   constructor(options = {}) {

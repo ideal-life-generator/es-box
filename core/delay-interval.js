@@ -1,4 +1,4 @@
-export default (hadler, delay) => {
+export default (hadler, delay, immediately) => {
   let intervalId
   let inInterval = false
   let lastArgs = null
@@ -6,7 +6,9 @@ export default (hadler, delay) => {
 
   return (...args) => {
     if (!inInterval) {
-      hadler(...args)
+      if (immediately) {
+        hadler(...args)
+      }
 
       lastHandledArgs = args
 

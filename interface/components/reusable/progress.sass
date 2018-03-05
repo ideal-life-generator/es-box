@@ -5,15 +5,30 @@ $progressHeight: 1px
 
 .progress
   position: absolute
-  border-top: $progressHeight solid transparentize($white, 0.8)
+  height: 2px
+  // border-top: 1px solid transparent
+  // border-image: linear-gradient(to right, transparentize($white, 0.8) 20%, transparentize($violet, 0.2) 25%, transparentize($white, 0.8) 30%)
+  // border-image: linear-gradient(to right, #3acfd5 0%,#3acfd5 60%, #3a4ed5 61%, #3a4ed5 100%)
+  // border-image-slice: 1
+  // border-top-width: $progressHeight
+  // border-top-style: solid
+  // border-image: linear-gradient(to right, transparentize($white, 0.8), transparentize($violet, 0.2)) 1 100%
   cursor: pointer
   user-select: none
+
+  .all
+    stroke: rgba(255, 0, 222, 0.2)
+
+  .now
+    stroke: rgba(255, 0, 222, 0.8)
 
   .current
     position: absolute
     top: -1px
     width: 0px
-    border-top: $progressHeight solid transparentize($violet, 0.2)
+    border-top-width: $progressHeight
+    border-top-style: solid
+    border-image: linear-gradient(to right, white, transparentize($violet, 0.2)) 1 100%
 
     .cursor
       position: absolute

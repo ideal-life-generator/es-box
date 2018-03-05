@@ -7,7 +7,7 @@ import pauseIcon from '../../icons/video-pause'
 import {
   toggleShowHide,
   toggleSwitchShowHide,
-  toggleColor,
+  toggleWhiteViolet,
 } from '../../../utils/animations'
 
 export default class Item {
@@ -41,8 +41,8 @@ export default class Item {
     append: [this.$play, this.$pause],
   })
   progress = new Progress({ width: 1030.15929 })
-  toggleSwitchShowHidePlayback = toggleSwitchShowHide(this.$play, this.$pause, true)
-  toggleWhiteViolet = toggleColor(this.$playback, { r: 255, g: 255, b: 255, a: 0.8 }, { g: 0, b: 222 }, 'stroke')
+  toggleSwitchShowHidePlayback = toggleSwitchShowHide(this.$play, this.$pause)
+  toggleWhiteViolet = toggleWhiteViolet(this.$playback, 'stroke')
   videoPlayer = new VideoPlayer({
     PLAYBACK_ENTER: () => this.toggleWhiteViolet(true),
     PLAYBACK_LEAVE: () => this.toggleWhiteViolet(false),

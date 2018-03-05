@@ -28,6 +28,9 @@ $normalItemHeight: 220px
     .item
       position: absolute
       width: $itemWidth
+      border-bottom: 1px solid transparentize($white, 0.8)
+      &:last-child
+        border-bottom: none
 
       .content
         position: absolute

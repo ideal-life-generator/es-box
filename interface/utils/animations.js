@@ -1,9 +1,12 @@
+import _animateStyle from '_/animate-style'
 import _fromTo from '__/from-to'
 import _style from '_/style'
 
 const { round } = Math
 
 export const animationDuration = 150
+
+export const moveTop = ($element, from, to) => _animateStyle($element, { top: `${from}px` }, { top: `${to}px` })
 
 export const toggle = (from, to, handler) => {
   let forwardToken
@@ -83,12 +86,11 @@ export const toggleShowHide = ($element) => {
   })
 }
 
-export const changeColor = ($element, key, from, to, duration) =>
-  _fromTo(from, to, duration, ({ r, g, b, a }) =>
-    _style($element, { [key]: `rgba(${round(r)}, ${round(g)}, ${round(b)}, ${a.toFixed(5)})` }))
-
 export const toggleColor = ($element, from, to, key) =>
   toggle(from, to, (current, next, forward, options) =>
     _fromTo(current, next, ({ r, g, b, a }) =>
       _style($element, { [key]: `rgba(${round(r)}, ${round(g)}, ${round(b)}, ${a.toFixed(5)})` })
       , options))
+
+export const toggleWhiteViolet = ($element, key) =>
+  toggleColor($element, { r: 255, g: 255, b: 255, a: 0.8 }, { r: 255, g: 0, b: 222, a: 0.8 }, key)

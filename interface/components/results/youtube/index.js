@@ -1,68 +1,31 @@
 import _ from '_'
-import Subscriber from '__/subscriber'
 import Collection from '_/collection'
 import _classAdd from '_/class-add'
 import _coords from '_/coords'
-import _assign from '__/assign'
+// import Separators from '_/separators'
 import Item from './item'
-import { moveTop, hide } from '../../../utils/animations'
-// import searchState from '../../search/state'
-import { search } from '../../../api/youtube'
-import { state as searchState } from '../../search'
+import state, { changeSizeType, fetchItems } from '../../../state/results/youtube'
+import { moveTop } from '../../../utils/animations'
+import { on } from '../../../utils/subscriber'
 
-export const state = {
-  className: null,
-  itemHeight: null,
-}
+// export const separators = _cloner({
+//   el: 'ul',
+//   class: 'separators',
+// })
 
-export const changeSizeType = sizeType => {
-  // const {
-  //   [sizeType]: {
-  //     className,
-  //     itemHeight,
-  //   },
-  // } = sizeTypes
+// export const separator = _cloner({
+//   el: 'li',
+//   class: 'separator',
+// })
 
-  state.className = 'small'
-  state.itemHeight = 145
-
-  emit('SIZE_TYPE_CHANGED')
-}
-
-export const fetchItems = async () => {
-  state.fetching = true
-
-  // const { resizerUpdateTime: resizerUpdateTimeBeforeRequest } = state
-
-  const { data: { items, count, total } } = await search({
-    key: searchState.normalizedValue,
-    count: state.lastManualResizerLength ? state.lastManualResizerLength : state.resizerLength,
-  })
-
-  _assign(state, {
-    fetching: false,
-    items,
-    count,
-    total,
-  })
-
-  // const { resizerUpdateTime: resizerUpdateTimeAfterRequest } = state
-
-  // if (resizerUpdateTimeAfterRequest <= resizerUpdateTimeBeforeRequest) {
-  //   totalChanged()
-  //   countChanged()
-  // }
-
-  emit('ITEMS_UPDATED')
-}
-
-// separators = new Separators({
+// export const separators = new Separators({
 //   create: i => cloneSeparator({
 //     coords: { top: i * itemHeight },
 //     created: $element => show($element),
 //   }),
 //   remove: $separator => hide($separator),
 // })
+
 // yResizer = new YResizer($youtube, {
 //   y: {
 //     activator: $yResizer,
@@ -96,7 +59,7 @@ export const collection = new Collection($list, {
 
     moveTop($item, previousIndex * itemHeight, nextIndex * itemHeight)
   },
-  remove: ({ $item }) => hide($item),
+  remove: ({ toggleSwitchShowHideItem }) => toggleSwitchShowHideItem(false),
 })
 
 // $separators = cloneSeparators()
@@ -104,7 +67,7 @@ export const collection = new Collection($list, {
 
 export const $youtube = _({ append: [$list] })
 
-export const { emit, on } = new Subscriber({
+on({
   ITEMS_UPDATED: () => collection.setItems(state),
   SIZE_TYPE_CHANGED: () => {
     const { className } = state
