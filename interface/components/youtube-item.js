@@ -1,14 +1,37 @@
 import _ from '_'
 import _text from '_/text'
-import VideoPlayer from '../../reusable/video-player'
-import Progress from '../../reusable/progress'
-import playIcon from '../../icons/play'
-import pauseIcon from '../../icons/video-pause'
+import VideoPlayer from './video-player'
+import Progress from './progress'
+import playIcon from './icons/play'
+import pauseIcon from './icons/video-pause'
 import {
   toggleShowHide,
   toggleSwitchShowHide,
   toggleWhiteViolet,
-} from '../../../utils/animations'
+} from '../utils/animations'
+import './youtube-item.sass'
+
+const itemWidth = 1236
+const itemHeight = 145
+const contentTop = 20
+const contentHeight = itemHeight - (contentTop * 2)
+const infoHeight = contentHeight
+const playerHeight = contentHeight
+const playerWidth = playerHeight / 0.565
+const loaderSize = 25
+const loaderLeft = (playerWidth - loaderSize) / 2
+const loaderTop = (playerHeight - loaderSize) / 2
+const thumbnailHeight = 90
+const infoPaddingLeft = 20
+const infoLeft = playerWidth + infoPaddingLeft
+const infoWidth = itemWidth - infoLeft
+const playbackWidth = 18
+const playbackHeight = 20.36
+const titleTop = 27
+const titleHeight = 20
+const progressHeight = 1
+const progressTop = infoHeight - progressHeight
+const progressTimeHeight = 20
 
 export default class Item {
   state = {
@@ -40,7 +63,7 @@ export default class Item {
     },
     append: [this.$play, this.$pause],
   })
-  progress = new Progress({ width: 1030.15929 })
+  // progress = new Progress({ width: 1030.15929 })
   toggleSwitchShowHidePlayback = toggleSwitchShowHide(this.$play, this.$pause)
   toggleWhiteViolet = toggleWhiteViolet(this.$playback, 'stroke')
   videoPlayer = new VideoPlayer({
@@ -53,17 +76,27 @@ export default class Item {
   $title = _({ el: 'p', class: 'title' })
   $info = _({
     class: 'info',
-    append: [this.$playback, this.$title, this.progress.$progress],
+    append: [this.$playback, this.$title/*, this.progress.$progress*/],
   })
   $content = _({
     class: 'content',
     append: [this.videoPlayer.$player, this.$info],
   })
+  $separator = _({
+    svg: 'line',
+    class: 'separator',
+    attributes: {
+      x1: '0px',
+      y1: `${itemHeight}px`,
+      x2: `${itemWidth}px`,
+      y2: `${itemHeight}px`,
+    },
+  })
   $item = _({
-    el: 'li',
+    svg: true,
     class: 'item',
     style: { opacity: 0 },
-    append: this.$content,
+    append: this.$separator,
   })
   toggleSwitchShowHideItem = toggleShowHide(this.$item)
 
@@ -96,7 +129,7 @@ export default class Item {
 
     state.duration = duration
 
-    progress.setDuration(duration)
+    // progress.setDuration(duration)
   }
 
   setCurrentTime = currentTime => {
@@ -104,7 +137,7 @@ export default class Item {
 
     state.currentTime = currentTime
 
-    progress.setCurrentTime(currentTime)
+    // progress.setCurrentTime(currentTime)
   }
 
   constructor(options = {}) {

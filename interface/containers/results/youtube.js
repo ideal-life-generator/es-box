@@ -3,10 +3,11 @@ import Collection from '_/collection'
 import _classAdd from '_/class-add'
 import _coords from '_/coords'
 // import Separators from '_/separators'
-import Item from './item'
-import state, { changeSizeType, fetchItems } from '../../../state/results/youtube'
-import { moveTop } from '../../../utils/animations'
-import { on } from '../../../utils/subscriber'
+import Item from '../../components/youtube-item'
+import state, { changeSizeType, fetchItems } from '../../state/results/youtube'
+import { moveTop } from '../../utils/animations'
+import { on } from '../../utils/subscriber'
+import './index.sass'
 
 // export const separators = _cloner({
 //   el: 'ul',
@@ -65,7 +66,7 @@ export const collection = new Collection($list, {
 // $separators = cloneSeparators()
 // $yResizer = _({ class: 'y-resizer' })
 
-export const $youtube = _({ append: [$list] })
+export const $youtube = _({ class: 'youtube', append: [$list] })
 
 on({
   ITEMS_UPDATED: () => collection.setItems(state),

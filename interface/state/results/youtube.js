@@ -2,7 +2,7 @@ import _assign from '__/assign'
 import { emit } from '../../utils/subscriber'
 import { search } from '../../api/youtube'
 import searchState from '../search'
-import { smallItemHeight as smallItemHeightString } from '../../components/results/index.sass'
+import { smallItemHeight as smallItemHeightString } from '../../components/youtube-item.sass'
 
 export const SMALL_ITEM_HEIGHT = parseFloat(smallItemHeightString)
 

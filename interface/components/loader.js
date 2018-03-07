@@ -1,8 +1,7 @@
 import _ from '_'
 import Subscriber from '__/subscriber'
-import { toggleShowHide } from '../../utils/animations'
+import { toggleShowHide } from '../utils/animations'
 import './loader.sass'
-
 
 export default class Loader {
   state = {

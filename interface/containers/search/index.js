@@ -1,6 +1,6 @@
 import _ from '_'
 import _assign from '__/assign'
-import clearIcon from '../icons/clear'
+import clearIcon from '../../components/icons/clear'
 import { setValue } from '../../state/search'
 import { on } from '../../utils/subscriber'
 import { toggleShowHide } from '../../utils/animations'

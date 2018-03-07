@@ -1,6 +1,6 @@
 import _ from '_'
-import playIcon from '../icons/play'
-import pauseIcon from '../icons/pause'
+import playIcon from '../../components/icons/play'
+import pauseIcon from '../../components/icons/pause'
 import state, { play, pause } from '../../state/main-player'
 import { on } from '../../utils/subscriber'
 import { toggleSwitchShowHide } from '../../utils/animations'

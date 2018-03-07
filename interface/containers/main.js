@@ -4,7 +4,7 @@ import { $search } from './search'
 import { $results } from './results'
 import './main.sass'
 
-export default _({
+export const $main = _({
   class: 'main',
   append: [$mainPlayer, $search, $results],
 })
