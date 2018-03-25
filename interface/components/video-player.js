@@ -3,17 +3,27 @@ import Subscriber from '__/subscriber'
 import _remove from '_/remove'
 import _attributes from '_/attributes'
 import _coords from '_/coords'
+import _assign from '__/assign'
 import Loader from './loader'
 import './video-player.sass'
 
 export default class VideoPlayer {
   state = {
+    width: null,
+    height: null,
     paused: true,
     hover: false,
     currentTime: null,
   }
 
-  $thumbnail = _({ el: 'img', class: 'thumbnail' })
+  $thumbnail = _({
+    svg: 'image',
+    class: 'thumbnail',
+    attributes: {
+      width: '185px',
+      height: '105px',
+    },
+  })
   $source = _({
     el: 'source',
     class: 'source',
@@ -24,6 +34,8 @@ export default class VideoPlayer {
     class: 'video',
     attributes: {
       controlslist: 'nodownload',
+      width: `${185 * 1.25}px`,
+      height: `${105 * 1.25}px`,
     },
     events: {
       loadstart: () => {
@@ -40,37 +52,54 @@ export default class VideoPlayer {
     append: this.$source,
   })
   loader = new Loader()
-  $player = _({
-    class: 'player',
-    events: {
-      mouseenter: () => {
-        const { subscriber: { emit } } = this
+  $videoWrapper = _({
+    svg: 'foreignObject',
+    // attributes: {
+    //   y: '20px',
+    //   // viewBox: '0 0 185 105',
+    // },
+    append: [this.$video],
+  })
+  node = _({
+    svg: true,
+    append: [/*this.$thumbnail, */this.loader.$loader, this.$videoWrapper],
+    // class: 'player',
+    // events: {
+    //   mouseenter: () => {
+    //     const { subscriber: { emit } } = this
 
-        emit('PLAYBACK_ENTER')
-      },
-      mouseleave: () => {
-        const { subscriber: { emit } } = this
+    //     emit('PLAYBACK_ENTER')
+    //   },
+    //   mouseleave: () => {
+    //     const { subscriber: { emit } } = this
 
-        emit('PLAYBACK_LEAVE')
-      },
-      click: () => {
-        const { state: { paused }, play, pause } = this
+    //     emit('PLAYBACK_LEAVE')
+    //   },
+    //   click: () => {
+    //     const { state: { paused }, play, pause } = this
 
-        if (paused) {
-          play()
-        } else {
-          pause()
-        }
-      },
-    },
-    append: [this.$video, this.loader.$loader, this.$thumbnail],
+    //     if (paused) {
+    //       play()
+    //     } else {
+    //       pause()
+    //     }
+    //   },
+    // },
+    // append: [/*this.$video, this.loader.$loader, */this.$thumbnail],
   })
 
   subscriber = new Subscriber({
     SIZE_CHANGED: () => {
-      const { state: { width, height }, $player } = this
+      const {
+        state: { width, height },
+        $thumbnail,
+        node,
+      } = this
 
-      _coords($player, { width, height })
+      // console.log(width, height)
+
+      _coords($thumbnail, { width, height })
+      // _coords(node, { width, height })
     },
     SET_CURRENT_TIME: () => {
       const { state: { currentTime }, $video } = this
@@ -90,7 +119,7 @@ export default class VideoPlayer {
     THUMBNAIL_URL_CHANGED: () => {
       const { state: { thumbnailUrl }, $thumbnail } = this
 
-      _attributes($thumbnail, { src: thumbnailUrl })
+      _attributes($thumbnail, { href: thumbnailUrl })
     },
     HIDE_THUMBNAIL: () => {
       const { $thumbnail } = this
@@ -138,6 +167,14 @@ export default class VideoPlayer {
       _attributes($source, { src: source })
     },
   })
+
+  setSize = ({ width, height }) => {
+    const { state, subscriber: { emit } } = this
+
+    _assign(state, { width, height })
+
+    emit('SIZE_CHANGED')
+  }
 
   setThumbnailUrl = thumbnailUrl => {
     const { state, subscriber: { emit } } = this
@@ -203,19 +240,21 @@ export default class VideoPlayer {
     emit('PAUSE')
   }
 
-  constructor(subscribers, options = {}) {
+  constructor(options = {}, subscribers) {
     const {
+      size,
       source,
       currentTime,
     } = options
     const {
+      setSize,
       setSource,
       setCurrentTime,
       subscriber: { on },
     } = this
 
-    if (subscribers) {
-      on(subscribers)
+    if (size) {
+      setSize(size)
     }
 
     if (source) {
@@ -224,6 +263,10 @@ export default class VideoPlayer {
 
     if (typeof currentTime === 'number') {
       setCurrentTime(currentTime)
+    }
+
+    if (subscribers) {
+      on(subscribers)
     }
   }
 }

@@ -45,7 +45,7 @@ export const collection = new Collection($list, {
 
     const item = new Item({ index, currentTime: 0 })
 
-    _coords(item.$item, { top: index * itemHeight })
+    _coords(item.$item.node, { top: index * itemHeight })
 
     return item
   },
@@ -58,7 +58,7 @@ export const collection = new Collection($list, {
   move: ({ $item }, { previousIndex, nextIndex }) => {
     const { itemHeight } = state
 
-    moveTop($item, previousIndex * itemHeight, nextIndex * itemHeight)
+    moveTop($item.node, previousIndex * itemHeight, nextIndex * itemHeight)
   },
   remove: ({ toggleSwitchShowHideItem }) => toggleSwitchShowHideItem(false),
 })

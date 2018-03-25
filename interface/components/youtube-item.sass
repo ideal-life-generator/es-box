@@ -10,18 +10,18 @@ $normalItemHeight: 220px
 @value normalItemHeight #{$normalItemHeight}
 
 .item
-  position: absolute
-  width: $itemWidth
+  // position: absolute
+  // width: $itemWidth
 
-  &:last-child
-    border-bottom: none
+  // &:last-child
+  //   border-bottom: none
 
   .separator
-    stroke: transparentize($white, 0.5)
+    stroke: transparentize($white, 0.8)
 
-    .content
-      position: absolute
-      width: $itemWidth
+    // .content
+    //   position: absolute
+    //   width: $itemWidth
 
       .info
         position: absolute
@@ -41,70 +41,70 @@ $normalItemHeight: 220px
 
         .progress
 
-.small
-  $itemHeight: $smallItemHeight
-  $contentTop: 20px
-  $contentHeight: $itemHeight - ($contentTop * 2)
-  $infoHeight: $contentHeight
-  $playerHeight: $contentHeight
-  $playerWidth: $playerHeight / 0.565
-  $loaderSize: 25px
-  $loaderLeft: ($playerWidth - $loaderSize) / 2
-  $loaderTop: ($playerHeight - $loaderSize) / 2
-  $thumbnailHeight: 90px
-  $infoPaddingLeft: 20px
-  $infoLeft: $playerWidth + $infoPaddingLeft
-  $infoWidth: $itemWidth - $infoLeft
-  $playbackWidth: 18px
-  $playbackHeight: 20.36px
-  $titleTop: 27px
-  $titleHeight: 20px
-  $progressHeight: 1px
-  $progressTop: $infoHeight - $progressHeight
-  $progressTimeHeight: 20px
+// .small
+//   $itemHeight: $smallItemHeight
+//   $contentTop: 20px
+//   $contentHeight: $itemHeight - ($contentTop * 2)
+//   $infoHeight: $contentHeight
+//   $playerHeight: $contentHeight
+//   $playerWidth: $playerHeight / 0.565
+//   $loaderSize: 25px
+//   $loaderLeft: ($playerWidth - $loaderSize) / 2
+//   $loaderTop: ($playerHeight - $loaderSize) / 2
+//   $thumbnailHeight: 90px
+//   $infoPaddingLeft: 20px
+//   $infoLeft: $playerWidth + $infoPaddingLeft
+//   $infoWidth: $itemWidth - $infoLeft
+//   $playbackWidth: 18px
+//   $playbackHeight: 20.36px
+//   $titleTop: 27px
+//   $titleHeight: 20px
+//   $progressHeight: 1px
+//   $progressTop: $infoHeight - $progressHeight
+//   $progressTimeHeight: 20px
 
-  .item
-    height: $itemHeight
+//   .item
+//     height: $itemHeight
 
-    .content
-      top: $contentTop
-      height: $contentHeight
+//     .content
+//       top: $contentTop
+//       height: $contentHeight
 
-      .player
-        width: $playerWidth
-        height: $playerHeight
+//       .player
+//         width: $playerWidth
+//         height: $playerHeight
 
-        .video
-          width: $playerWidth
-          height: $playerHeight
+//         .video
+//           width: $playerWidth
+//           height: $playerHeight
 
-          .loader
-            left: $loaderLeft
-            top: $loaderTop
-            width: $loaderSize
-            height: $loaderSize
+//           .loader
+//             left: $loaderLeft
+//             top: $loaderTop
+//             width: $loaderSize
+//             height: $loaderSize
 
-          .thumbnail
-            width: $playerWidth
-            height: $playerHeight
+//           .thumbnail
+//             width: $playerWidth
+//             height: $playerHeight
 
-      .info
-        left: $infoLeft
-        width: $infoWidth
-        height: $infoHeight
+//       .info
+//         left: $infoLeft
+//         width: $infoWidth
+//         height: $infoHeight
 
-        .playback
+//         .playback
 
-          .icon
-            width: $playbackWidth
-            height: $playbackHeight
+//           .icon
+//             width: $playbackWidth
+//             height: $playbackHeight
 
-        .title
-          top: $titleTop
-          height: $titleHeight
-          line-height: $titleHeight
-          font-size: 14.5px
+//         .title
+//           top: $titleTop
+//           height: $titleHeight
+//           line-height: $titleHeight
+//           font-size: 14.5px
 
-        .progress
-          top: $progressTop
-          width: $infoWidth
+//         .progress
+//           top: $progressTop
+//           width: $infoWidth

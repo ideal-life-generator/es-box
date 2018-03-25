@@ -80,9 +80,9 @@ export default class Collection {
       emit('UPDATE', createdElements, item)
 
       if (beforeElements) {
-        _before(createdElements.$item, beforeElements.$item)
+        _before(createdElements.$item.node, beforeElements.$item.node)
       } else {
-        _append($parent, createdElements.$item)
+        _append($parent, createdElements.$item.node)
       }
 
       elements.set(item.id, createdElements)
@@ -99,9 +99,9 @@ export default class Collection {
       } = this
 
       if (beforeElements) {
-        _before(elements.$item, beforeElements.$item)
+        _before(elements.$item.node, beforeElements.$item.node)
       } else {
-        _append($parent, elements.$item)
+        _append($parent, elements.$item.node)
       }
 
       move(elements, { previousIndex, index })
@@ -111,7 +111,7 @@ export default class Collection {
 
       await _resolve(remove(elements))
 
-      elements.$item.remove()
+      elements.$item.node.remove()
     },
     COUNT: counts => {
       const {

@@ -8,7 +8,19 @@ export default class Loader {
     loading: false,
   }
 
-  $loader = _({ class: 'loader' })
+  $text = _({
+    svg: 'text',
+    attributes: {
+      'dominant-baseline': 'hanging',
+      fill: 'white',
+    },
+    text: 'lggppqoader',
+  })
+  $loader = _({
+    svg: true,
+    // class: 'loader',
+    append: [this.$text],
+  })
   toggleShowHideLoader = toggleShowHide(this.$loader)
 
   subscriber = new Subscriber({
