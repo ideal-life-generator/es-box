@@ -22,8 +22,6 @@ router.get('/graphql', graphqlKoa({ schema }))
 
 router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
 
-
-
 // const getMp3 = id => new Promise((resolve, reject) => {
 //   const youtubeDl = spawn(resolvePath('youtube-dl.exe'), [
 //     '--extract-audio',
@@ -42,10 +40,8 @@ router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
 //   })
 // })
 
-router.get('/youtube/mp3/:id', async context => {
-  const {
-    params: { id },
-  } = context
+router.get('/youtube/mp3/:id', async (context) => {
+  const { params: { id } } = context
 
   // const mp3 = await getMp3(id)
 
@@ -54,13 +50,13 @@ router.get('/youtube/mp3/:id', async context => {
   context.response.body = ytdl(id)
 })
 
-
-
-router.get('*', ctx => {
+router.get('*', (ctx) => {
   ctx.body = 'Koa server'
 })
 
 app.use(router.routes())
 app.use(router.allowedMethods())
 
-app.listen(SERVER_PORT, () => console.info(blue(`Server is listening on ${SERVER_PORT} port`)))
+app.listen(SERVER_PORT, () =>
+  console.info(blue(`Server is listening on ${SERVER_PORT} port`))
+)

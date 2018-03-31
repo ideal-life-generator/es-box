@@ -4,8 +4,9 @@ import _clone from '_/clone'
 export default (setup = {}, deep) => {
   const node = _(setup)
 
-  return settings => _({
-    node: _clone(node, deep),
-    ...settings,
-  })
+  return (settings) =>
+    _({
+      node: _clone(node, deep),
+      ...settings
+    })
 }

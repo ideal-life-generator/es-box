@@ -11,7 +11,7 @@ export default class Progress {
   state = {
     width: null,
     duration: null,
-    currentTime: null,
+    currentTime: null
   }
 
   // $point = _({ class: 'point' })
@@ -27,8 +27,8 @@ export default class Progress {
     attributes: {
       x1: '0px',
       y1: '0px',
-      x2: '1030.15929px',
-    },
+      x2: '1030.15929px'
+    }
   })
   $now = _({
     svg: 'line',
@@ -36,29 +36,29 @@ export default class Progress {
     attributes: {
       x1: '0px',
       y1: '0px',
-      x2: '0px',
-    },
+      x2: '0px'
+    }
   })
-  $progress = _({ svg: true, class: 'progress', append: [this.$all, this.$now] })
+  $progress = _({
+    svg: true,
+    class: 'progress',
+    append: [this.$all, this.$now]
+  })
 
   subscriber = new Subscriber({
     UPDATE_WIDTH: () => {},
     UPDATE_CURRENT: () => {
       const {
-        state: {
-          width,
-          duration,
-          currentTime,
-        },
+        state: { width, duration, currentTime },
         $now,
         $currentTimeMinutes,
-        $currentTimeSeconds,
+        $currentTimeSeconds
       } = this
 
-      const currentPosition = (currentTime / duration) * width
+      const currentPosition = currentTime / duration * width
 
       _attributes($now, {
-        x2: `${currentPosition}px`,
+        x2: `${currentPosition}px`
       })
 
       // _style($progress, {
@@ -77,10 +77,10 @@ export default class Progress {
 
       // _text($currentTimeMinutes, minutes)
       // _text($currentTimeSeconds, seconds)
-    },
+    }
   })
 
-  setWidth = width => {
+  setWidth = (width) => {
     const { state, subscriber: { emit } } = this
 
     state.width = width
@@ -88,7 +88,7 @@ export default class Progress {
     emit('UPDATE_WIDTH')
   }
 
-  setDuration = duration => {
+  setDuration = (duration) => {
     const { state, subscriber: { emit } } = this
 
     state.duration = duration
@@ -96,9 +96,12 @@ export default class Progress {
     emit('UPDATE_CURRENT')
   }
 
-  updateCurrentTimeInterval = _delayInterval(() => this.subscriber.emit('UPDATE_CURRENT'), 100)
+  updateCurrentTimeInterval = _delayInterval(
+    () => this.subscriber.emit('UPDATE_CURRENT'),
+    100
+  )
 
-  setCurrentTime = currentTime => {
+  setCurrentTime = (currentTime) => {
     const { state, updateCurrentTimeInterval } = this
 
     state.currentTime = currentTime
@@ -108,16 +111,8 @@ export default class Progress {
   }
 
   constructor(options = {}) {
-    const {
-      width,
-      duration,
-      currentTime,
-    } = options
-    const {
-      setDuration,
-      setCurrentTime,
-      setWidth,
-    } = this
+    const { width, duration, currentTime } = options
+    const { setDuration, setCurrentTime, setWidth } = this
 
     if (width) {
       setWidth(width)

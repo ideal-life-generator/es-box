@@ -5,21 +5,21 @@ import './loader.sass'
 
 export default class Loader {
   state = {
-    loading: false,
+    loading: false
   }
 
   $text = _({
     svg: 'text',
     attributes: {
       'dominant-baseline': 'hanging',
-      fill: 'white',
+      fill: 'white'
     },
-    text: 'lggppqoader',
+    text: 'lggppqoader'
   })
   $loader = _({
     svg: true,
     // class: 'loader',
-    append: [this.$text],
+    append: [this.$text]
   })
   toggleShowHideLoader = toggleShowHide(this.$loader)
 
@@ -37,10 +37,10 @@ export default class Loader {
       state.loading = false
 
       toggleShowHideLoader(false)
-    },
+    }
   })
 
-  setLoading = loading => {
+  setLoading = (loading) => {
     const { subscriber: { emit } } = this
 
     if (loading) {

@@ -2,11 +2,11 @@ import _ from '_'
 
 const { keys } = Object
 
-const normalizeAttributes = options => {
+const normalizeAttributes = (options) => {
   const optionsKeys = keys(options)
   const result = {}
 
-  optionsKeys.forEach(optionsKey => {
+  optionsKeys.forEach((optionsKey) => {
     result[optionsKey] = `${options[optionsKey]}px`
   })
 
@@ -18,7 +18,7 @@ export default class SVG {
     this.node = _({
       svg: true,
       attributes: normalizeAttributes(coords),
-      ...options,
+      ...options
     })
   }
 }

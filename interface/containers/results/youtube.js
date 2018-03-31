@@ -40,27 +40,27 @@ import './index.sass'
 export const $list = _({ el: 'ul', class: 'list' })
 
 export const collection = new Collection($list, {
-  create: index => {
+  create: (index) => {
     const { itemHeight } = state
 
     const item = new Item({ index, currentTime: 0 })
 
-    _coords(item.$item.node, { top: index * itemHeight })
+    _coords(item.item, { top: index * itemHeight })
 
-    return item
+    return item.node
   },
   update: {
     id: (item, id) => item.setSource(`http://localhost:3001/youtube/mp3/${id}`),
     thumbnailUrl: (item, thumbnailUrl) => item.setThumbnailUrl(thumbnailUrl),
     title: (item, title) => item.setTitle(title),
-    duration: (item, duration) => item.setDuration(duration),
+    duration: (item, duration) => item.setDuration(duration)
   },
-  move: ({ $item }, { previousIndex, nextIndex }) => {
+  move: ({ node }, { previousIndex, nextIndex }) => {
     const { itemHeight } = state
 
-    moveTop($item.node, previousIndex * itemHeight, nextIndex * itemHeight)
+    moveTop(node, previousIndex * itemHeight, nextIndex * itemHeight)
   },
-  remove: ({ toggleSwitchShowHideItem }) => toggleSwitchShowHideItem(false),
+  remove: ({ toggleSwitchShowHideItem }) => toggleSwitchShowHideItem(false)
 })
 
 // $separators = cloneSeparators()
@@ -78,7 +78,7 @@ on({
     // collection.setItemHeight(itemHeight)
     // separators.setItemHeight(itemHeight)
     // yResizer.setItemHeight(itemHeight)
-  },
+  }
   // SIZE_CHANGED: () => {
   //   const {
   //     $results,

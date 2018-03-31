@@ -6,11 +6,11 @@ const { isArray } = Array
 
 export default function _params(node, params) {
   if (isArray(node)) {
-    node.forEach(n => _params(n, params))
+    node.forEach((n) => _params(n, params))
   } else {
     const style = {}
 
-    keys(params).forEach(key => {
+    keys(params).forEach((key) => {
       const value = params[key]
 
       if (typeof value === 'number') {

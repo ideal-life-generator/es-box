@@ -1,7 +1,7 @@
 import { emit } from '../utils/subscriber'
 
 const state = {
-  paused: true,
+  paused: true
 }
 
 export const play = () => {

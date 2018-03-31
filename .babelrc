@@ -11,10 +11,12 @@
     "dynamic-import-node",
     "transform-decorators-legacy",
     ["module-resolver", {
+      "root": ["./interface"],
       "alias": {
         "__": "./core",
         "svg": "./interface/svg",
         "_": "./interface/core",
+        "interface": "./interface/core",
       },
     }],
   ]

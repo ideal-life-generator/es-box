@@ -1,1 +1,1 @@
-export default node => node.remove()
+export default (node) => node.remove()

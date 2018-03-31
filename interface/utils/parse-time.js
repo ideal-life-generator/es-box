@@ -1,6 +1,6 @@
 const { floor } = Math
 
-export default time => {
+export default (time) => {
   const pureMinutes = floor(time / 60)
   const pureSeconds = floor(time % 60)
   const minutes = pureMinutes.toString()
@@ -8,6 +8,6 @@ export default time => {
 
   return {
     minutes,
-    seconds,
+    seconds
   }
 }

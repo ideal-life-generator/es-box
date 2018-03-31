@@ -1,1 +1,1 @@
-export default type => document.createElement(type)
+export default (type) => document.createElement(type)

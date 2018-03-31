@@ -3,13 +3,14 @@ import merge from 'webpack-merge'
 import ReloadServerPlugin from 'reload-server-webpack-plugin'
 import {
   PRODUCTION,
+  mode,
   outputPath,
   eslintRule,
   babelRule,
   vueRule,
   stats,
   nodeExternals,
-  definePlugin,
+  definePlugin
 } from './base'
 
 const graphql = {
@@ -17,33 +18,34 @@ const graphql = {
   entry: './index',
   output: {
     path: outputPath,
-    filename: 'graphql.js',
+    filename: 'graphql.js'
   },
   module: {
     rules: [
       // eslintRule,
       babelRule,
-      vueRule,
-    ],
+      vueRule
+    ]
   },
   stats,
   externals: nodeExternals,
-  plugins: [
-    definePlugin,
-  ],
+  plugins: [definePlugin],
+  mode
 }
 
-export default !PRODUCTION ? merge(graphql, {
-  devtool: 'inline-source-map',
-  plugins: [
-    new BannerPlugin({
-      raw: true,
-      banner: 'import "source-map-support/register"',
-    }),
-    new ReloadServerPlugin({
-      script: 'build/graphql.js',
-    }),
-  ],
-}) : merge(graphql, {
-  plugins: [],
-})
+export default (!PRODUCTION
+  ? merge(graphql, {
+      devtool: 'inline-source-map',
+      plugins: [
+        new BannerPlugin({
+          raw: true,
+          banner: 'import "source-map-support/register"'
+        }),
+        new ReloadServerPlugin({
+          script: 'build/graphql.js'
+        })
+      ]
+    })
+  : merge(graphql, {
+      plugins: []
+    }))

@@ -1,1 +1,1 @@
-export default node => node.getBoundingClientRect()
+export default (node) => node.getBoundingClientRect()

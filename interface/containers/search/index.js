@@ -15,8 +15,8 @@ export const $clear = _({
       _assign($input, { value: '' })
 
       setValue('', true)
-    },
-  },
+    }
+  }
 })
 
 export const $input = _({
@@ -24,18 +24,18 @@ export const $input = _({
   class: 'input',
   placeholder: 'Search',
   events: {
-    input: ({ target: { value } }) => setValue(value),
-  },
+    input: ({ target: { value } }) => setValue(value)
+  }
 })
 
 export const $search = _({
   class: 'search',
-  append: [$input, $clear],
+  append: [$input, $clear]
 })
 
 export const toggleShowHideClear = toggleShowHide($clear)
 
 on({
   SHOW_CLEAR: () => toggleShowHideClear(true),
-  HIDE_CLEAR: () => toggleShowHideClear(false),
+  HIDE_CLEAR: () => toggleShowHideClear(false)
 })

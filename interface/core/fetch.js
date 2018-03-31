@@ -7,7 +7,7 @@ const { stringify } = JSON
 const resolveRequestParsers = (params, parsers) => {
   const { possibleKeys } = resolveRequestParsers
 
-  keys(parsers).forEach(key => {
+  keys(parsers).forEach((key) => {
     if (possibleKeys.includes(key)) {
       const { [key]: option } = parsers
       const { [key]: param } = params
@@ -25,7 +25,7 @@ resolveRequestParsers.possibleKeys = ['query', 'data']
 const resolveResponseParsers = (response, parsers) => {
   const { possibleKeys } = resolveResponseParsers
 
-  keys(parsers).forEach(key => {
+  keys(parsers).forEach((key) => {
     if (possibleKeys.includes(key)) {
       const { [key]: option } = parsers
       const { [key]: param } = response
@@ -40,10 +40,10 @@ const resolveResponseParsers = (response, parsers) => {
 }
 resolveResponseParsers.possibleKeys = ['data']
 
-const createHeaders = headers => {
+const createHeaders = (headers) => {
   const headersInstance = new Headers()
 
-  keys(headers).forEach(key => headersInstance.append(key, headers[key]))
+  keys(headers).forEach((key) => headersInstance.append(key, headers[key]))
 
   return headersInstance
 }
@@ -89,19 +89,28 @@ const createRequest = (source, { baseURL, query, type, headers, data }) => {
   return new Request(url, params)
 }
 
-export default baseParams => async (source, additionalParams, requestParser, responseParser) => {
+export default (baseParams) => async (
+  source,
+  additionalParams,
+  requestParser,
+  responseParser
+) => {
   const params = assign(baseParams, additionalParams)
-  const resolvedRequestParams = requestParser ? resolveRequestParsers(params, requestParser) : params
+  const resolvedRequestParams = requestParser
+    ? resolveRequestParsers(params, requestParser)
+    : params
   const request = createRequest(source, resolvedRequestParams)
 
   const fetchResponse = await fetch(request)
   const fetchData = await fetchResponse.json()
 
   const response = {
-    data: fetchData,
+    data: fetchData
   }
 
-  const resolvedResponse = responseParser ? resolveResponseParsers(response, responseParser) : response
+  const resolvedResponse = responseParser
+    ? resolveResponseParsers(response, responseParser)
+    : response
 
   return resolvedResponse
 }

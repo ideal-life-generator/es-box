@@ -8,10 +8,10 @@ export const SMALL_ITEM_HEIGHT = parseFloat(smallItemHeightString)
 
 const state = {
   className: null,
-  itemHeight: null,
+  itemHeight: null
 }
 
-export const changeSizeType = sizeType => {
+export const changeSizeType = (sizeType) => {
   // const {
   //   [sizeType]: {
   //     className,
@@ -32,14 +32,16 @@ export const fetchItems = async () => {
 
   const { data: { items, count, total } } = await search({
     key: searchState.normalizedValue,
-    count: state.lastManualResizerLength ? state.lastManualResizerLength : state.resizerLength,
+    count: state.lastManualResizerLength
+      ? state.lastManualResizerLength
+      : state.resizerLength
   })
 
   _assign(state, {
     fetching: false,
     items,
     count,
-    total,
+    total
   })
 
   // const { resizerUpdateTime: resizerUpdateTimeAfterRequest } = state

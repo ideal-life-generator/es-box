@@ -1,7 +1,3 @@
-const {
-  history: { push },
-} = window
+const { history: { push } } = window
 
-export const go = () => {
-
-}
+export const go = () => {}

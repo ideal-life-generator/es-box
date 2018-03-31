@@ -10,7 +10,7 @@ const { isArray } = Array
 const getDifference = (next, previous) => {
   const difference = {}
 
-  Object.keys(previous).forEach(key => {
+  Object.keys(previous).forEach((key) => {
     const { [key]: previousValue } = previous
     const { [key]: nextValue } = next
 
@@ -19,7 +19,7 @@ const getDifference = (next, previous) => {
     }
   })
 
-  Object.keys(next).forEach(key => {
+  Object.keys(next).forEach((key) => {
     if (!(key in difference)) {
       const { [key]: nextValue } = next
       const { [key]: previousValue } = previous
@@ -34,7 +34,7 @@ const getDifference = (next, previous) => {
 }
 
 const resolveUpdate = (elements, data, update) => {
-  Object.keys(data).forEach(key => {
+  Object.keys(data).forEach((key) => {
     const { [key]: value } = data
     const { [key]: updateHandler } = update
 
@@ -48,7 +48,7 @@ const getByIndex = (map, index) => {
   let count = 0
   let foundValue
 
-  map.forEach(value => {
+  map.forEach((value) => {
     if (index === count) {
       foundValue = value
     }
@@ -72,17 +72,19 @@ export default class Collection {
         $parent,
         methods: { create },
         elements,
-        subscriber: { emit },
+        subscriber: { emit }
       } = this
 
       const createdElements = create(index)
 
+      console.log(createdElements)
+
       emit('UPDATE', createdElements, item)
 
       if (beforeElements) {
-        _before(createdElements.$item.node, beforeElements.$item.node)
+        _before(createdElements.node, beforeElements.node)
       } else {
-        _append($parent, createdElements.$item.node)
+        _append($parent, createdElements.node)
       }
 
       elements.set(item.id, createdElements)
@@ -93,36 +95,30 @@ export default class Collection {
       resolveUpdate(elements, difference, update)
     },
     MOVE: (elements, { previousIndex, index }, beforeElements) => {
-      const {
-        $parent,
-        methods: { move },
-      } = this
+      const { $parent, methods: { move } } = this
 
       if (beforeElements) {
-        _before(elements.$item.node, beforeElements.$item.node)
+        _before(elements.node, beforeElements.node)
       } else {
-        _append($parent, elements.$item.node)
+        _append($parent, elements.node)
       }
 
       move(elements, { previousIndex, index })
     },
-    REMOVE: async elements => {
+    REMOVE: async (elements) => {
       const { methods: { remove } } = this
 
       await _resolve(remove(elements))
 
-      elements.$item.node.remove()
+      elements.node.remove()
     },
-    COUNT: counts => {
-      const {
-        $parent,
-        methods: { count },
-      } = this
+    COUNT: (counts) => {
+      const { $parent, methods: { count } } = this
 
       if (count) {
         count($parent, counts)
       }
-    },
+    }
   })
 
   setItems = ({ items, count }) => {
@@ -138,14 +134,16 @@ export default class Collection {
       items: previousItems,
       count: previousCount,
       elements: previousElements,
-      subscriber: { emit },
+      subscriber: { emit }
     } = this
 
     const elements = new Map()
 
     previousItems.forEach((previousItem, previousIndex) => {
       const itemElements = previousElements.get(previousItem.id)
-      const index = items.findIndex(nextItem => previousItem.id === nextItem.id)
+      const index = items.findIndex(
+        (nextItem) => previousItem.id === nextItem.id
+      )
 
       if (index >= 0) {
         const { [index]: nextItem } = items
@@ -168,7 +166,9 @@ export default class Collection {
     })
 
     items.forEach((item, index) => {
-      const previousIndex = previousItems.findIndex(previousItem => item.id === previousItem.id)
+      const previousIndex = previousItems.findIndex(
+        (previousItem) => item.id === previousItem.id
+      )
 
       if (previousIndex === -1) {
         const beforeElements = getByIndex(previousElements, index)
@@ -186,7 +186,7 @@ export default class Collection {
     this.count = count
   }
 
-  setMethods = methods => {
+  setMethods = (methods) => {
     _assign(this.methods, methods)
   }
 

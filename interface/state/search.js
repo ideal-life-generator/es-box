@@ -6,7 +6,7 @@ import { emit } from '../utils/subscriber'
 const state = {
   value: '',
   normalizedValue: 'One Punch Man - BATTLE!! (Extended)',
-  clear: false,
+  clear: false
 }
 
 export const fetchItemsDelay = _delay(fetchItems, 500)

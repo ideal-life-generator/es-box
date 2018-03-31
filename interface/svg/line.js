@@ -18,7 +18,7 @@ export default class Line {
     this.node = _({
       svg: 'line',
       attributes: normalizeAttributes(coords),
-      ...options,
+      ...options
     })
   }
 }

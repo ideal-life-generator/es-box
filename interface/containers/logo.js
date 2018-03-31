@@ -5,6 +5,6 @@ export default _({
   el: 'img',
   class: 'logo',
   attributes: {
-    src: './interface/static/logo.jpg',
-  },
+    src: './interface/static/logo.jpg'
+  }
 })

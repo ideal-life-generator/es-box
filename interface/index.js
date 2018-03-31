@@ -1,14 +1,12 @@
-import append_ from '_/append'
-import events_ from '_/events'
+import { events, append } from 'interface'
 // import $logo from './components/logo'
-import { $main } from './containers/main'
-import './styles/normalize.sass'
-import './index.sass'
+import { $main } from 'containers/main'
+import 'styles/index.sass'
 
-events_(document, {
+events(document, {
   DOMContentLoaded() {
     const { body: $body } = document
 
-    append_($body, [$main])
-  },
+    append($body, [$main])
+  }
 })

@@ -4,6 +4,7 @@ import merge from 'webpack-merge'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import {
   PRODUCTION,
+  mode,
   outputPath,
   eslintRule,
   babelRule,
@@ -11,7 +12,7 @@ import {
   fileRule,
   stats,
   definePlugin,
-  uglify,
+  uglify
 } from './base'
 import { DEV_SERVER_PORT } from '../config'
 
@@ -20,40 +21,42 @@ const interf = {
   entry: './',
   output: {
     path: outputPath,
-    filename: '[name].[hash].js',
+    filename: '[name].[hash].js'
   },
   module: {
     rules: [
       // eslintRule,
       babelRule,
       sassRule,
-      fileRule,
-    ],
+      fileRule
+    ]
   },
   stats,
   plugins: [
     definePlugin,
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: './index.html',
-    }),
+      template: './index.html'
+    })
   ],
+  mode
 }
 
-export default merge(interf, !PRODUCTION ? {
-  devtool: 'cheap-module-source-map',
-  devServer: {
-    port: DEV_SERVER_PORT,
-    hot: true,
-    inline: false,
-    historyApiFallback: true,
-    stats,
-  },
-  plugins: [
-    new HotModuleReplacementPlugin(),
-  ],
-} : {
-  plugins: [
-    uglify,
-  ],
-})
+export default merge(
+  interf,
+  !PRODUCTION
+    ? {
+        devtool: 'cheap-module-source-map',
+        devServer: {
+          port: DEV_SERVER_PORT,
+          hot: true,
+          inline: false,
+          historyApiFallback: true,
+          stats
+        },
+        plugins: [new HotModuleReplacementPlugin()]
+      }
+    : {
+        plugins: [uglify]
+      }
+)

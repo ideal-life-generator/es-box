@@ -20,8 +20,8 @@ export const $playback = _({
       } else {
         pause()
       }
-    },
-  },
+    }
+  }
 })
 export const $mainPlayer = _({ class: 'main-player', append: [$playback] })
 
@@ -29,5 +29,5 @@ export const toggleSwitchShowHidePlayPause = toggleSwitchShowHide($play, $pause)
 
 on({
   PLAY: () => toggleSwitchShowHidePlayPause(false),
-  PAUSE: () => toggleSwitchShowHidePlayPause(true),
+  PAUSE: () => toggleSwitchShowHidePlayPause(true)
 })

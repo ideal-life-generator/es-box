@@ -8,14 +8,7 @@ const calcPosition = (count, size) => count * size
 
 export default (container, { y }) => {
   if (y) {
-    const {
-      activator,
-      padding,
-      size,
-      count: startCount,
-      min,
-      max,
-    } = y
+    const { activator, padding, size, count: startCount, min, max } = y
 
     let state = 'enabled'
 
@@ -43,7 +36,7 @@ export default (container, { y }) => {
         update({
           size: containerSize,
           position: padding ? containerSize + padding : containerSize,
-          count,
+          count
         })
 
         lastCount = count
@@ -63,7 +56,7 @@ export default (container, { y }) => {
 
       _eventsRemove(window, {
         mousemove: change,
-        mouseup: unbind,
+        mouseup: unbind
       })
     }
 
@@ -72,22 +65,22 @@ export default (container, { y }) => {
 
       _events(window, {
         mousemove: change,
-        mouseup: unbind,
+        mouseup: unbind
       })
     }
 
     _events(activator, {
-      mousedown: activate,
+      mousedown: activate
     })
 
-    const on = listeners => {
+    const on = (listeners) => {
       if (listeners.init) {
         init(listeners.init)
 
         init({
           size: containerSize,
           position: padding ? containerSize + padding : containerSize,
-          count,
+          count
         })
       }
 
@@ -96,7 +89,7 @@ export default (container, { y }) => {
       }
     }
 
-    const setCount = settedCount => {
+    const setCount = (settedCount) => {
       if (typeof settedCount === 'number') {
         count = settedCount
 
@@ -118,24 +111,24 @@ export default (container, { y }) => {
       return {
         size: containerSize,
         position: padding ? containerSize + padding : containerSize,
-        count,
+        count
       }
     }
 
-    const setState = type => {
+    const setState = (type) => {
       state = type
 
       switch (state) {
         case 'enabled': {
           _events(activator, {
-            mousedown: activate,
+            mousedown: activate
           })
 
           break
         }
         case 'disabled': {
           _eventsRemove(activator, {
-            mousedown: activate,
+            mousedown: activate
           })
 
           unbind()
@@ -148,7 +141,7 @@ export default (container, { y }) => {
       }
     }
 
-    const setMax = value => {
+    const setMax = (value) => {
       maxLimit = value
     }
 
@@ -156,7 +149,7 @@ export default (container, { y }) => {
       on,
       setCount,
       setMax,
-      setState,
+      setState
     }
   }
 }
