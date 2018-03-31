@@ -4,41 +4,43 @@ import webpackNodeExternals from 'webpack-node-externals' // eslint-disable-line
 
 export const { env: { PRODUCTION, SERVER } } = process
 
+export const mode = PRODUCTION ? 'production' : 'development'
+
 export const outputPath = resolve('build')
 
 export const eslintRule = {
   test: /\.js$/,
   enforce: 'pre',
   exclude: /node_modules/,
-  use: 'eslint-loader',
+  use: 'eslint-loader'
 }
 
 export const babelRule = {
   test: /\.js$/,
   exclude: /node_modules/,
-  use: 'babel-loader',
+  use: 'babel-loader'
 }
 
 export const vueRule = {
   test: /\.vue$/,
   exclude: /node_modules/,
-  use: 'vue-loader',
+  use: 'vue-loader'
 }
 
 export const sassRule = {
   test: /\.sass$/,
   exclude: /node_modules/,
-  use: ['style-loader', 'css-loader', 'sass-loader'],
+  use: ['style-loader', 'css-loader', 'sass-loader']
 }
 
 export const fileRule = {
   test: /\.(png|jpg)$/,
   exclude: /node_modules/,
-  use: 'file-loader',
+  use: 'file-loader'
 }
 
 export const stats = {
-  modules: false,
+  modules: false
 }
 
 export const nodeExternals = webpackNodeExternals()
@@ -47,6 +49,6 @@ export const definePlugin = new DefinePlugin({
   PRODUCTION,
   SERVER,
   'process.env': {
-    NODE_ENV: `"${PRODUCTION ? 'production' : 'development'}"`,
-  },
+    NODE_ENV: `"${PRODUCTION ? 'production' : 'development'}"`
+  }
 })
