@@ -1,3 +1,4 @@
+import SVG from 'svg'
 import _ from '_'
 import Subscriber from '__/subscriber'
 import _remove from '_/remove'
@@ -54,15 +55,16 @@ export default class VideoPlayer {
   loader = new Loader()
   $videoWrapper = _({
     svg: 'foreignObject',
-    // attributes: {
-    //   y: '20px',
+    attributes: {
+      y: '25px',
     //   // viewBox: '0 0 185 105',
-    // },
+    },
     append: [this.$video],
   })
-  node = _({
-    svg: true,
-    append: [/*this.$thumbnail, */this.loader.$loader, this.$videoWrapper],
+  $videoPlayer = new SVG({ y: 25 }, { append: [this.loader.$loader, this.$videoWrapper] })
+  // node = _({
+  //   svg: true,
+  //   append: [this.$thumbnail, this.loader.$loader, this.$videoWrapper],
     // class: 'player',
     // events: {
     //   mouseenter: () => {
@@ -86,7 +88,7 @@ export default class VideoPlayer {
     //   },
     // },
     // append: [/*this.$video, this.loader.$loader, */this.$thumbnail],
-  })
+  // })
 
   subscriber = new Subscriber({
     SIZE_CHANGED: () => {
