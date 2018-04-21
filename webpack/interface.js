@@ -7,7 +7,9 @@ import {
   mode,
   outputPath,
   eslintRule,
+  htmlRule,
   babelRule,
+  vueRule,
   sassRule,
   fileRule,
   stats,
@@ -26,7 +28,9 @@ const interf = {
   module: {
     rules: [
       // eslintRule,
+      htmlRule,
       babelRule,
+      vueRule,
       sassRule,
       fileRule
     ]
@@ -50,7 +54,7 @@ export default merge(
         devServer: {
           port: DEV_SERVER_PORT,
           hot: true,
-          inline: false,
+          inline: true,
           historyApiFallback: true,
           stats
         },

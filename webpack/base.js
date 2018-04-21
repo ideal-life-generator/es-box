@@ -19,6 +19,12 @@ export const eslintRule = {
   }
 }
 
+export const htmlRule = {
+  test: /\.html$/,
+  exclude: /node_modules/,
+  use: 'html-loader'
+}
+
 export const babelRule = {
   test: /\.js$/,
   exclude: /node_modules/,
@@ -39,10 +45,7 @@ export const sassRule = {
       loader: 'style-loader'
     },
     {
-      loader: 'css-loader',
-      options: {
-        sourceMap: true
-      }
+      loader: 'css-loader'
     },
     {
       loader: 'sass-loader',
