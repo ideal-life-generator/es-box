@@ -6,162 +6,96 @@ import _attributes from '_/attributes'
 import _coords from '_/coords'
 import _assign from '__/assign'
 import Loader from './loader'
+import { youtubeItem as youtubeItemCoords } from '../store/coords'
+import animations from '../utils/animations'
 import './video-player.sass'
 
-export default class VideoPlayer {
-  state = {
-    width: null,
-    height: null,
-    paused: true,
-    hover: false,
-    currentTime: null
-  }
+const { videoPlayer: coords } = youtubeItemCoords
 
-  $thumbnail = _({
-    svg: 'image',
-    class: 'thumbnail',
-    attributes: {
-      width: '185px',
-      height: '105px'
-    }
-  })
-  $source = _({
-    el: 'source',
-    class: 'source',
-    attributes: { type: 'video/mp4' }
-  })
-  $video = _({
-    el: 'video',
-    class: 'video',
-    attributes: {
-      controlslist: 'nodownload',
-      width: `${185 * 1.25}px`,
-      height: `${105 * 1.25}px`
-    },
-    events: {
-      loadstart: () => {
-        const { setLoading } = this
+@subscriber({
+  loading: ({ loading }) => this.emit('loading', loading),
+  thumbnail_url_changed: ({ thumbnailUrl }) =>
+    this.thumbnail.set({ href: thumbnailUrl }),
+  thumbnail_show: ({ showThumbnail }) => this.showHideThumbnail(showThumbnail),
+  play: () => {
+    const { state, thumbnail, video, subscriber: { emit } } = this
 
-        setLoading(true)
-      },
-      canplay: () => {
-        const { setLoading } = this
+    video.play()
 
-        setLoading(false)
+    const updater = () => {
+      const { currentTime } = video
+
+      state.currentTime = currentTime
+
+      emit('current_time_changed')
+
+      if (!state.paused) {
+        requestAnimationFrame(updater)
       }
-    },
-    append: this.$source
+    }
+
+    updater()
+
+    if (thumbnail) {
+      emit('hide_thumbnail')
+    }
+  },
+  pause: () => {
+    const { video } = this
+
+    video.pause()
+  },
+  source_changed: () => {
+    const { state: { source }, source } = this
+
+    _attributes(source, { src: source })
+  }
+})
+export default class VideoPlayer {
+  width = null
+  height = null
+  paused = true
+  hover = false
+  currentTime = null
+
+  thumbnail = new SVGImage({
+    class: 'thumbnail',
+    coords: coords.thumbnail
   })
-  loader = new Loader()
-  $videoWrapper = _({
-    svg: 'foreignObject',
-    attributes: {
-      y: '25px'
-      //   // viewBox: '0 0 185 105',
-    },
-    append: [this.$video]
+  source = new Source({
+    class: 'source',
+    type: 'video/mp4'
   })
-  $videoPlayer = new SVG(
-    { y: 25 },
-    { append: [this.loader.$loader, this.$videoWrapper] }
-  )
-  // node = _({
-  //   svg: true,
-  //   append: [this.$thumbnail, this.loader.$loader, this.$videoWrapper],
-  // class: 'player',
-  // events: {
-  //   mouseenter: () => {
-  //     const { subscriber: { emit } } = this
-
-  //     emit('PLAYBACK_ENTER')
-  //   },
-  //   mouseleave: () => {
-  //     const { subscriber: { emit } } = this
-
-  //     emit('PLAYBACK_LEAVE')
-  //   },
-  //   click: () => {
-  //     const { state: { paused }, play, pause } = this
-
-  //     if (paused) {
-  //       play()
-  //     } else {
-  //       pause()
-  //     }
-  //   },
-  // },
-  // append: [/*this.$video, this.loader.$loader, */this.$thumbnail],
-  // })
-
-  subscriber = new Subscriber({
-    SIZE_CHANGED: () => {
-      const { state: { width, height }, $thumbnail, node } = this
-
-      // console.log(width, height)
-
-      _coords($thumbnail, { width, height })
-      // _coords(node, { width, height })
-    },
-    SET_CURRENT_TIME: () => {
-      const { state: { currentTime }, $video } = this
-
-      $video.currentTime = currentTime
-    },
-    LOADING: () => {
-      const { loader: { setLoading } } = this
+  video = new Video({
+    class: 'video',
+    controlslist: 'nodownload',
+    coords: coords.video,
+    loadstart: () => {
+      const { setLoading } = this
 
       setLoading(true)
     },
-    LOADED: () => {
-      const { loader: { setLoading } } = this
+    canplay: () => {
+      const { setLoading } = this
 
       setLoading(false)
     },
-    THUMBNAIL_URL_CHANGED: () => {
-      const { state: { thumbnailUrl }, $thumbnail } = this
-
-      _attributes($thumbnail, { href: thumbnailUrl })
-    },
-    HIDE_THUMBNAIL: () => {
-      const { $thumbnail } = this
-
-      _remove($thumbnail)
-
-      this.$thumbnail = null
-    },
-    PLAY: () => {
-      const { state, $thumbnail, $video, subscriber: { emit } } = this
-
-      $video.play()
-
-      const updater = () => {
-        const { currentTime } = $video
-
-        state.currentTime = currentTime
-
-        emit('CURRENT_TIME_CHANGED')
-
-        if (!state.paused) {
-          requestAnimationFrame(updater)
-        }
-      }
-
-      updater()
-
-      if ($thumbnail) {
-        emit('HIDE_THUMBNAIL')
-      }
-    },
-    PAUSE: () => {
-      const { $video } = this
-
-      $video.pause()
-    },
-    SOURCE_CHANGED: () => {
-      const { state: { source }, $source } = this
-
-      _attributes($source, { src: source })
-    }
+    append: this.source
+  })
+  loader = new Loader()
+  videoWrapper = new ForeignObject({
+    coords: coords.videoWrapper,
+    append: [this.video]
+  })
+  videoPlayer = new SVG({
+    coords,
+    append: [this.loader.loader, this.videoWrapper]
+  })
+  node = new SVG({
+    mouseenter: () => this.emit('playback_enter'),
+    mouseleave: () => this.emit('playback_leave'),
+    click: () => (this.paused ? this.play() : this.pause()),
+    append: [this.thumbnail, this.loader.loader, this.videoWrapper]
   })
 
   setSize = ({ width, height }) => {
@@ -169,7 +103,7 @@ export default class VideoPlayer {
 
     _assign(state, { width, height })
 
-    emit('SIZE_CHANGED')
+    emit('size_changed')
   }
 
   setThumbnailUrl = (thumbnailUrl) => {
@@ -177,7 +111,7 @@ export default class VideoPlayer {
 
     state.thumbnailUrl = thumbnailUrl
 
-    emit('THUMBNAIL_URL_CHANGED')
+    emit('thumbnail_url_changed')
   }
 
   setSource = (source) => {
@@ -185,7 +119,7 @@ export default class VideoPlayer {
 
     state.source = source
 
-    emit('SOURCE_CHANGED')
+    emit('source_changed')
   }
 
   setCurrentTime = (currentTime) => {
@@ -193,16 +127,16 @@ export default class VideoPlayer {
 
     state.currentTime = currentTime
 
-    emit('SET_CURRENT_TIME')
+    emit('set_current_time')
   }
 
   setLoading = (loading) => {
     const { loader: { subscriber: { emit } } } = this
 
     if (loading) {
-      emit('LOADING')
+      emit('loading')
     } else {
-      emit('LOADED')
+      emit('loaded')
     }
   }
 
@@ -214,9 +148,9 @@ export default class VideoPlayer {
     const { state: { hover } } = this
 
     if (hover) {
-      emit('PLAYBACK_ENTER')
+      emit('playback_enter')
     } else {
-      emit('PLAYBACK_LEAVE')
+      emit('playback_leave')
     }
   }
 
@@ -225,7 +159,7 @@ export default class VideoPlayer {
 
     state.paused = false
 
-    emit('PLAY')
+    emit('play')
   }
 
   pause = () => {
@@ -233,10 +167,12 @@ export default class VideoPlayer {
 
     state.paused = true
 
-    emit('PAUSE')
+    emit('pause')
   }
 
-  constructor(options = {}, subscribers) {
+  showHideThumbnail = animations.showHide(this.thumbnail)
+
+  constructor() {
     const { size, source, currentTime } = options
     const { setSize, setSource, setCurrentTime, subscriber: { on } } = this
 

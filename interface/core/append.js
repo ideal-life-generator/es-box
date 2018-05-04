@@ -8,16 +8,16 @@ const childrenToString = (children) => {
   return children.toString()
 }
 
-export default function _append(node, children) {
+export default function append(node, children) {
   children = children.node || children
 
   if (Array.isArray(children)) {
-    children.map((c) => _append(node, c))
+    children.map((c) => append(node, c))
   } else if (typeof children === 'string') {
     node.textContent = children
   } else {
     try {
-      node.appendChild(children)
+      node.appendChild(children.node || children)
     } catch (error) {
       throw new Error(`${childrenToString(children)} append in ${node}`)
     }

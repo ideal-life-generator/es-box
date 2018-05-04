@@ -1,7 +1,5 @@
 import _ from '_'
 
-const { keys } = Object
-
 const normalizeAttributes = ({ x1, y1, x2, y2 }) => {
   const result = {}
 
