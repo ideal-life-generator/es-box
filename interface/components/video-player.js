@@ -12,45 +12,38 @@ import './video-player.sass'
 
 const { videoPlayer: coords } = youtubeItemCoords
 
-@subscriber({
-  loading: ({ loading }) => this.emit('loading', loading),
-  thumbnail_url_changed: ({ thumbnailUrl }) =>
-    this.thumbnail.set({ href: thumbnailUrl }),
-  thumbnail_show: ({ showThumbnail }) => this.showHideThumbnail(showThumbnail),
-  play: () => {
-    const { state, thumbnail, video, subscriber: { emit } } = this
+@subscribe(
+  new Subscriber({
+    loading: false,
+    thumbnailUrl: null,
+    showThumbnail: false,
+    play: false,
+    currentTime: 0,
+    playbackHover: false
+  }),
+  {
+    thumbnailUrl: () => this.$thumbnail.set({ href: this.thumbnailUrl }),
+    showThumbnail: () => this.showHideThumbnail(this.showThumbnail),
+    play: () => {
+      const { $video } = this
 
-    video.play()
+      if (this.play) {
+        const updater = () => {
+          this.emit('currentTime', this.$video.currentTime)
 
-    const updater = () => {
-      const { currentTime } = video
+          if (this.play) requestAnimationFrame(updater)
+        }
 
-      state.currentTime = currentTime
+        updater()
 
-      emit('current_time_changed')
+        $video.play()
 
-      if (!state.paused) {
-        requestAnimationFrame(updater)
-      }
-    }
-
-    updater()
-
-    if (thumbnail) {
-      emit('hide_thumbnail')
-    }
-  },
-  pause: () => {
-    const { video } = this
-
-    video.pause()
-  },
-  source_changed: () => {
-    const { state: { source }, source } = this
-
-    _attributes(source, { src: source })
+        if (this.showThumbnail) this.emit('showThumbnail', false)
+      } else $video.pause()
+    },
+    source: () => _attributes(this.$source, { src: this.source })
   }
-})
+)
 export default class VideoPlayer {
   width = null
   height = null
@@ -58,138 +51,33 @@ export default class VideoPlayer {
   hover = false
   currentTime = null
 
-  thumbnail = new SVGImage({
+  $thumbnail = new SVGImage({
     class: 'thumbnail',
     coords: coords.thumbnail
   })
-  source = new Source({
+  $source = new Source({
     class: 'source',
     type: 'video/mp4'
   })
-  video = new Video({
+  $video = new Video({
     class: 'video',
     controlslist: 'nodownload',
     coords: coords.video,
-    loadstart: () => {
-      const { setLoading } = this
-
-      setLoading(true)
-    },
-    canplay: () => {
-      const { setLoading } = this
-
-      setLoading(false)
-    },
+    loadstart: () => this.emit('loading', true),
+    canplay: () => this.emit('loading', false),
     append: this.source
   })
-  loader = new Loader()
-  videoWrapper = new ForeignObject({
+  $loader = new Loader()
+  $videoWrapper = new ForeignObject({
     coords: coords.videoWrapper,
     append: [this.video]
   })
-  videoPlayer = new SVG({
-    coords,
-    append: [this.loader.loader, this.videoWrapper]
-  })
-  node = new SVG({
-    mouseenter: () => this.emit('playback_enter'),
-    mouseleave: () => this.emit('playback_leave'),
-    click: () => (this.paused ? this.play() : this.pause()),
-    append: [this.thumbnail, this.loader.loader, this.videoWrapper]
+  $videoPlayer = new SVG({
+    mouseenter: () => this.emit('playbackHover', true),
+    mouseleave: () => this.emit('playbackHover', false),
+    click: () => this.emit('play', !this.play),
+    append: [this.$thumbnail, this.loader.$loader, this.$videoWrapper]
   })
 
-  setSize = ({ width, height }) => {
-    const { state, subscriber: { emit } } = this
-
-    _assign(state, { width, height })
-
-    emit('size_changed')
-  }
-
-  setThumbnailUrl = (thumbnailUrl) => {
-    const { state, subscriber: { emit } } = this
-
-    state.thumbnailUrl = thumbnailUrl
-
-    emit('thumbnail_url_changed')
-  }
-
-  setSource = (source) => {
-    const { state, subscriber: { emit } } = this
-
-    state.source = source
-
-    emit('source_changed')
-  }
-
-  setCurrentTime = (currentTime) => {
-    const { state, subscriber: { emit } } = this
-
-    state.currentTime = currentTime
-
-    emit('set_current_time')
-  }
-
-  setLoading = (loading) => {
-    const { loader: { subscriber: { emit } } } = this
-
-    if (loading) {
-      emit('loading')
-    } else {
-      emit('loaded')
-    }
-  }
-
-  hover = (option) => {
-    const { state, subscriber: { emit } } = this
-
-    state.hover = option
-
-    const { state: { hover } } = this
-
-    if (hover) {
-      emit('playback_enter')
-    } else {
-      emit('playback_leave')
-    }
-  }
-
-  play = () => {
-    const { state, subscriber: { emit } } = this
-
-    state.paused = false
-
-    emit('play')
-  }
-
-  pause = () => {
-    const { state, subscriber: { emit } } = this
-
-    state.paused = true
-
-    emit('pause')
-  }
-
-  showHideThumbnail = animations.showHide(this.thumbnail)
-
-  constructor() {
-    const { size, source, currentTime } = options
-    const { setSize, setSource, setCurrentTime, subscriber: { on } } = this
-
-    if (size) {
-      setSize(size)
-    }
-
-    if (source) {
-      setSource(source)
-    }
-
-    if (typeof currentTime === 'number') {
-      setCurrentTime(currentTime)
-    }
-
-    if (subscribers) {
-      on(subscribers)
-    }
-  }
+  showHideThumbnail = animations.showHide(this.$thumbnail)
 }
