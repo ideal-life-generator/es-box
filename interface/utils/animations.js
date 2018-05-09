@@ -80,7 +80,7 @@ export const toggleSwitchShowHide = ($first, $second) => {
   )
 }
 
-export const toggleShowHide = ($element) => {
+export const showHide = ($element) => {
   _style($element, { display: 'none', opacity: 0 })
 
   return toggle(
@@ -120,3 +120,7 @@ export const toggleWhiteViolet = ($element, key) =>
     { r: 255, g: 0, b: 222, a: 0.8 },
     key
   )
+
+export default {
+  showHide
+}
