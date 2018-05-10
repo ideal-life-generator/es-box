@@ -1,3 +1,4 @@
 import assign from './assign'
+import Store from './Store'
 
-export default { assign }
+export default { assign, Store }

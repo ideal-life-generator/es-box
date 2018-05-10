@@ -1,3 +1,5 @@
+import __ from '__'
+
 const itemWidth = 1236
 const itemHeight = 145
 const separatorWidth = itemWidth
@@ -24,18 +26,36 @@ const progressHeight = 1
 const progressTop = infoHeight - progressHeight
 const progressTimeHeight = 20
 
-export const youtubeItem = {
-  item: {
-    width: 1236,
-    height: 145
+export default new __.Store(
+  {
+    item: {
+      width: 1236,
+      height: 145,
+      separator: {
+        height: 1,
+        x1: 0,
+        y1: separatorTop,
+        x2: separatorWidth,
+        y2: separatorTop
+      },
+      content: {
+        y: contentTop
+      }
+    }
   },
-  separator: {
-    x1: 0,
-    y1: separatorTop,
-    x2: separatorWidth,
-    y2: separatorTop
-  },
-  content: {
-    y: contentTop
+  {
+    item: {
+      width: () => {
+        const { item } = this
+
+        this.separator.x2 = item.width
+      },
+      height: () => {
+        const { item, separator } = this
+
+        this.separator.y1 = item.height - separator.height
+        this.separator.y2 = this.separator.y1
+      }
+    }
   }
-}
+)

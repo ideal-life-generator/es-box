@@ -1,10 +1,5 @@
 import _ from '_'
-import Subscriber from '__/subscriber'
-import _style from '_/style'
-import _attributes from '_/attributes'
-import _text from '_/text'
-import _delayInterval from '__/delay-interval'
-import parseTime from '../utils/parse-time'
+import parseTime from 'utils/parse-time'
 import './progress.sass'
 
 export default class Progress {

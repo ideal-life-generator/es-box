@@ -6,11 +6,11 @@ import 'styles/index.sass'
 
 const videoPlayer = new VideoPlayer()
 
-console.log(videoPlayer)
+console.log('videoPlayer', videoPlayer)
 
-videoPlayer.emit('showThumbnail', true)
+videoPlayer.store.mutate('showThumbnail', true)
 
-console.log(videoPlayer)
+console.log('videoPlayer', videoPlayer)
 
 // events(document, {
 //   DOMContentLoaded() {
