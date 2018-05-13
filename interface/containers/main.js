@@ -1,10 +1,10 @@
-import create from 'interface'
-import { $mainPlayer } from './main-player'
-import { $search } from './search'
-import { $results } from './results'
+import _ from '_'
+// import { $mainPlayer } from './main-player'
+// import { $search } from './search'
+import { $searchResults } from './search-results'
 import './main.sass'
 
-export const $main = create({
+export default _.create({
   class: 'main',
-  append: [$mainPlayer, $search, $results]
+  append: [/*$mainPlayer, $search,*/ $searchResults]
 })

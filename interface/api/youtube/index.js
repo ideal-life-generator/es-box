@@ -19,6 +19,7 @@ const normalize = ({
       id,
       title,
       thumbnailUrl,
+      source: `http://localhost:3001/youtube/mp3/${id}`,
       duration: moment.duration(pureDuration).asSeconds()
     })
   ),

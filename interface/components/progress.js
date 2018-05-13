@@ -1,4 +1,5 @@
 import _ from '_'
+import coords from 'store/coords'
 import parseTime from 'utils/parse-time'
 import './progress.sass'
 

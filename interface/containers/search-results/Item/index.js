@@ -5,11 +5,18 @@ import VideoPlayer from '../../components/video-player'
 import Progress from '../../components/progress'
 import playIcon from '../../components/icons/play'
 import pauseIcon from '../../components/icons/video-pause'
-import { youtubeItem as coords } from '../../store/coords'
+import coords from '../../state/coords/youtube-item'
 import animations from '../../utils/animations'
 import './youtube-item.sass'
 
 export default class Item {
+  id = null
+  title = null
+  thumbnailUrl = null
+  source = null
+  duration = null
+  top = 0
+
   play = playIcon({
     class: 'icon play',
     click: () => this.videoPlayer.emit('play')
@@ -34,24 +41,24 @@ export default class Item {
     append: [this.videoPlayer, this.separator]
   })
 
-  showHideItem = animations.showHide(this.item)
+  showHide = animations.showHide(this.item)
   showHidePlayback = animations.showHide(this.play, this.pause)
   whiteViolet = animations.whiteViolet(this.playback, 'stroke')
 
-  constructor() {
-    const { videoPlayer, showHideItem } = this
+  show = () => this.showHide(true)
+  hide = () => this.showHide(false)
+  destroy = async () => {
+    await this.hide()
 
-    // coords.on({})
+    _.remove(this.$item)
+  }
 
-    videoPlayer.on({
-      playback_enter: () => this.whiteViolet(true),
-      playback_leave: () => this.whiteViolet(false),
-      play: () => this.showHidePlayback(false),
-      pause: () => this.showHidePlayback(true)
-      // 'current time changed': () =>
-      //   this.setCurrentTime(this.videoPlayer.state.currentTime)
-    })
-
-    showHideItem(true)
+  on = {
+    top: (top) => this.videoPlayer.set('top', top),
+    title: (title) => this.videoPlayer.set('title', title),
+    thumbnailUrl: (thumbnailUrl) =>
+      this.videoPlayer.set('thumbnailUrl', thumbnailUrl),
+    source: (source) => this.videoPlayer.set('source', source),
+    duration: (duration) => this.videoPlayer.set('duration', duration)
   }
 }

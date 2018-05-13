@@ -1,12 +1,11 @@
 import _ from '_'
 import __ from '__'
 // import Loader from './loader'
-import coords from 'store/coords'
 import animations from 'utils/animations'
 import './video-player.sass'
 
 export default class VideoPlayer {
-  store = new __.Store(
+  state = new __.State(
     {
       loading: false,
       thumbnailUrl: null,
@@ -42,7 +41,7 @@ export default class VideoPlayer {
   $thumbnail = _({
     svg: 'image',
     class: 'thumbnail',
-    coords: coords.item.videoPlayer.thumbnail
+    coords: coords.videoPlayer
   })
   $source = _({
     el: 'source',
@@ -53,7 +52,7 @@ export default class VideoPlayer {
     el: 'video',
     class: 'video',
     controlslist: 'nodownload',
-    coords: coords.item.videoPlayer.video,
+    coords: coords.videoPlayer,
     loadstart: () => this.emit('loading', true),
     canplay: () => this.emit('loading', false),
     append: this.$source
@@ -61,11 +60,12 @@ export default class VideoPlayer {
   // $loader = new Loader()
   $videoWrapper = _({
     svg: 'foreignObject',
-    coords: coords.videoWrapper,
+    coords: coords.videoPlayer,
     append: [this.$video]
   })
   $videoPlayer = _({
     svg: true,
+    coords: coords.videoPlayer,
     mouseenter: () => this.emit('playbackHover', true),
     mouseleave: () => this.emit('playbackHover', false),
     click: () => this.emit('play', !this.play),
@@ -73,4 +73,10 @@ export default class VideoPlayer {
   })
 
   showHideThumbnail = animations.showHide(this.$thumbnail)
+
+  constructor() {
+    coords.on({
+      videoPlayer: () => {}
+    })
+  }
 }
