@@ -1,22 +1,32 @@
 <template lang="jade">
-svg.main
+svg.main(v-bind:height="145.5 * count")
   svg.list
-    svg.item(v-for="(item, i) in items" v-bind:key="item" v-bind:y="145.5 * i")
+    svg.item(v-for="(item, i) in items" v-bind:key="item.id" v-bind:y="145.5 * i")
       foreignObject.youtube-player-container
         YoutubePlayer
+      text(v-text="item.title" x="15" y="15")
       line.separator(v-if="i !== items.length - 1" x1="0px" y1="144.5px" x2="100%" y2="144.5px")
+    text.loading(v-show="loading" x="50" y="50") loading
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import { search } from 'store/search-results'
 import YoutubePlayer from 'components/YoutubePlayer.vue'
 
 export default {
+  mounted() { this.$store.dispatch(search.TYPE) },
+  computed: {
+    ...search.gettersMap,
+    ...mapGetters([
+      'items',
+      'count',
+      'total'
+    ])
+  },
   components: {
     YoutubePlayer
-  },
-  data: () => ({
-    items: ['a', 'b', 'c', 'd', 'e']
-  })
+  }
 }
 </script>
 

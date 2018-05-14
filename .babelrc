@@ -13,7 +13,7 @@
     ["module-resolver", {
       "root": ["./interface"],
       "alias": {
-        "__": "./core",
+        "_": "./core",
         "svg": "./interface/svg",
         "_": "./interface/core",
         "interface": "./interface/core",

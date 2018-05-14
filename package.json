@@ -8,39 +8,32 @@
     "lint": "eslint ./",
     "dev:graphql": "better-npm-run dev:graphql",
     "dev:interface": "better-npm-run dev:interface",
-    "dev":
-      "parallelshell \"rimraf prod\" \"better-npm-run dev:graphql\" \"better-npm-run dev:interface\"",
+    "dev": "parallelshell \"rimraf prod\" \"better-npm-run dev:graphql\" \"better-npm-run dev:interface\"",
     "prod:graphql": "better-npm-run prod:graphql",
     "prod:interface": "better-npm-run prod:interface",
-    "prod":
-      "parallelshell \"rimraf prod\" \"better-npm-run prod:graphql\" \"better-npm-run prod:interface\"",
+    "prod": "parallelshell \"rimraf prod\" \"better-npm-run prod:graphql\" \"better-npm-run prod:interface\"",
     "start": "npm run dev",
-    "pretify": "prettier --write ./interface/**/*.js",
-    "precommit": "pretty-quick --staged"
+    "pretify": "prettier --write ./interface/**/*.js"
   },
   "betterScripts": {
     "dev:graphql": {
-      "command":
-        "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/graphql.js --watch",
+      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/graphql.js --watch",
       "env": {
         "SERVER": true
       }
     },
     "dev:interface": {
-      "command":
-        "node -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config=./webpack/interface.js"
+      "command": "node -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config=./webpack/interface.js"
     },
     "prod:graphql": {
-      "command":
-        "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/graphql.js",
+      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/graphql.js",
       "env": {
         "PRODUCTION": true,
         "SERVER": true
       }
     },
     "prod:interface": {
-      "command":
-        "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/interface.js",
+      "command": "node -r babel-register ./node_modules/webpack/bin/webpack.js --config=./webpack/interface.js",
       "env": {
         "PRODUCTION": true
       }
@@ -96,6 +89,7 @@
     "apollo-client": "^2.2.8",
     "apollo-link-http": "^1.5.3",
     "apollo-server-koa": "^1.3.4",
+    "axios": "^0.18.0",
     "chalk": "^2.3.2",
     "deep-assign": "^2.0.0",
     "fast-clone": "^1.5.2",
