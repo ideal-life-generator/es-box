@@ -51,7 +51,6 @@ export const sassRule = {
       loader: 'sass-loader',
       options: {
         sourceMap: true,
-        data: '@import "styles/variables";',
         includePaths: [resolve('interface')]
       }
     }

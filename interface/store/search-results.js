@@ -1,7 +1,8 @@
 import youtube from 'api'
 import createAsyncAction from './utils/create-async-action'
 
-export const search = createAsyncAction('SEARCH_RESULTS', async () => await youtube.search())
+export const search = createAsyncAction('SEARCH_RESULTS', async ({ rootState }) =>
+  await youtube.search({ key: rootState.search.normalized }))
 
 export default {
   state: {

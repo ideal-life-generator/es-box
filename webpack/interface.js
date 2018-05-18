@@ -30,8 +30,8 @@ const interf = {
       // eslintRule,
       htmlRule,
       babelRule,
-      vueRule,
       sassRule,
+      vueRule,
       fileRule
     ]
   },
