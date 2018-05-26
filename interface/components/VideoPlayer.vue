@@ -1,7 +1,7 @@
 <template lang="jade">
 svg.video-player
   rect.background
-  foreignObject.video-wrapper(v-bind:y="y * 1.25")
+  foreignObject.video-wrapper(v-bind:x="x * 1.25" v-bind:y="y * 1.25")
     video.video(ref="video" v-on:click="togglePlayback")
       source(type="video/mp4" v-bind:src="source")
 </template>
@@ -11,7 +11,8 @@ import youtubePlayer from 'youtube-player'
 
 export default {
   props: {
-    y: { type: Number, required: true },
+    x: { type: Number },
+    y: { type: Number },
     source: { type: String },
   },
   data: () => ({

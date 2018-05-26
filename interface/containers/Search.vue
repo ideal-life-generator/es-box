@@ -10,7 +10,7 @@ svg.search
 
 <script>
 import { mapGetters } from 'vuex'
-import { SEARCH_TYPE } from 'store/search'
+import { SEARCH_INPUT } from 'store/search'
 
 export default {
   data: () => ({
@@ -26,7 +26,7 @@ export default {
   computed: {
     input: {
       get() { return this.$store.state.search.input },
-      set(value) { this.$store.dispatch(SEARCH_TYPE, value) },
+      set(value) { this.$store.dispatch(SEARCH_INPUT, value) },
     }
   }
 }

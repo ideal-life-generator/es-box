@@ -1,6 +1,6 @@
 import { search } from 'store/search-results'
 
-export const SEARCH_TYPE = 'SEARCH'
+export const SEARCH_INPUT = 'SEARCH_INPUT'
 
 export default {
   state: {
@@ -18,7 +18,7 @@ export default {
     }
   },
   actions: {
-    [SEARCH_TYPE]: (context, input) => {
+    [SEARCH_INPUT]: (context, input) => {
       context.commit('change', input)
       context.dispatch(search.TYPE)
     }

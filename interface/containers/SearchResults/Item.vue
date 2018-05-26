@@ -1,8 +1,8 @@
 <template lang="jade">
 svg.item
-  video-player(v-bind:y="playerY" v-bind:source="source" v-bind:play="play" v-on:play="onPlay")
+  video-player(v-bind:x="playerX" v-bind:y="playerY" v-bind:source="source" v-bind:play="play" v-on:play="onPlay")
   svg(x="220px" y="0px")
-    text.title(v-text="title" x="30" y="12px")
+    text.title(v-text="title" x="30" dominant-baseline="hanging")
     svg(v-if="!play" v-on:click="emitPlay(true)" x="29" y="25" width="35" height="35" class="playback" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg")
       polygon(points="5 3 19 12 5 21 5 3" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5")
       rect(width="24" height="24" fill="transparent" stroke="none")
@@ -11,16 +11,25 @@ svg.item
       rect(x="15" y="3" width="4" height="18" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5")
       rect(width="24" height="24" fill="transparent" stroke="none")
     line.separator(x1="45px" y1="123" x2="100%" y2="123")
+  plus-icon(
+    v-bind:x="1250"
+    v-bind:y="20"
+    v-bind:size="31"
+    color="white"
+    @click.native="addItem"
+  )
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { search } from 'store/search-results'
 import VideoPlayer from 'components/VideoPlayer.vue'
+import PlusIcon from 'components/icons/Plus.vue'
 
 export default {
   props: {
     height: { type: Number, required: true },
+    playerX: { type: Number, required: true },
     playerY: { type: Number, required: true },
     source: { type: String, required: true },
     title: { type: String, required: true },
@@ -36,10 +45,16 @@ export default {
       this.play = play
 
       this.$emit('play', this.play)
+    },
+    addItem() {
+      const { id, title, duration } = this
+
+      this.$store.dispatch('addItem', { id, title, duration })
     }
   },
   components: {
-    VideoPlayer
+    VideoPlayer,
+    PlusIcon
   }
 }
 </script>

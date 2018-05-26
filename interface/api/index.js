@@ -1,5 +1,7 @@
 import moment from 'moment'
 import axios from './utils/axios'
+import googleOAuth from './google-oauth'
+import { YOUTUBE_API_KEY } from '../../config'
 
 const normalizeIds = ({ items }) =>
   items.map(({ id: { videoId: id } }) => id).join(',')
@@ -32,7 +34,8 @@ const search = async (params = {}) => {
       q: key,
       maxResults: count,
       type: 'video',
-      part: 'id'
+      part: 'id',
+      key: YOUTUBE_API_KEY
     }
   })
 
@@ -41,7 +44,8 @@ const search = async (params = {}) => {
   const { data } = await axios('videos', {
     params: {
       id: normalizedIds,
-      part: 'snippet,contentDetails'
+      part: 'snippet,contentDetails',
+      key: YOUTUBE_API_KEY
     }
   })
 
@@ -50,4 +54,4 @@ const search = async (params = {}) => {
   return normalizedData
 }
 
-export default { search }
+export default { search, googleOAuth }
