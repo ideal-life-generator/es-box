@@ -18,7 +18,7 @@ const createToken = async code => {
 
     return { token: access_token, refreshToken: refresh_token }
   } catch (error) {
-    throw error
+    throw error.response ? error.response.data.error_description : 'Google token creating is failed'
   }
 }
 

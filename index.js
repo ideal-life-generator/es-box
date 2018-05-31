@@ -3,6 +3,7 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import session from 'express-session'
+import connectRedis from 'connect-redis'
 import graphql from 'express-graphql'
 import { blue } from 'chalk'
 import ytdl from 'ytdl-core'
@@ -11,9 +12,12 @@ import { SERVER_PORT } from './config'
 
 const app = express()
 
+const RedisSession = connectRedis(session)
+
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(session({
+  store: new RedisSession(),
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
@@ -25,8 +29,6 @@ app.use(cors({
 }))
 
 app.use(express.static('./'))
-
-app.use((req, res, next) => console.log('use', req.sessionID, req.session.user, req.url + req.body.query) || next())
 
 app.use('/graphql', graphql(req => ({
   schema,

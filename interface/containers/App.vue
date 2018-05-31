@@ -26,7 +26,6 @@ svg.content
       color="black"
       @click.native="addPlaylist()"
     )
-  text(v-text="usr.email")
   router-view
 </template>
 
@@ -51,11 +50,6 @@ export default {
     }`
   },
   computed: {
-    usr() {
-      console.log('usr', this.user)
-
-      return {}
-    },
     clientId: () => GOOGLE_CLIENT_ID,
     ...mapGetters([
       'newPlaylist',

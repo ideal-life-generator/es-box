@@ -17,7 +17,7 @@ export default {
           }
         }`,
         variables: {
-          code: 'hi' // this.$route.query.code
+          code: this.$route.query.code
         },
         update: (store, { data: { auth: { token, refreshToken } } }) => {
           localStorage.setItem('token', token)
@@ -25,7 +25,10 @@ export default {
         },
       })
     } catch (error) { // FIXME: Should parse
-      this.$store.dispatch(SHOW_ERROR, error.message)
+      this.$store.dispatch(SHOW_ERROR,
+        (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
+          error.graphQLErrors[0].message : 'Google authentication is failed'
+      )
     }
 
     this.$router.push('/')
