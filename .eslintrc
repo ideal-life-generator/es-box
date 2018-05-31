@@ -20,6 +20,7 @@
   },
   "rules": {
     "semi": [1, "never"],
+    "camelcase": 1,
     "comma-dangle": 0,
     "linebreak-style": 0,
     "no-debugger": 1,

@@ -1,26 +1,38 @@
-import Koa from 'koa'
-import Router from 'koa-router'
-import bodyParser from 'koa-bodyparser'
-import serve from 'koa-static'
-import cors from 'koa-cors'
-import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
+import express from 'express'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
+import session from 'express-session'
+import graphql from 'express-graphql'
 import { blue } from 'chalk'
 import ytdl from 'ytdl-core'
 import schema from './graphql'
 import { SERVER_PORT } from './config'
 
-const app = new Koa()
+const app = express()
 
-const router = new Router()
+app.use(cookieParser())
+app.use(bodyParser.json())
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+}))
 
-app.use(bodyParser())
-app.use(serve('./'))
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}))
 
-router.post('/graphql', graphqlKoa({ schema }))
-router.get('/graphql', graphqlKoa({ schema }))
+app.use(express.static('./'))
 
-router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
+app.use((req, res, next) => console.log('use', req.sessionID, req.session.user, req.url + req.body.query) || next())
+
+app.use('/graphql', graphql(req => ({
+  schema,
+  context: { session: req.session },
+  graphiql: true
+})))
 
 // const getMp3 = id => new Promise((resolve, reject) => {
 //   const youtubeDl = spawn(resolvePath('youtube-dl.exe'), [
@@ -40,23 +52,18 @@ router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
 //   })
 // })
 
-router.get('/youtube/mp3/:id', async (context) => {
-  const { params: { id } } = context
+app.get('/youtube/mp3/:id', (req, res) => {
+  const { params: { id } } = req
 
   // const mp3 = await getMp3(id)
 
   // console.log(mp3)
 
-  context.response.body = ytdl(id)
+  ytdl(id).pipe(res)
 })
 
-router.get('*', (ctx) => {
+app.get('*', (ctx) => {
   ctx.body = 'Koa server'
 })
 
-app.use(router.routes())
-app.use(router.allowedMethods())
-
-app.listen(SERVER_PORT, () =>
-  console.info(blue(`Server is listening on ${SERVER_PORT} port`))
-)
+app.listen(SERVER_PORT, () => console.info(blue(`Server is listening on ${SERVER_PORT} port`)))

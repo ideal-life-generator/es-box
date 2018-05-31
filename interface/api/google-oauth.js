@@ -1,15 +1,27 @@
-import axios from './utils/axios'
+import request from './utils/request'
+import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRED } from '../../config'
 
-const auth = async () => {
-  const { data } = await axios('https://accounts.google.com/o/oauth2/v2/auth', {
-    params: {
-      client_id: '388620875423-cdin82r5e0c19p7or0ei8nol7c5024em.apps.googleusercontent.com',
-      redirect_uri: 'http://localhost:3000/google-oauth',
-      scope: 'https://www.googleapis.com/auth/youtube.readonly',
+const token = async code => {
+  try {
+    const { data } = await request.post('https://www.googleapis.com/oauth2/v4/token', {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      data: {
+        code,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRED,
+        grant_type: 'authorization_code',
+        redirect_uri: 'http://localhost:3000/google-oauth'
+      }
+    })
+
+    console.log(data)
+
+    return {
+      email: 'test@mail'
     }
-  })
-
-  return data
+  } catch (error) {
+    console.log(error.response)
+  }
 }
 
-export default { auth }
+export default { token }

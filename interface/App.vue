@@ -1,10 +1,20 @@
 <template lang="jade">
-svg.app
+div.app
   router-view
+  div.error(v-if="showErrorMessage" v-text="errorMessage")
 </template>
 
 <script>
-export default {}
+import { mapGetters } from 'vuex'
+
+export default {
+  computed: {
+    ...mapGetters([
+      'showErrorMessage',
+      'errorMessage'
+    ])
+  }
+}
 </script>
 
 <style lang="sass">
@@ -17,28 +27,20 @@ body
 text
   dominant-baseline: hanging
 
-.content
+.app
   flex-grow: 1
+  display: flex
 
-  .top-left-bar
-    .user
-      .name
-        font-size: 13px
-        fill: white
-
-    .auth
-      .login
-        cursor: pointer
-
-        text
-          font-size: 13px
-          fill: white
-
-  .menu
-    .new-playlist
-      cursor: pointer
-
-      .title
-        font-size: 14px
+.error
+  position: fixed
+  bottom: 0px
+  width: 100%
+  height: 25px
+  display: flex
+  align-items: center
+  padding-left: 220px
+  background-color: #ed3434
+  font-size: 13px
+  color: white
 
 </style>

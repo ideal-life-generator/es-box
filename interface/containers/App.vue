@@ -4,9 +4,9 @@ svg.content
   svg(v-bind:x="size.leftX" v-bind:y="size.leftY" v-bind:width="size.leftWidth" v-bind:height="size.leftHeight")
     svg.top-left-bar(x="10" y="10")
       svg.user(v-if="user")
-        text.name User Name
+        text.name(v-text="user.email")
       svg.auth(v-else)
-        a.login(xlink:href="https://accounts.google.com/o/oauth2/v2/auth?client_id=388620875423-cdin82r5e0c19p7or0ei8nol7c5024em.apps.googleusercontent.com&redirect_uri=http:%2F%2Flocalhost:3000%2Fgoogle-oauth&scope=https:%2F%2Fwww.googleapis.com%2Fauth%2Fyoutube.readonly&response_type=code")
+        a.login(v-bind:xlink:href="`https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=http://localhost:3000/google-oauth&scope=https://www.googleapis.com/auth/plus.login+https://www.googleapis.com/auth/user.emails.read+https://www.googleapis.com/auth/youtube.readonly&access_type=offline&response_type=code&prompt=consent`")
           text login
     svg.menu(x="15" y="50")
       text(fill="white") Playlists
@@ -26,25 +26,44 @@ svg.content
       color="black"
       @click.native="addPlaylist()"
     )
+  text(v-text="usr.email")
   router-view
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import gql from 'graphql-tag'
 import Search from './Search.vue'
 import SearchResults from './SearchResults/index.vue'
 import PlusIcon from 'components/icons/Plus.vue'
+import { GOOGLE_CLIENT_ID } from '../../config'
 
 export default {
+  data: () => ({
+    user: {}
+  }),
+  apollo: {
+    user: gql`{
+      user {
+        _id
+        email
+      }
+    }`
+  },
   computed: {
+    usr() {
+      console.log('usr', this.user)
+
+      return {}
+    },
+    clientId: () => GOOGLE_CLIENT_ID,
     ...mapGetters([
-      'user',
       'newPlaylist',
       'size'
     ])
   },
   methods: {
-    addPlaylist() { this.$store.commit('createPlaylist') }
+    addPlaylist() { this.$store.commit('createPlaylist') },
   },
   components: {
     Search,

@@ -6,6 +6,7 @@ import search from './search'
 import searchResults from './search-results'
 import playlists from './playlists'
 import googleOAuth from './google-oauth'
+import error from './error'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,8 @@ export default () => new Store({
     search,
     searchResults,
     playlists,
-    googleOAuth
+    googleOAuth,
+    error
   },
   plugins: [createPersistedState()]
 })

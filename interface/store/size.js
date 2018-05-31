@@ -55,6 +55,6 @@ export default {
     resultsY,
   },
   getters: {
-    size: state => console.log(state) || state
+    size: state => state
   },
 }

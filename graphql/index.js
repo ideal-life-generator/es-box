@@ -1,5 +1,7 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import _normalizeKey from '__/normalize-key'
+import google from './api/google'
+import db from '../db'
+// import _normalizeKey from '__/normalize-key'
 // import fetch from './youtube/utils/fetch'
 // import { search } from './youtube'
 
@@ -24,18 +26,53 @@ type Youtube {
   ): SongsPagination
 }
 
+type User {
+  _id: ID!
+  email: String!
+}
+
 type Query {
   youtube: Youtube
+  user: User
+}
+
+type Token {
+  token: String!
+  refreshToken: String!
+}
+
+type Mutation {
+  auth(code: String!): Token
 }
 
 type Schema {
   query: Query
+  mutation: Mutation
 }
 `
 
 const resolvers = {
   Query: {
-    youtube: () => ({}),
+    youtube: () => ({ songs: { count: 1 } }),
+    user: (none, args, { session }) => session.user
+  },
+  Mutation: {
+    auth: async (googleOAuth, { code }, { session }) => {
+      try {
+        const { token, refreshToken } = await google.createToken(code)
+        google.setToken(token)
+
+        const googleAccount = await google.getAccount()
+
+        const user = await db.upsertUser(googleAccount)
+
+        session.user = user
+
+        return { token, refreshToken }
+      } catch (error) {
+        throw error
+      }
+    },
   },
   Youtube: {
     songs: async (youtube, params) => {
@@ -47,7 +84,7 @@ const resolvers = {
 
       // }
     },
-  },
+  }
 }
 
 export default makeExecutableSchema({

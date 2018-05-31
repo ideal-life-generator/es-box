@@ -13,7 +13,7 @@ sync(store, router)
 const app = new Vue({
   router,
   store,
-  apolloProvider,
+  provide: apolloProvider.provide(),
   render: h => h(App)
 })
 

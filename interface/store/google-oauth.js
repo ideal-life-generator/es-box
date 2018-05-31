@@ -9,8 +9,8 @@ export default {
   getters: {},
   mutations: {},
   actions: {
-    login: async () => {
-      const data = await api.googleOAuth.auth()
+    token: async (state, code) => {
+      const data = await api.token(code)
 
       console.log(data)
     }

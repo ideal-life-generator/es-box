@@ -1,7 +1,7 @@
 import moment from 'moment'
-import axios from './utils/axios'
+import youtube from './utils/youtube'
+import graphql from './utils/graphql'
 import googleOAuth from './google-oauth'
-import { YOUTUBE_API_KEY } from '../../config'
 
 const normalizeIds = ({ items }) =>
   items.map(({ id: { videoId: id } }) => id).join(',')
@@ -29,23 +29,21 @@ const normalize = ({
 const search = async (params = {}) => {
   const { key, count } = params
 
-  const { data: ids } = await axios('search', {
+  const { data: ids } = await youtube('search', {
     params: {
       q: key,
       maxResults: count,
       type: 'video',
-      part: 'id',
-      key: YOUTUBE_API_KEY
+      part: 'id'
     }
   })
 
   const normalizedIds = normalizeIds(ids)
 
-  const { data } = await axios('videos', {
+  const { data } = await youtube('videos', {
     params: {
       id: normalizedIds,
-      part: 'snippet,contentDetails',
-      key: YOUTUBE_API_KEY
+      part: 'snippet,contentDetails'
     }
   })
 
@@ -54,4 +52,17 @@ const search = async (params = {}) => {
   return normalizedData
 }
 
-export default { search, googleOAuth }
+const token = async code => {
+  const { data } = await graphql(`
+    query {
+      token(code: "${code}") {
+        token,
+        refreshToken
+      }
+    }
+  `)
+
+  return data
+}
+
+export default { search, token, googleOAuth }
