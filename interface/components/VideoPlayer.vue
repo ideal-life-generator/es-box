@@ -1,8 +1,8 @@
-<template lang="jade">
-svg.video-player
-  rect.background
-  foreignObject.video-wrapper(v-bind:x="x * 1.25" v-bind:y="y * 1.25")
-    video.video(ref="video" v-on:click="togglePlayback")
+<template lang="pug">
+svg.video-player(v-bind:x="0" v-bind:y="0")
+  //- rect.background
+  foreignObject.video-wrapper(v-bind:x="0" v-bind:y="0")
+    //- video.video(ref="video" v-on:click="togglePlayback")
       //- source(type="video/mp4" v-bind:src="source" crossorigin="use-credentials")
 </template>
 
@@ -49,17 +49,22 @@ $width: 220px
 $height: $width * $video-proportion
 
 .video-player
+  width: $width
+  height: $height
 
-  .background
-    width: $width
-    height: $height
+  // .background
+  //   width: $width
+  //   height: $height
 
   .video-wrapper
     width: $width
     height: $height
 
     .video
-      width: 125%
-      height: 125%
+      // width: 125%
+      // height: 125%
+      position: absolute
+      left: 50px
+
 
 </style>

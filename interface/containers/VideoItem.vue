@@ -1,4 +1,4 @@
-<template lang="jade">
+<template lang="pug">
 svg.item
   video-player(v-bind:x="playerX" v-bind:y="playerY" v-bind:source="source" v-bind:play="play" v-on:play="onPlay")
   svg(x="220px" y="0px")
@@ -12,7 +12,7 @@ svg.item
       rect(width="24" height="24" fill="transparent" stroke="none")
     line.separator(x1="45px" y1="123" x2="100%" y2="123")
   plus-icon(
-    v-bind:x="1250"
+    v-bind:x="1100"
     v-bind:y="20"
     v-bind:size="31"
     color="white"
@@ -31,8 +31,10 @@ export default {
     height: { type: Number, required: true },
     playerX: { type: Number, required: true },
     playerY: { type: Number, required: true },
-    source: { type: String, required: true },
+    id: { type: String, required: true },
     title: { type: String, required: true },
+    source: { type: String, required: true },
+    // duration: { type: String, required: true }
   },
   data: () => ({
     play: false
@@ -47,9 +49,9 @@ export default {
       this.$emit('play', this.play)
     },
     addItem() {
-      const { id, title, duration } = this
+      const { id, title } = this
 
-      this.$store.dispatch('addItem', { id, title, duration })
+      this.$store.dispatch('new-playlist@add-item', { id, title })
     }
   },
   components: {
@@ -60,7 +62,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import '../../styles/theme.sass'
+@import '../styles/theme.sass'
 
 .item
   height: 145.5px

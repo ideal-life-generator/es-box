@@ -7,14 +7,11 @@ export default {
     newPlaylist: null,
     playlists: []
   },
-  getters: {
-    newPlaylist: state => state.newPlaylist
-  },
   mutations: {
     createPlaylist: state => {
       state.newPlaylist = {
-        name: 'New Playlist',
-        normalizedName: 'New Playlist',
+        name: 'New',
+        normalizedName: 'New',
         items: []
       }
     },
@@ -25,6 +22,9 @@ export default {
       state.name = name
       state.normalizedName = name.trim()
     },
+    updateName: (state, name) => {
+      state.newPlaylist.name = name
+    }
   },
   actions: {
     addItem: ({ state, commit }, item) => {

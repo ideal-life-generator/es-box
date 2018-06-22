@@ -41,19 +41,9 @@ export const sassRule = {
   test: /\.sass$/,
   exclude: /node_modules/,
   use: [
-    {
-      loader: 'style-loader'
-    },
-    {
-      loader: 'css-loader'
-    },
-    {
-      loader: 'sass-loader',
-      options: {
-        sourceMap: true,
-        includePaths: [resolve('interface')]
-      }
-    }
+    'vue-style-loader',
+    'css-loader',
+    'sass-loader'
   ]
 }
 

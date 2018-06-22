@@ -1,4 +1,4 @@
-<template lang="jade">
+<template lang="pug">
 text.white Login is processed...
 </template>
 
@@ -10,12 +10,14 @@ export default {
   async mounted() {
     try {
       await this.$apollo.mutate({
-        mutation: gql`mutation ($code: String!) {
-          auth(code: $code) {
-            token
-            refreshToken
+        mutation: gql`
+          mutation($code: String!) {
+            auth(code: $code) {
+              token
+              refreshToken
+            }
           }
-        }`,
+        `,
         variables: {
           code: this.$route.query.code
         },

@@ -4,6 +4,7 @@ import createPersistedState from 'vuex-persistedstate'
 import size from './size'
 import search from './search'
 import searchResults from './search-results'
+import newPlaylist from './new-playlist'
 import playlists from './playlists'
 import googleOAuth from './google-oauth'
 import error from './error'
@@ -15,6 +16,7 @@ export default () => new Store({
     size,
     search,
     searchResults,
+    newPlaylist,
     playlists,
     googleOAuth,
     error

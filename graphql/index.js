@@ -1,11 +1,14 @@
 import { makeExecutableSchema } from 'graphql-tools'
 import google from './api/google'
 import db from '../db'
+import playlists from './playlists'
 // import _normalizeKey from '__/normalize-key'
 // import fetch from './youtube/utils/fetch'
 // import { search } from './youtube'
 
 const typeDefs = `
+${playlists.typesQL}
+
 type Song {
   id: ID!
   title: String!
@@ -34,6 +37,7 @@ type User {
 type Query {
   youtube: Youtube
   user: User
+  ${playlists.queriesQL}
 }
 
 type Token {
@@ -43,6 +47,7 @@ type Token {
 
 type Mutation {
   auth(code: String!): Token
+  ${playlists.mutationsQL}
 }
 
 type Schema {
@@ -54,7 +59,8 @@ type Schema {
 const resolvers = {
   Query: {
     youtube: () => ({ songs: { count: 1 } }),
-    user: (none, args, { session }) => session.user
+    user: (none, args, { session }) => console.log(session) || session.user,
+    ...playlists.queries
   },
   Mutation: {
     auth: async (googleOAuth, { code }, { session }) => {
@@ -73,6 +79,7 @@ const resolvers = {
         throw error
       }
     },
+    ...playlists.mutations
   },
   Youtube: {
     songs: async (youtube, params) => {

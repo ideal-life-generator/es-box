@@ -1,6 +1,6 @@
-<template lang="jade">
+<template lang="pug">
 svg
-  item(
+  video-item(
     v-for="(item, i) in items"
     v-bind:key="item.id"
     v-bind:height="itemHeight"
@@ -15,7 +15,7 @@ svg
 <script>
 import { mapGetters } from 'vuex'
 import { search } from 'store/search-results'
-import Item from './Item.vue'
+import VideoItem from '../VideoItem.vue'
 
 export default {
   data: () => ({
@@ -32,7 +32,7 @@ export default {
     ])
   },
   components: {
-    Item
+    VideoItem
   }
 }
 </script>

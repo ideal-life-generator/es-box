@@ -2,6 +2,7 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+// import fallback from 'express-history-api-fallback'
 import session from 'express-session'
 import connectRedis from 'connect-redis'
 import graphql from 'express-graphql'
@@ -29,6 +30,8 @@ app.use(cors({
 }))
 
 app.use(express.static('./'))
+
+// app.use(fallback('index.html', { root: 'localhost:3000' }))
 
 app.use('/graphql', graphql(req => ({
   schema,

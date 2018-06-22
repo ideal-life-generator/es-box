@@ -1,4 +1,4 @@
-<template lang="jade">
+<template lang="pug">
 svg.icon(
   v-bind:x="x"
   v-bind:y="y"

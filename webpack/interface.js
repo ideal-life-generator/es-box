@@ -17,20 +17,46 @@ import {
   uglify
 } from './base'
 import { DEV_SERVER_PORT } from '../config'
+import VueLoaderPlugin from 'vue-loader/lib/plugin'
 
 const interf = {
   context: resolve('interface'),
   entry: './',
   output: {
     path: outputPath,
-    filename: '[name].[hash].js'
+    filename: '[name].[hash].js',
+    publicPath: '/'
   },
   module: {
     rules: [
       // eslintRule,
       htmlRule,
-      babelRule,
-      sassRule,
+      {
+        test: /\.pug$/,
+        loader: 'pug-plain-loader'
+      },
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: file => (
+          /node_modules/.test(file) &&
+          !/\.vue\.js/.test(file)
+        )
+      },
+      {
+        test: /\.sass$/,
+        exclude: /node_modules/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              indentedSyntax: true
+            }
+          }
+        ]
+      },
       vueRule,
       fileRule
     ]
@@ -41,7 +67,8 @@ const interf = {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: './index.html'
-    })
+    }),
+    new VueLoaderPlugin()
   ],
   mode
 }
