@@ -1,11 +1,6 @@
 <template lang="pug">
-svg.search
-  rect(v-bind:x="x" v-bind:y="y" rx="15" ry="15" v-bind:width="width" v-bind:height="height" style="fill: none; stroke: red; stroke-width: 1;")
-  svg(v-bind:x="x + width - iconSize - iconPaddingRight" v-bind:y="y + (height - iconSize) / 2" v-bind:width="iconSize" v-bind:height="iconSize" fill="none" stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg")
-    circle(cx="10.5" cy="10.5" r="7.5")
-    line(x1="21" x2="15.8" y1="21" y2="15.8")
-  foreignObject(v-bind:x="x" v-bind:y="y" v-bind:width="width" v-bind:height="height")
-    input(v-model="input" v-bind:style="{ padding: `${verticalPadding}px ${horisontalPadding + iconSize + iconPaddingRight}px ${verticalPadding}px ${horisontalPadding}px`, width: `${width}px`, height: `${height}px` }")
+div.search
+  input(v-model="input")
 </template>
 
 <script>
@@ -34,7 +29,16 @@ export default {
 
 <style lang="sass">
 .search
+  $height: 35px
+  width: 500px
+  height: $height
+  display: flex
+  border: 1px solid white
+  border-radius: $height / 2
+
   input
+    flex-grow: 1
+    padding: 10px 10px
     border: 0
     outline: 0
     background: 0

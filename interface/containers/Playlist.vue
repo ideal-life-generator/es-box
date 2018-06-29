@@ -1,13 +1,9 @@
 <template lang="pug">
-svg.playlist
-  text(v-text="playlist.name")
+div.playlist
+  h3(v-text="playlist.name")
   video-item(
     v-for="(item, i) in videos.items"
     v-bind:key="`${item.id}-${i}`"
-    v-bind:height="itemHeight"
-    v-bind:y="30 + itemHeight * i"
-    v-bind:playerX="size.mainX + size.resultsX"
-    v-bind:playerY="size.mainY + size.resultsY + (itemHeight * i)"
     v-bind="item"
   )
 </template>

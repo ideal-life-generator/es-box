@@ -1,13 +1,11 @@
 <template lang="pug">
-svg.content
-  search
+div.content
   search-results(v-bind:x="size.resultsX" v-bind:y="size.resultsY")
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import Search from './Search.vue'
-import SearchResults from './SearchResults/index.vue'
+import SearchResults from './SearchResults.vue'
 
 export default {
   computed: {
@@ -16,7 +14,6 @@ export default {
     ])
   },
   components: {
-    Search,
     SearchResults
   }
 }

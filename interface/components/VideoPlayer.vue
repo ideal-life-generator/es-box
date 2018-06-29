@@ -1,23 +1,27 @@
 <template lang="pug">
-svg.video-player(v-bind:x="0" v-bind:y="0")
-  //- rect.background
-  foreignObject.video-wrapper(v-bind:x="0" v-bind:y="0")
-    //- video.video(ref="video" v-on:click="togglePlayback")
-      //- source(type="video/mp4" v-bind:src="source" crossorigin="use-credentials")
+div(v-bind:id="_id")
 </template>
 
 <script>
-import youtubePlayer from 'youtube-player'
+import { mapGetters } from 'vuex'
+import YoutubePlayer from 'youtube-player'
+import bus from 'events-bus'
 
 export default {
   props: {
-    x: { type: Number },
-    y: { type: Number },
-    source: { type: String },
+    _id: { type: String, required: true },
+    sourceId: { type: String, required: true },
   },
   data: () => ({
-    play: false,
+    width: '220',
+    height: `${220 * 0.5625}`,
+    play: false
   }),
+  computed: {
+    ...mapGetters([
+      'player'
+    ]),
+  },
   methods: {
     togglePlayback() {
       const { $refs: { video } } = this
@@ -29,16 +33,61 @@ export default {
 
       this.$emit('play', this.play)
     },
+    stateChange({ data: status }) {
+      switch (status) {
+        case -1: {
+          this.$emit('unstarted')
+
+          break
+        }
+        case 0: {
+          this.$emit('ended')
+
+          break
+        }
+        case 1: {
+          this.$emit('playing')
+
+          break
+        }
+        case 2: {
+          this.$emit('paused')
+
+          break
+        }
+        case 3: {
+          this.$emit('buffering')
+
+          break
+        }
+        case 5: {
+          this.$emit('videoCued')
+
+          break
+        }
+      }
+    },
+    onStop(_id) {
+      if (_id !== this._id) {
+        this.youtubePlayer.pauseVideo()
+      }
+    }
   },
   mounted() {
-    this.$parent.$on('play', play => {
-      const { $refs: { video } } = this
-
-      this.play = play
-
-      if (this.play) video.play()
-      else video.pause()
+    this.youtubePlayer = YoutubePlayer(this._id, {
+      videoId: this.sourceId,
+      width: this.width,
+      height: this.height
     })
+
+    this.youtubePlayer.on('stateChange', this.stateChange)
+
+    bus.$on('stop', this.onStop)
+  },
+  unmounted() {
+    this.youtubePlayer.off('stateChange', this.stateChange)
+
+    bus.$off('stop', this.onStop)
   }
 }
 </script>

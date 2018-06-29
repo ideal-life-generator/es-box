@@ -17,10 +17,10 @@ const normalize = ({
     snippet: { title, thumbnails: { medium: { url: thumbnail } } },
     contentDetails: { duration: pureDuration }
   }) => ({
-    id,
+    _id: id,
+    sourceId: id,
     title,
     thumbnail,
-    source: `http://localhost:3001/youtube/mp3/${id}`,
     duration: moment.duration(pureDuration).asSeconds()
   })),
   total: totalResults

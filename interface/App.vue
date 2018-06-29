@@ -1,26 +1,30 @@
 <template lang="pug">
 div.app
-  svg.main-nav
-    router-link.link(to="/" tag="text") Search
-  svg.top(v-bind:x="size.topX" v-bind:y="size.topY" v-bind:width="size.topWidth" v-bind:height="size.topHeight")
-  svg.left(v-bind:x="size.leftX" v-bind:y="size.leftY" v-bind:width="size.leftWidth" v-bind:height="size.leftHeight")
-    svg.menu(x="10" y="35")
+  div.header
+    div.logo
+      router-link.home(to="/") Home
+    div.navigatoin
+      search
+      div.account
+        div.user(v-if="user" v-text="user.email")
+        div.auth(v-else)
+          a.login(v-bind:href="`https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=http://localhost:3000/google-oauth&scope=https://www.googleapis.com/auth/plus.login+https://www.googleapis.com/auth/user.emails.read+https://www.googleapis.com/auth/youtube.readonly&access_type=offline&response_type=code&prompt=consent`") login
+  div.subheader
+    player
+  div.left
+    div.menu
       playlists-menu
-  svg.right(v-bind:x="size.rightX" v-bind:y="size.rightY" v-bind:width="size.rightWidth" v-bind:height="size.rightHeight")
-    svg.top-left-bar(x="10" y="10")
-      svg.user(v-if="user")
-        text.name(v-text="user.email")
-      svg.auth(v-else)
-        a.login(v-bind:xlink:href="`https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=http://localhost:3000/google-oauth&scope=https://www.googleapis.com/auth/plus.login+https://www.googleapis.com/auth/user.emails.read+https://www.googleapis.com/auth/youtube.readonly&access_type=offline&response_type=code&prompt=consent`")
-          text login
-  div(v-bind:x="size.mainX" v-bind:y="size.mainY" v-bind:width="size.mainWidth" v-bind:height="size.mainHeight")
+  div.middle
     router-view
-  text.error(v-if="showErrorMessage" v-text="errorMessage")
+  div.right
+  div.error(v-if="showErrorMessage" v-text="errorMessage")
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import gql from 'graphql-tag'
+import Search from 'containers/Search.vue'
+import Player from 'containers/Player.vue'
 import PlusIcon from 'components/icons/Plus.vue'
 import PlaylistsMenu from 'containers/PlaylistsMenu.vue'
 import { GOOGLE_CLIENT_ID } from '../config'
@@ -47,6 +51,8 @@ export default {
     ])
   },
   components: {
+    Search,
+    Player,
     PlusIcon,
     PlaylistsMenu
   }
@@ -59,13 +65,50 @@ export default {
 
 body
   font-family: 'Open Sans', sans-serif
+  color: white
+
+a
+  color: white
 
 text
   dominant-baseline: hanging
 
 .app
+  overflow: hidden
+  flex-grow: 1
+  display: grid
+  grid-template-areas: 'header header header' 'subheader subheader subheader' 'left middle right'
+  grid-template-columns: 210px auto 210px
+  grid-template-rows: 50px 50px auto
+
+.header
+  grid-area: header
+  display: flex
+
+.subheader
+  grid-area: subheader
+
+.logo
+  width: 90px
+  display: flex
+  align-items: center
+  justify-content: center
+
+.navigatoin
   flex-grow: 1
   display: flex
+  align-items: center
+  padding-left: 15px
+  padding-right: 15px
+
+.account
+  margin-left: auto
+
+.left
+  grid-area: left
+
+.middle
+  grid-area: middle
 
 nav
   .link
