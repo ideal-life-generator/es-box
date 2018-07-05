@@ -42,12 +42,12 @@ const getVideos = async (ids = []) => {
 }
 
 const search = async (params = {}) => {
-  const { key, count } = params
+  const { key, limit } = params
 
   const { data: ids } = await youtube('search', {
     params: {
       q: key,
-      maxResults: count,
+      maxResults: limit,
       type: 'video',
       part: 'id'
     }

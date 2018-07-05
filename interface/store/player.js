@@ -2,13 +2,16 @@ const { assign } = Object
 
 export const PLAYER_PLAYBACK_MUTATION = 'PLAYER@PLAYBACK'
 export const PLAYER_SET_ITEM_MUTATION = 'PLAYER@SET_ITEM'
+export const PLAYER_REPEAT_ONE_MUTATION = 'PLAYER@REPEAT_ONE'
 export const PLAYER_PLAY_ACTION = 'PLAYER@PLAY'
 export const PLAYER_CLEAR_ACTION = 'PLAYER@CLEAR'
+export const PLAYER_TOGGLE_REPEAT_ONE_ACTION = 'PLAYER@TOGGLE_REPEAT_ONE'
 
 export default {
   state: {
-    play: false,
     _id: null,
+    play: false,
+    repeatOne: false,
     title: ''
   },
   getters: {
@@ -20,6 +23,9 @@ export default {
     },
     [PLAYER_SET_ITEM_MUTATION]: (state, { _id, title }) => {
       assign(state, { _id, title })
+    },
+    [PLAYER_REPEAT_ONE_MUTATION]: (state, value) => {
+      state.repeatOne = value
     }
   },
   actions: {
@@ -32,6 +38,9 @@ export default {
       commit(PLAYER_PLAYBACK_MUTATION, false)
 
       commit(PLAYER_SET_ITEM_MUTATION, { _id: null, title: '' })
+    },
+    [PLAYER_TOGGLE_REPEAT_ONE_ACTION]: ({ state, commit }) => {
+      commit(PLAYER_REPEAT_ONE_MUTATION, !state.repeatOne)
     }
   }
 }

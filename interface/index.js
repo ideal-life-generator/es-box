@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { sync } from 'vuex-router-sync'
+import infiniteScroll from 'vue-infinite-scroll'
 import createRouter from './router'
 import createStore from './store'
 import apolloProvider from './apollo'
@@ -16,6 +17,8 @@ const app = new Vue({
   provide: apolloProvider.provide(),
   render: h => h(App)
 })
+
+Vue.use(infiniteScroll)
 
 app.$mount('#app')
 

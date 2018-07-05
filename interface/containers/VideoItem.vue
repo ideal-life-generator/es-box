@@ -1,12 +1,13 @@
 <template lang="pug">
 div.item
-  video-player(
-    v-bind:_id="_id"
-    v-bind:sourceId="sourceId"
-    @unstarted="onUnstarted"
-    @playing="onPlaying"
-    @paused="onPaused"
-  )
+  //- video-player(
+  //-   v-bind:_id="_id"
+  //-   v-bind:sourceId="sourceId"
+  //-   @unstarted="onUnstarted"
+  //-   @playing="onPlaying"
+  //-   @paused="onPaused"
+  //-   @ended="onEnded"
+  //- )
   div.content
     div.title(v-text="title")
     //- svg(v-if="!play" v-on:click="emitPlay(true)" x="29" y="25" width="35" height="35" class="playback" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg")
@@ -62,6 +63,11 @@ export default {
       if (this.$store.state.player._id === this._id) {
         this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
       }
+    },
+    onEnded() {
+      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
+
+      bus.$emit('player@next')
     },
     addItem() {
       const { sourceId, title } = this

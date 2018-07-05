@@ -17,6 +17,7 @@ div.app
   div.middle
     router-view
   div.right
+  youtube-video
   div.error(v-if="showErrorMessage" v-text="errorMessage")
 </template>
 
@@ -27,6 +28,7 @@ import Search from 'containers/Search.vue'
 import Player from 'containers/Player.vue'
 import PlusIcon from 'components/icons/Plus.vue'
 import PlaylistsMenu from 'containers/PlaylistsMenu.vue'
+import YoutubeVideo from 'containers/YoutubeVideo.vue'
 import { GOOGLE_CLIENT_ID } from '../config'
 
 export default {
@@ -54,7 +56,8 @@ export default {
     Search,
     Player,
     PlusIcon,
-    PlaylistsMenu
+    PlaylistsMenu,
+    YoutubeVideo
   }
 }
 </script>

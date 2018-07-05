@@ -1,5 +1,6 @@
 <template lang="pug">
-div(v-bind:id="_id")
+div.youtube-player
+  div#youtube-player
 </template>
 
 <script>
@@ -8,21 +9,28 @@ import YoutubePlayer from 'youtube-player'
 import bus from 'events-bus'
 
 export default {
-  props: {
-    _id: { type: String, required: true },
-    sourceId: { type: String, required: true },
+  data: () => {
+    const proportion = 0.5625
+    const width = 360
+
+    return {
+      width: width,
+      height: `${width * proportion}`,
+      play: false
+    }
   },
-  data: () => ({
-    width: '220',
-    height: `${220 * 0.5625}`,
-    play: false
-  }),
   computed: {
     ...mapGetters([
       'player'
     ]),
+    _id() {
+      return this.$store.state.player._id
+    }
   },
   methods: {
+    onSetVideoId() {
+      this.youtubePlayer.cueVideoById(this.player._id)
+    },
     togglePlayback() {
       const { $refs: { video } } = this
 
@@ -31,61 +39,62 @@ export default {
       if (this.play) video.play()
       else video.pause()
 
-      this.$emit('play', this.play)
+      bus.$emit('youtube-video@play', this.play)
     },
     stateChange({ data: status }) {
       switch (status) {
         case -1: {
-          this.$emit('unstarted')
+          bus.$emit('youtube-video@unstarted')
 
           break
         }
         case 0: {
-          this.$emit('ended')
+          bus.$emit('youtube-video@ended')
 
           break
         }
         case 1: {
-          this.$emit('playing')
+          bus.$emit('youtube-video@playing')
 
           break
         }
         case 2: {
-          this.$emit('paused')
+          bus.$emit('youtube-video@paused')
 
           break
         }
         case 3: {
-          this.$emit('buffering')
+          bus.$emit('youtube-video@buffering')
 
           break
         }
         case 5: {
-          this.$emit('videoCued')
+          bus.$emit('youtube-video@videoCued')
 
           break
         }
       }
     },
-    onPlayerPlay(_id) {
-      if (_id === this._id) {
-        this.youtubePlayer.playVideo()
-      }
+    onPlayerPlay() {
+      this.youtubePlayer.playVideo()
     },
-    onPlayerPause(_id) {
-      if (_id === this._id) {
-        this.youtubePlayer.pauseVideo()
-      }
+    onPlayerPause() {
+      this.youtubePlayer.pauseVideo()
     },
-    onStop(_id) {
-      if (_id !== this._id) {
-        this.youtubePlayer.pauseVideo()
-      }
+    onChangeId() {
+      this.youtubePlayer.pauseVideo()
+
+      this.youtubePlayer.cueVideoById(this.player._id)
+
+      this.youtubePlayer.playVideo()
+    },
+    onStop() {
+      this.youtubePlayer.pauseVideo()
     }
   },
   mounted() {
-    this.youtubePlayer = YoutubePlayer(this._id, {
-      videoId: this.sourceId,
+    this.youtubePlayer = YoutubePlayer('youtube-player', {
+      // videoId: this.player._id,
       width: this.width,
       height: this.height
     })
@@ -94,17 +103,23 @@ export default {
 
     bus.$on('stop', this.onStop)
 
+    bus.$on('player@set-video-id', this.onSetVideoId)
     bus.$on('player@play', this.onPlayerPlay)
     bus.$on('player@pause', this.onPlayerPause)
+    bus.$on('player@previous', this.onChangeId)
+    bus.$on('player@next', this.onChangeId)
   },
   unmounted() {
     this.youtubePlayer.off('stateChange', this.stateChange)
 
     bus.$off('stop', this.onStop)
 
+    bus.$off('player@set-video-id', this.onSetVideoId)
     bus.$off('player@play', this.onPlayerPlay)
     bus.$off('player@pause', this.onPlayerPause)
-  }
+    bus.$off('player@previous', this.onChangeId)
+    bus.$off('player@next', this.onChangeId)
+  },
 }
 </script>
 
@@ -112,6 +127,11 @@ export default {
 $video-proportion: 0.5625
 $width: 220px
 $height: $width * $video-proportion
+
+.youtube-player
+  position: fixed
+  top: 150px
+  right: 150px
 
 .video-player
   width: $width

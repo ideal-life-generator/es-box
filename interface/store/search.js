@@ -1,4 +1,4 @@
-import { search } from 'store/search-results'
+import { REQUEST_ACTION } from 'store/search-results'
 
 export const SEARCH_INPUT = 'SEARCH_INPUT'
 
@@ -20,7 +20,8 @@ export default {
   actions: {
     [SEARCH_INPUT]: (context, input) => {
       context.commit('change', input)
-      context.dispatch(search.TYPE)
+
+      context.dispatch(REQUEST_ACTION)
     }
   }
 }
