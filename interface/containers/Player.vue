@@ -3,6 +3,7 @@ div.player
   previous(
     v-bind:size="25"
     v-on:click.native="onPrevious"
+    v-bind:disabled="searchResults.currentIndex <= 0"
   )
   play(
     v-if="!player.play"
@@ -24,6 +25,7 @@ div.player
     v-on:click.native="onRepeatOne"
   )
   div.title(v-text="player.title")
+  div.counter(v-text="`${searchResults.currentIndex + 1} / ${searchResults.limit}`")
 </template>
 
 <script>
@@ -34,10 +36,10 @@ import Previous from 'components/icons/Previous.vue'
 import Next from 'components/icons/Next.vue'
 import RepeatOne from 'components/icons/RepeatOne.vue'
 import {
-  PLAYER_PLAY_ACTION,
-  PLAYER_CLEAR_ACTION,
-  PLAYER_TOGGLE_REPEAT_ONE_ACTION,
-  PLAYER_PLAYBACK_MUTATION
+  SET_ITEM_ACTION,
+  CLEAR_ACTION,
+  TOGGLE_REPEAT_ONE_ACTION,
+  PLAYBACK_MUTATION
 } from 'store/player'
 import { LOAD_MORE_ACTION } from 'store/search-results'
 import bus from 'events-bus'
@@ -45,24 +47,23 @@ import bus from 'events-bus'
 export default {
   computed: {
     ...mapGetters([
-      'player'
+      'player',
+      'searchResults'
     ]),
   },
   methods: {
     onPlay() {
-      this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
+      this.$store.commit(PLAYBACK_MUTATION, true)
 
       bus.$emit('player@play', this.player._id)
     },
     onPause() {
-      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
+      this.$store.commit(PLAYBACK_MUTATION, false)
 
       bus.$emit('player@pause', this.player._id)
     },
     onPrevious() {
-      const { items, count, total } = this.$store.state.searchResults
-
-      const currentIndex = items.findIndex(item => this.player._id === item._id)
+      const { items, count, total, currentIndex } = this.$store.state.searchResults
 
       let nextIndex
       if (currentIndex > 0) {
@@ -73,14 +74,12 @@ export default {
 
       const { [nextIndex]: { _id, title } } = items
 
-      this.$store.dispatch(PLAYER_PLAY_ACTION, { _id, title })
+        this.$store.dispatch(SET_ITEM_ACTION, { _id, title })
 
       bus.$emit('player@previous')
     },
     async onNext() {
-      const { items, count, total } = this.$store.state.searchResults
-
-      const currentIndex = items.findIndex(item => this.player._id === item._id)
+      const { items, count, total, currentIndex } = this.$store.state.searchResults
 
       let nextIndex
       if (currentIndex < total) {
@@ -98,13 +97,13 @@ export default {
       if (nextItem) {
         const { _id, title } = nextItem
 
-        this.$store.dispatch(PLAYER_PLAY_ACTION, { _id, title })
+        this.$store.dispatch(SET_ITEM_ACTION, { _id, title })
 
         bus.$emit('player@next')
       }
     },
     onRepeatOne() {
-      this.$store.dispatch(PLAYER_TOGGLE_REPEAT_ONE_ACTION)
+      this.$store.dispatch(TOGGLE_REPEAT_ONE_ACTION)
     },
     onEnded() {
       if (!this.player.repeatOne) {
@@ -115,7 +114,7 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch(PLAYER_CLEAR_ACTION)
+    this.$store.dispatch(CLEAR_ACTION)
 
     bus.$on('youtube-video@ended', this.onEnded)
   },
@@ -135,10 +134,15 @@ export default {
 <style lang="sass">
 .player
   display: flex
+  height: 25px
   user-select: none
 
   .title
     // position: absolute
     color: white
+
+  .counter
+    margin-left: auto
+    margin-right: 15px
 
 </style>

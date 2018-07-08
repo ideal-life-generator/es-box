@@ -66,6 +66,9 @@ export default {
 @import 'styles/fonts.sass'
 @import 'styles/theme.sass'
 
+.hided
+  opacity: 0.5
+
 body
   font-family: 'Open Sans', sans-serif
   color: white

@@ -1,5 +1,5 @@
 import youtube from 'api'
-import { PLAYER_SET_ITEM_MUTATION } from 'store/player'
+import { SET_ITEM_ACTION } from 'store/player'
 
 const { assign } = Object
 
@@ -9,10 +9,13 @@ export const FAILURE_MUTATION = 'SEARCH_RESULTS@FAILURE'
 export const SET_LIMIT_MUTATION = 'SEARCH_RESULTS@SET_LIMIT'
 export const CLEAR_MUTATION = 'SEARCH_RESULTS@CLEAR'
 export const CLEAR_LIMIT_MUTATION = 'SEARCH_RESULTS@CLEAR_LIMIT'
+export const SET_CURRENT_INDEX_MUTATION = 'SEARCH_RESULTS@SET_CURRENT_INDEX'
 export const REQUEST_ACTION = 'SEARCH_RESULTS@REQUEST'
 export const LOAD_MORE_ACTION = 'SEARCH_RESULTS@LOAD_MORE'
 
-const defaultLimit = 5
+const defaultLimit = 50
+
+const parseLimit = limit => Math.floor(limit / defaultLimit)
 
 export default {
   state: {
@@ -21,6 +24,8 @@ export default {
     count: 0,
     total: 0,
     limit: defaultLimit,
+    currentIndex: null,
+    nextPageToken: null,
     error: null
   },
   getters: {
@@ -32,25 +37,50 @@ export default {
     [FAILURE_MUTATION]: (state, error) => assign(state, { loading: false, error }),
     [CLEAR_MUTATION]: state => assign(state, { items: [], count: 0, limit: defaultLimit }),
     [CLEAR_LIMIT_MUTATION]: state => state.limit = defaultLimit,
-    [SET_LIMIT_MUTATION]: (state, limit) => state.limit = limit
+    [SET_LIMIT_MUTATION]: (state, limit) => state.limit = limit,
+    [SET_CURRENT_INDEX_MUTATION]: (state, _id) => {
+      state.currentIndex = state.items.findIndex(item => _id === item._id)
+    }
   },
   actions: {
-    [REQUEST_ACTION]: async ({ state: { limit }, commit, rootState }) => {
+    [REQUEST_ACTION]: async ({ state: { limit }, dispatch, commit, rootState }) => {
       try {
         commit(REQUEST_MUTATION)
 
-        const { items, total, count } = await youtube.search({ key: rootState.search.normalized, limit })
+        const pages = parseLimit(limit)
 
-        if (!rootState.player._id && count > 0) {
-          const [{ _id, title }] = items
+        const all = {
+          items: [],
+          count: 0,
+          total: 0
+        }
+        let pageToken = null
+        for (let i = 0; i < pages; i += 1) {
+          try {
+            const result = await youtube.search({ key: rootState.search.normalized, limit: 50, pageToken })
 
-          commit(PLAYER_SET_ITEM_MUTATION, { _id, title })
+            assign(all, {
+              items: [...all.items, ...result.items],
+              count: all.count + result.count,
+              total: result.total
+            })
+
+            pageToken = result.nextPageToken
+          } catch (error) {
+
+          }
         }
 
-        // await new Promise(r => setTimeout(r, 5000))
+        commit(SUCCESS_MUTATION, all)
 
-        commit(SUCCESS_MUTATION, { items, total, count })
+        if (!rootState.player._id && all.count > 0) {
+          const [{ _id, title }] = all.items
+
+          dispatch(SET_ITEM_ACTION, { _id, title })
+        }
       } catch (error) {
+        console.error(error)
+
         commit(FAILURE_MUTATION, error)
       }
     },

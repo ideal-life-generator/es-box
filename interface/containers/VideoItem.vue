@@ -33,9 +33,9 @@ import { search } from 'store/search-results'
 import VideoPlayer from 'components/VideoPlayer.vue'
 import PlusIcon from 'components/icons/Plus.vue'
 import {
-  PLAYER_PLAYBACK_MUTATION,
-  PLAYER_SET_ITEM_MUTATION,
-  PLAYER_PLAY_ACTION
+  PLAYBACK_MUTATION,
+  SET_ITEM_ACTION,
+  PLAY_ACTION
 } from 'store/player'
 import bus from 'events-bus'
 
@@ -50,22 +50,22 @@ export default {
     onUnstarted() {
       const { _id, title } = this
 
-      this.$store.dispatch(PLAYER_PLAY_ACTION, { _id, title })
+      this.$store.dispatch(PLAY_ACTION, { _id, title })
     },
     onPlaying() {
       const { _id, title } = this
 
-      this.$store.dispatch(PLAYER_PLAY_ACTION, { _id, title })
+      this.$store.dispatch(PLAY_ACTION, { _id, title })
 
       bus.$emit('stop', this.$store.state.player._id)
     },
     onPaused() {
       if (this.$store.state.player._id === this._id) {
-        this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
+        this.$store.commit(PLAYBACK_MUTATION, false)
       }
     },
     onEnded() {
-      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
+      this.$store.commit(PLAYBACK_MUTATION, false)
 
       bus.$emit('player@next')
     },

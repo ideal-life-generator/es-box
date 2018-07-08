@@ -11,7 +11,7 @@ import bus from 'events-bus'
 export default {
   data: () => {
     const proportion = 0.5625
-    const width = 360
+    const width = 200
 
     return {
       width: width,
@@ -86,7 +86,7 @@ export default {
 
       this.youtubePlayer.cueVideoById(this.player._id)
 
-      this.youtubePlayer.playVideo()
+      // this.youtubePlayer.playVideo()
     },
     onStop() {
       this.youtubePlayer.pauseVideo()
@@ -131,7 +131,7 @@ $height: $width * $video-proportion
 .youtube-player
   position: fixed
   top: 150px
-  right: 150px
+  right: 0px
 
 .video-player
   width: $width

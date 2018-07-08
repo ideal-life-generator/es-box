@@ -3,8 +3,17 @@ import youtube from './utils/youtube'
 import graphql from './utils/graphql'
 import googleOAuth from './google-oauth'
 
-const normalizeIds = ({ items }) =>
-  items.map(({ id: { videoId: id } }) => id)
+const normalizeIds = ({
+  items,
+  items: { length: count },
+  pageInfo: { totalResults: total },
+  nextPageToken
+}) => ({
+  items: items.map(({ id: { videoId: id } }) => id),
+  count,
+  total,
+  nextPageToken
+})
 
 const normalize = ({
   pageInfo: { totalResults },
@@ -42,20 +51,28 @@ const getVideos = async (ids = []) => {
 }
 
 const search = async (params = {}) => {
-  const { key, limit } = params
+  const { key, limit, pageToken } = params
 
-  const { data: ids } = await youtube('search', {
+  const { data } = await youtube('search', {
     params: {
       q: key,
       maxResults: limit,
       type: 'video',
-      part: 'id'
+      part: 'id',
+      pageToken
     }
   })
 
-  const normalizedIds = normalizeIds(ids)
+  const { items: ids, count, total, nextPageToken } = normalizeIds(data)
 
-  return await getVideos(normalizedIds)
+  const { items } = await getVideos(ids)
+
+  return {
+    items,
+    count,
+    total,
+    nextPageToken
+  }
 }
 
 const token = async code => {
