@@ -15,7 +15,7 @@ export const LOAD_MORE_ACTION = 'SEARCH_RESULTS@LOAD_MORE'
 
 const defaultLimit = 50
 
-const parseLimit = limit => Math.floor(limit / defaultLimit)
+// const parseLimit = limit => Math.floor(limit / defaultLimit)
 
 export default {
   state: {
@@ -33,9 +33,15 @@ export default {
   },
   mutations: {
     [REQUEST_MUTATION]: state => assign(state, { loading: true, error: null }),
-    [SUCCESS_MUTATION]: (state, data) => assign(state, { loading: false, ...data }),
+    [SUCCESS_MUTATION]: (state, { items, count, total, nextPageToken }) => assign(state, {
+      loading: false,
+      items: [...state.items, ...items],
+      count: state.count + count,
+      total,
+      nextPageToken
+    }),
     [FAILURE_MUTATION]: (state, error) => assign(state, { loading: false, error }),
-    [CLEAR_MUTATION]: state => assign(state, { items: [], count: 0, limit: defaultLimit }),
+    [CLEAR_MUTATION]: state => assign(state, { items: [], count: 0, limit: defaultLimit, nextPageToken: null }),
     [CLEAR_LIMIT_MUTATION]: state => state.limit = defaultLimit,
     [SET_LIMIT_MUTATION]: (state, limit) => state.limit = limit,
     [SET_CURRENT_INDEX_MUTATION]: (state, _id) => {
@@ -43,38 +49,39 @@ export default {
     }
   },
   actions: {
-    [REQUEST_ACTION]: async ({ state: { limit }, dispatch, commit, rootState }) => {
+    [REQUEST_ACTION]: async ({ state, dispatch, commit, rootState }) => {
       try {
         commit(REQUEST_MUTATION)
 
-        const pages = parseLimit(limit)
+        // const pages = parseLimit(limit)
 
-        const all = {
-          items: [],
-          count: 0,
-          total: 0
-        }
-        let pageToken = null
-        for (let i = 0; i < pages; i += 1) {
-          try {
-            const result = await youtube.search({ key: rootState.search.normalized, limit: 50, pageToken })
+        const { items, count, total, nextPageToken } = await youtube.search({ key: rootState.search.normalized, limit: 50, pageToken: state.nextPageToken })
 
-            assign(all, {
-              items: [...all.items, ...result.items],
-              count: all.count + result.count,
-              total: result.total
-            })
+        // const all = {
+        //   items: [],
+        //   count: 0,
+        //   total: 0
+        // }
+        // let pageToken = null
+        // for (let i = 0; i < pages; i += 1) {
+        //   try {
 
-            pageToken = result.nextPageToken
-          } catch (error) {
+        //     assign(all, {
+        //       items: [...all.items, ...result.items],
+        //       count: all.count + result.count,
+        //       total: result.total
+        //     })
 
-          }
-        }
+        //     pageToken = result.nextPageToken
+        //   } catch (error) {
 
-        commit(SUCCESS_MUTATION, all)
+        //   }
+        // }
 
-        if (!rootState.player._id && all.count > 0) {
-          const [{ _id, title }] = all.items
+        commit(SUCCESS_MUTATION, { items, count, total, nextPageToken })
+
+        if (!rootState.player._id && count > 0) {
+          const [{ _id, title }] = items
 
           dispatch(SET_ITEM_ACTION, { _id, title })
         }

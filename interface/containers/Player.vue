@@ -24,8 +24,16 @@ div.player
     v-bind:size="25"
     v-on:click.native="onRepeatOne"
   )
+  shuffle(
+    v-bind:color="player.shuffle ? 'white' : 'gray'"
+    v-bind:size="20"
+  )
+  repeat(
+    v-bind:color="player.repeat ? 'white' : 'gray'"
+    v-bind:size="20"
+  )
   div.title(v-text="player.title")
-  div.counter(v-text="`${searchResults.currentIndex + 1} / ${searchResults.limit}`")
+  div.counter(v-show="searchResults.currentIndex >= 0" v-text="`${searchResults.currentIndex + 1} / ${searchResults.limit}`")
 </template>
 
 <script>
@@ -35,6 +43,8 @@ import Pause from 'components/icons/Pause.vue'
 import Previous from 'components/icons/Previous.vue'
 import Next from 'components/icons/Next.vue'
 import RepeatOne from 'components/icons/RepeatOne.vue'
+import Repeat from 'components/icons/Repeat.vue'
+import Shuffle from 'components/icons/Shuffle.vue'
 import {
   SET_ITEM_ACTION,
   CLEAR_ACTION,
@@ -126,7 +136,9 @@ export default {
     Pause,
     Previous,
     Next,
-    RepeatOne
+    RepeatOne,
+    Repeat,
+    Shuffle
   }
 }
 </script>

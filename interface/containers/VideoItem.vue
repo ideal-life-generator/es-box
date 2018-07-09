@@ -86,7 +86,7 @@ export default {
 @import '../styles/theme.sass'
 
 .item
-  height: 145.5px
+  height: 35px
   display: flex
 
   .content
