@@ -11,6 +11,7 @@ div.app
           a.login(v-bind:href="`https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=http://localhost:3000/google-oauth&scope=https://www.googleapis.com/auth/plus.login+https://www.googleapis.com/auth/user.emails.read+https://www.googleapis.com/auth/youtube.readonly&access_type=offline&response_type=code&prompt=consent`") login
   div.subheader
     player
+    counter.counter
   div.left
     div.menu
       playlists-menu
@@ -29,6 +30,7 @@ import Player from 'containers/Player.vue'
 import PlusIcon from 'components/icons/Plus.vue'
 import PlaylistsMenu from 'containers/PlaylistsMenu.vue'
 import YoutubeVideo from 'containers/YoutubeVideo.vue'
+import Counter from 'components/Counter.vue'
 import { GOOGLE_CLIENT_ID } from '../config'
 
 export default {
@@ -57,7 +59,8 @@ export default {
     Player,
     PlusIcon,
     PlaylistsMenu,
-    YoutubeVideo
+    YoutubeVideo,
+    Counter
   }
 }
 </script>
@@ -93,6 +96,10 @@ text
 
 .subheader
   grid-area: subheader
+  display: flex
+  .counter
+    margin-left: auto
+    margin-right: 15px
 
 .logo
   width: 90px

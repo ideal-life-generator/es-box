@@ -1,11 +1,15 @@
 <template lang="pug">
 div.search
   input(v-model="input")
+  search(
+    v-bind:size="20"
+  )
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { SEARCH_INPUT } from 'store/search'
+import Search from 'components/icons/Search.vue'
 
 export default {
   data: () => ({
@@ -23,6 +27,9 @@ export default {
       get() { return this.$store.state.search.input },
       set(value) { this.$store.dispatch(SEARCH_INPUT, value) },
     }
+  },
+  components: {
+    Search
   }
 }
 </script>

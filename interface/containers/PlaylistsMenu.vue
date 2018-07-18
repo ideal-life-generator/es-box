@@ -1,24 +1,27 @@
 <template lang="pug">
-svg.playlists
-  svg.new-playlist
-    foreignObject.new-wrapper
-      input.input(type="text" v-bind:value="newPlaylist.name" v-on:input="rename")
-    svg(v-for="(item, i) in newPlaylist.items")
-      text(x="15" v-bind:key="item.id" v-bind:y="30 + (i * 15)" v-text="item.title")
-    confirm-icon(
-      v-bind:x="175"
-      v-bind:size="23"
-      color="black"
+div.playlists
+  div.new-playlist
+    input.input(type="text" v-bind:value="newPlaylist.name" v-on:input="rename")
+    div(v-for="(item, i) in newPlaylist.items")
+      div(v-bind:key="item.id" v-text="item.title")
+    add(
+      class="add"
+      v-bind:size="16"
       @click.native="save"
     )
-  svg(v-bind:y="30 + (newPlaylist.items.length * 15)")
-    router-link.name(v-for="(playlist, i) in playlists.items" v-bind:key="playlist._key" v-bind:y="i * 20" v-bind:to="`/playlists/${playlist._key}`" tag="text" v-text="playlist.name")
+  div.playlist-links
+    router-link.playlist-link(
+      v-for="(playlist, i) in playlists.items"
+      v-bind:key="playlist._key"
+      v-bind:to="`/playlists/${playlist._key}`"
+      v-text="playlist.name"
+    )
 </template>
 
 <script>
 import gql from 'graphql-tag'
 import { mapGetters } from 'vuex'
-import ConfirmIcon from 'components/icons/Confirm.vue'
+import Add from 'components/icons/Add.vue'
 import { SHOW_ERROR } from 'store/error'
 
 const PLAYLISTS_QUERY = gql`{
@@ -94,7 +97,7 @@ export default {
     }
   },
   components: {
-    ConfirmIcon
+    Add
   }
 }
 </script>
@@ -105,14 +108,23 @@ export default {
     .new-wrapper
       width: 210px
       height: 30px
-      .new-container
-        // position: absolute
-        .title
-          // position: absolute
-        .input
-          // position: absolute
+      .title
 
-  .name
-    fill: white
+.add
+  margin-left: 5px
+
+.input
+  border: 1px solid white
+  color: white
+  background-color: black
+  outline: none
+
+.playlist-links
+  display: flex
+  flex-direction: column
+
+  .playlist-link
+    &.active
+      color: purple
 
 </style>

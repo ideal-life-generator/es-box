@@ -1,4 +1,5 @@
 import { REQUEST_ACTION } from 'store/search-results'
+import { router } from '../'
 
 export const SEARCH_INPUT = 'SEARCH_INPUT'
 
@@ -22,6 +23,8 @@ export default {
       context.commit('change', input)
 
       context.dispatch(REQUEST_ACTION)
+
+      router.push('/')
     }
   }
 }

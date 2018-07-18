@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import App from './containers/App.vue'
+import SearchResults from './containers/SearchResults.vue'
 import Playlist from './containers/Playlist.vue'
 import GoogleOAuth from './containers/GoogleOAuth.vue'
 import NotFound from './containers/NotFound.vue'
@@ -11,9 +11,11 @@ export default () =>
   new Router({
     mode: 'history',
     routes: [
-      { path: '/', component: App },
+      { path: '/', component: SearchResults },
       { path: '/playlists/:key', component: Playlist },
       { path: '/google-oauth', component: GoogleOAuth },
       { path: '*', component: NotFound }
-    ]
+    ],
+    linkActiveClass: 'active',
+    linkExactActiveClass: 'active'
   })

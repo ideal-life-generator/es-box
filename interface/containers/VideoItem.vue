@@ -33,8 +33,8 @@ import { search } from 'store/search-results'
 import VideoPlayer from 'components/VideoPlayer.vue'
 import PlusIcon from 'components/icons/Plus.vue'
 import {
-  PLAYBACK_MUTATION,
-  SET_ITEM_ACTION,
+  PLAYER_PLAYBACK_MUTATION,
+  PLAYER_SET_ITEM_ACTION,
   PLAY_ACTION
 } from 'store/player'
 import bus from 'events-bus'
@@ -61,13 +61,13 @@ export default {
     },
     onPaused() {
       if (this.$store.state.player._id === this._id) {
-        this.$store.commit(PLAYBACK_MUTATION, false)
+        this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
       }
     },
     onEnded() {
-      this.$store.commit(PLAYBACK_MUTATION, false)
+      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
 
-      bus.$emit('player@next')
+      // bus.$emit('player@next')
     },
     addItem() {
       const { sourceId, title } = this

@@ -8,6 +8,7 @@ import newPlaylist from './new-playlist'
 import playlists from './playlists'
 import googleOAuth from './google-oauth'
 import player from './player'
+import counter from './counter'
 import error from './error'
 
 Vue.use(Vuex)
@@ -21,6 +22,7 @@ export default () => new Store({
     playlists,
     googleOAuth,
     player,
+    counter,
     error
   },
   plugins: [createPersistedState()]

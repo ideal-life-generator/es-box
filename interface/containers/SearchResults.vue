@@ -1,9 +1,6 @@
 <template lang="pug">
 div(
   class="search-results"
-  v-infinite-scroll="onLoadMore"
-  infinite-scroll-distance="50"
-  infinite-scroll-disabled="searchResults.loading"
 )
   video-item(
     class="item"
@@ -18,34 +15,84 @@ div(
 import Vue from 'vue'
 import { mapGetters } from 'vuex'
 import virtualList from 'vue-virtual-scroll-list'
-import { REQUEST_ACTION, LOAD_MORE_ACTION, CLEAR_MUTATION } from 'store/search-results'
+import { REQUEST_ACTION, LOAD_MORE_ACTION, CLEAR_MUTATION, SET_CURRENT_INDEX_MUTATION } from 'store/search-results'
+import { PLAYER_SET_ITEM_ACTION } from 'store/player'
+import { COUNTER_UPDATE_CURRENT } from 'store/counter'
+import { UPDATE } from 'components/Counter.vue'
+import { PLAYER_NEXT } from 'containers/Player.vue'
+import {
+  YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID,
+  YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID,
+  YOUTUBE_VIDEO_PLAYER_PLAY
+} from 'containers/YoutubeVideo.vue'
 import bus from 'events-bus'
 import VideoItem from './VideoItem.vue'
 
 export default {
-  data: () => ({
-    itemHeight: 145.5
-  }),
+  computed: {
+    ...mapGetters([
+      'searchResults',
+      'player'
+    ])
+  },
   methods: {
     onLoadMore() {
-      this.$store.dispatch(LOAD_MORE_ACTION)
+      return this.$store.dispatch(LOAD_MORE_ACTION)
     },
     onScroll(event, data) {
-      if (data.end + 1 >= this.searchResults.limit) {
+      const height =  document.documentElement.scrollHeight - document.documentElement.clientHeight
+
+      if (!this.searchResults.loading && height - (height * 0.15)) {
         this.onLoadMore()
+      }
+    },
+    async onPlayerNext() {
+      const { items, count, total, currentItemIndex } = this.searchResults
+
+      let nextIndex
+      if (currentItemIndex < total) {
+        if (currentItemIndex >= count - 1) {
+          await this.onLoadMore()
+        }
+
+        nextIndex = currentItemIndex + 1
+      } else {
+        nextIndex = 0
+      }
+
+      const { items: { [nextIndex]: nextItem } } = this.searchResults
+
+      if (nextItem) {
+        const { _id, title } = nextItem
+
+        this.$store.dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
+        this.$store.commit(SET_CURRENT_INDEX_MUTATION, _id)
+        const currentItemIndex = this.searchResults.items.findIndex(item => nextItem._id === item._id)
+        this.$store.commit(COUNTER_UPDATE_CURRENT, currentItemIndex)
+
+        if (this.player.play) {
+          bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY)
+        } else {
+          bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID)
+        }
       }
     }
   },
   async mounted() {
+    window.addEventListener('scroll', this.onScroll)
+
+    bus.$on(PLAYER_NEXT, this.onPlayerNext)
+
     this.$store.commit(CLEAR_MUTATION)
+
     await this.$store.dispatch(REQUEST_ACTION)
 
-    bus.$emit('player@set-video-id')
+    bus.$emit(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID)
   },
-  computed: {
-    ...mapGetters([
-      'searchResults'
-    ])
+  unmounted() {
+    window.removeEventListener('scroll', this.onScroll)
+
+    bus.$on(PLAYER_NEXT, this.onPlayerNext)
   },
   components: {
     virtualList,

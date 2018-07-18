@@ -6,8 +6,8 @@ import createStore from './store'
 import apolloProvider from './apollo'
 import App from './App.vue'
 
-const router = createRouter()
-const store = createStore()
+export const router = createRouter()
+export const store = createStore()
 
 sync(store, router)
 
