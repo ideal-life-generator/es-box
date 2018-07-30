@@ -7,10 +7,15 @@ div.youtube-player
 import { mapGetters } from 'vuex'
 import YoutubePlayer from 'youtube-player'
 import bus from 'events-bus'
-import { PLAYER_PLAY } from 'containers/Player.vue'
+import {
+  PLAYER_PLAY,
+  PLAYER_PAUSE
+} from 'containers/Player.vue'
+import { getIdFromUrl } from 'utils/youtube'
 
 export const YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID = 'YOUTUBE_VIDEO_PLAYER@SET_VIDEO_ID'
 export const YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID = 'YOUTUBE_VIDEO_PLAYER@CUET_VIDEO_ID'
+export const YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY = 'YOUTUBE_VIDEO_PLAYER@SET_AND_PLAY'
 export const YOUTUBE_VIDEO_PLAYER_PLAY = 'YOUTUBE_VIDEO_PLAYER@PLAY'
 export const YOUTUBE_VIDEO_PLAYER_UNSTARTED = 'YOUTUBE_VIDEO_PLAYER@UNSTARTED'
 export const YOUTUBE_VIDEO_PLAYER_ENDED = 'YOUTUBE_VIDEO_PLAYER@ENDED'
@@ -34,55 +39,58 @@ export default {
     ...mapGetters([
       'player'
     ]),
-    _id() {
+    playerVideoId() {
       return this.$store.state.player._id
-    }
+    },
   },
   methods: {
-    stateChange({ data: status }) {
+    async getVideoId() {
+      return getIdFromUrl(await this.youtubePlayer.getVideoUrl())
+    },
+    async stateChange({ data: status }) {
+      const videoId = await this.getVideoId()
+
       switch (status) {
         case -1: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_UNSTARTED)
+          bus.$emit(YOUTUBE_VIDEO_PLAYER_UNSTARTED, videoId)
 
           break
         }
         case 0: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_ENDED)
+          bus.$emit(YOUTUBE_VIDEO_PLAYER_ENDED, videoId)
 
           break
         }
         case 1: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_PLAYING)
+          bus.$emit(YOUTUBE_VIDEO_PLAYER_PLAYING, videoId)
 
           break
         }
         case 2: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_PAUSED)
+          bus.$emit(YOUTUBE_VIDEO_PLAYER_PAUSED, videoId)
 
           break
         }
         case 3: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_BUFFERING)
+          bus.$emit(YOUTUBE_VIDEO_PLAYER_BUFFERING, videoId)
 
           break
         }
         case 5: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_VIDEO_CUED)
+          bus.$emit(YOUTUBE_VIDEO_PLAYER_VIDEO_CUED, videoId)
 
           break
         }
       }
     },
-    onSetVideoId(_id) {
-      this.youtubePlayer.loadVideoById(this._id)
+    onSetVideoId() {
+      this.youtubePlayer.cueVideoById(this.playerVideoId)
     },
-    async onCuetVideoId() {
-      await this.youtubePlayer.cueVideoById(this._id)
+    // onCuetVideoId() {
+    //   this.youtubePlayer.cueVideoById(this.playerVideoId)
 
-      console.log('onCuetVideoId')
-
-      this.youtubePlayer.playVideo()
-    },
+    //   this.youtubePlayer.playVideo()
+    // },
     togglePlayback() {
       const { $refs: { video } } = this
 
@@ -94,8 +102,6 @@ export default {
       bus.$emit('youtube-video@play', this.play)
     },
     onPlayerPlay() {
-      console.log('onPlayerPlay', this._id)
-
       this.youtubePlayer.playVideo()
     },
     onPlayerPause() {
@@ -104,13 +110,19 @@ export default {
     onStop() {
       this.youtubePlayer.pauseVideo()
     },
-    onSetAndPlay() {
-      
+    async onSetAndPlay() {
+      const videoId = await this.getVideoId()
+
+      await this.youtubePlayer.pauseVideo()
+
+      setTimeout(() => this.youtubePlayer.loadVideoById(this.playerVideoId), 10)
+
+      // this.youtubePlayer.playVideo()
     }
   },
   mounted() {
     this.youtubePlayer = YoutubePlayer('youtube-player', {
-      // videoId: this._id,
+      // videoId: this.playerVideoId,
       width: this.width,
       height: this.height
     })
@@ -120,12 +132,12 @@ export default {
     bus.$on('stop', this.onStop)
 
     bus.$on(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this.onSetVideoId)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
+    // bus.$on(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
     bus.$on(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this.onSetAndPlay)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
+    // bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
     bus.$on(PLAYER_PLAY, this.onPlayerPlay)
-    bus.$on('player@pause', this.onPlayerPause)
-    bus.$on('player@previous', this.onChangeId)
+    bus.$on(PLAYER_PAUSE, this.onPlayerPause)
+    // bus.$on('player@previous', this.onChangeId)
     // bus.$on('player@next', this.onChangeId)
   },
   unmounted() {
@@ -134,11 +146,11 @@ export default {
     bus.$off('stop', this.onStop)
 
     bus.$off(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this.onSetVideoId)
-    bus.$off(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
+    // bus.$off(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
     bus.$off(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this.onSetAndPlay)
-    bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
+    // bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
     bus.$off(PLAYER_PLAY, this.onPlayerPlay)
-    bus.$off('player@pause', this.onPlayerPause)
+    bus.$off(PLAYER_PAUSE, this.onPlayerPause)
     bus.$off('player@previous', this.onChangeId)
     // bus.$off('player@next', this.onChangeId)
   },

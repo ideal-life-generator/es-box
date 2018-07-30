@@ -59,7 +59,7 @@ type Schema {
 const resolvers = {
   Query: {
     youtube: () => ({ songs: { count: 1 } }),
-    user: (none, args, { session }) => console.log(session) || session.user,
+    user: (none, args, { session }) => session.user,
     ...playlists.queries
   },
   Mutation: {

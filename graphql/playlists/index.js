@@ -32,6 +32,22 @@ createPlaylist(
   name: String!
   ids: [ID]!
 ) : Playlist
+
+deletePlaylist(
+  _key: ID!
+) : Playlist
+
+addPlaylistItem(
+  _key: ID!
+  sourceId: ID!
+  index: Int!
+) : Playlist
+
+movePlaylistItem(
+  _key: ID!
+  currentIndex: Int!
+  nextIndex: Int!
+) : Playlist
 `
 
 const queries = {
@@ -62,6 +78,27 @@ const mutations = {
   createPlaylist: async (noth, data, { session }) => {
     try {
       return await db.insertPlaylist(data)
+    } catch (error) {
+      throw error
+    }
+  },
+  deletePlaylist: async (noth, data, { session }) => {
+    try {
+      return await db.removePlaylist(data)
+    } catch (error) {
+      throw error
+    }
+  },
+  addPlaylistItem: async (noth, { _key, sourceId, index }, { session }) => {
+    try {
+      return await db.addPlaylistItem(_key, sourceId, index)
+    } catch (error) {
+      throw error
+    }
+  },
+  movePlaylistItem: async (noth, { _key, currentIndex, nextIndex }, { session }) => {
+    try {
+      return await db.movePlaylistItem(_key, currentIndex, nextIndex)
     } catch (error) {
       throw error
     }

@@ -35,6 +35,16 @@ const insertPlaylist = async data => {
   return await cursor.next()
 }
 
+const removePlaylist = async _key => {
+  const cursor = await db.query(aql`
+    REMOVE ${_key}
+    IN playlists
+    RETURN OLD
+  `)
+
+  return await cursor.next()
+}
+
 const getPlaylists = async ({ offset, limit }) => {
   const cursor = await db.query(aql`
     FOR playlist IN playlists
@@ -55,9 +65,52 @@ const getPlaylist = async key => {
   return await cursor.next()
 }
 
+const addPlaylistItem = async (_key, sourceId, index = 0) => {
+  const id = `playlists/${_key}`
+
+  const cursor = await db.query(aql`
+    LET playlist = DOCUMENT(${id})
+    LET nextIds = UNION(
+      SLICE(playlist.ids, 0, ${index}),
+      [${sourceId}],
+      SLICE(playlist.ids, ${index})
+    )
+    UPDATE playlist WITH {
+      ids: nextIds
+    } IN playlists
+    RETURN NEW
+  `)
+
+  return await cursor.next()
+}
+
+const movePlaylistItem = async (_key, currentIndex, nextIndex) => {
+  const id = `playlists/${_key}`
+
+  const cursor = await db.query(aql`
+    LET playlist = DOCUMENT(${id})
+    LET sourceId = NTH(playlist.ids, ${currentIndex})
+    LET idsWithRemovedItem = REMOVE_NTH(playlist.ids, ${currentIndex})
+    LET nextIds = UNION(
+      SLICE(idsWithRemovedItem, 0, ${nextIndex}),
+      [sourceId],
+      SLICE(idsWithRemovedItem, ${nextIndex})
+    )
+    UPDATE playlist WITH {
+      ids: nextIds
+    } IN playlists
+    RETURN NEW
+  `)
+
+  return await cursor.next()
+}
+
 export default {
   upsertUser,
   getPlaylists,
   getPlaylist,
-  insertPlaylist
+  insertPlaylist,
+  removePlaylist,
+  addPlaylistItem,
+  movePlaylistItem
 }

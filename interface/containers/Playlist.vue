@@ -1,6 +1,6 @@
 <template lang="pug">
 div.playlist
-  video-item(
+  item(
     v-for="(item, i) in videos.items"
     v-bind:key="`${item.id}-${i}`"
     v-bind="item"
@@ -11,7 +11,7 @@ div.playlist
 import { mapGetters } from 'vuex'
 import gql from 'graphql-tag'
 import api from 'api'
-import VideoItem from './VideoItem.vue'
+import Item from './Item.vue'
 import { PLAYER_SET_ITEM_ACTION } from 'store/player'
 import { UPDATE } from 'components/Counter.vue'
 import bus from 'events-bus'
@@ -70,7 +70,7 @@ export default {
     }
   },
   components: {
-    VideoItem
+    Item
   }
 }
 </script>

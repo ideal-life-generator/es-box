@@ -119,6 +119,7 @@ text
 
 .left
   grid-area: left
+  padding: 10px
 
 .middle
   grid-area: middle

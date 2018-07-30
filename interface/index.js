@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import { sync } from 'vuex-router-sync'
 import infiniteScroll from 'vue-infinite-scroll'
-import createRouter from './router'
-import createStore from './store'
-import apolloProvider from './apollo'
+import VueDragDrop from 'vue-drag-drop'
+import createRouter from 'router'
+import createStore from 'store'
+import apolloProvider from 'apollo'
 import App from './App.vue'
 
 export const router = createRouter()
@@ -19,6 +20,7 @@ const app = new Vue({
 })
 
 Vue.use(infiniteScroll)
+Vue.use(VueDragDrop)
 
 app.$mount('#app')
 

@@ -88,4 +88,9 @@ const token = async code => {
   return data
 }
 
-export default { search, token, getVideos, googleOAuth }
+export default {
+  search,
+  token,
+  getVideos,
+  googleOAuth
+}

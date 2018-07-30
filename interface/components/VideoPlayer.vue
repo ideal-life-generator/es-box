@@ -95,7 +95,7 @@ export default {
     bus.$on('stop', this.onStop)
 
     bus.$on('player@play', this.onPlayerPlay)
-    bus.$on('player@pause', this.onPlayerPause)
+    bus.$on(PLAYER_PAUSE, this.onPlayerPause)
   },
   unmounted() {
     this.youtubePlayer.off('stateChange', this.stateChange)
@@ -103,7 +103,7 @@ export default {
     bus.$off('stop', this.onStop)
 
     bus.$off('player@play', this.onPlayerPlay)
-    bus.$off('player@pause', this.onPlayerPause)
+    bus.$off(PLAYER_PAUSE, this.onPlayerPause)
   }
 }
 </script>

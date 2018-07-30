@@ -2,35 +2,36 @@
 div.player
   previous(
     v-bind:size="25"
-    v-on:click.native="onPrevious"
-    v-bind:disabled="searchResults.currentIndex <= 0"
+    v-on:click.native="previous"
+    v-bind:disabled="counter.current <= 0"
   )
   play(
     v-if="!player.play"
     v-bind:size="25"
-    v-on:click.native="onPlay"
+    v-on:click.native="play"
   )
   pause(
     v-else
     v-bind:size="25"
-    v-on:click.native="onPause"
+    v-on:click.native="pause"
   )
   next(
     v-bind:size="25"
-    v-on:click.native="onNext"
-  )
-  repeat-one(
-    v-bind:color="player.repeatOne ? 'white' : 'gray'"
-    v-bind:size="25"
-    v-on:click.native="onRepeatOne"
+    v-on:click.native="next"
   )
   shuffle(
     v-bind:color="player.shuffle ? 'white' : 'gray'"
     v-bind:size="20"
   )
-  repeat(
-    v-bind:color="player.repeat ? 'white' : 'gray'"
+  repeat-one(
+    v-bind:color="player.repeatOne ? 'white' : 'gray'"
+    v-bind:size="25"
+    v-on:click.native="repeatOne"
+  )
+  repeat-all(
+    v-bind:color="player.repeatAll ? 'white' : 'gray'"
     v-bind:size="20"
+    v-on:click.native="repeatAll"
   )
   div.title(v-text="player.title")
 </template>
@@ -42,13 +43,14 @@ import Pause from 'components/icons/Pause.vue'
 import Previous from 'components/icons/Previous.vue'
 import Next from 'components/icons/Next.vue'
 import RepeatOne from 'components/icons/RepeatOne.vue'
-import Repeat from 'components/icons/Repeat.vue'
+import RepeatAll from 'components/icons/RepeatAll.vue'
 import Shuffle from 'components/icons/Shuffle.vue'
 import {
+  PLAYER_PLAYBACK_MUTATION,
   PLAYER_SET_ITEM_ACTION,
-  CLEAR_ACTION,
-  TOGGLE_REPEAT_ONE_ACTION,
-  PLAYER_PLAYBACK_MUTATION
+  PLAYER_CLEAR_ACTION,
+  PLAYER_TOGGLE_REPEAT_ONE_ACTION,
+  PLAYER_TOGGLE_REPEAT_ALL_ACTION
 } from 'store/player'
 import { LOAD_MORE_ACTION } from 'store/search-results'
 import {
@@ -59,70 +61,71 @@ import {
 import bus from 'events-bus'
 
 export const PLAYER_PLAY = 'PLAYER@PLAY'
+export const PLAYER_PAUSE = 'PLAYER@PAUSE'
+export const PLAYER_PREVIOUS = 'PLAYER@PREVIOUS'
 export const PLAYER_NEXT = 'PLAYER@NEXT'
 
 export default {
   computed: {
     ...mapGetters([
       'player',
-      'searchResults'
+      'searchResults',
+      'counter'
     ]),
+    _id() {
+      return this.$store.state.player._id
+    }
   },
   methods: {
-    setPlay() {
+    play() {
       this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
-    },
-    onPlay() {
-      this.setPlay()
 
-      bus.$emit(PLAYER_PLAY, this.player._id)
+      bus.$emit(PLAYER_PLAY, this._id)
     },
-    onPause() {
+    pause() {
       this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
 
-      bus.$emit('player@pause', this.player._id)
+      bus.$emit(PLAYER_PAUSE, this._id)
     },
-    onPrevious() {
-      const { items, count, total, currentIndex } = this.$store.state.searchResults
-
-      let nextIndex
-      if (currentIndex > 0) {
-        nextIndex = currentIndex - 1
-      } else {
-        nextIndex = total
-      }
-
-      const { [nextIndex]: { _id, title } } = items
-
-      this.$store.dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
-
-      bus.$emit('player@previous')
+    previous() {
+      bus.$emit(PLAYER_PREVIOUS)
     },
-    onNext() {
+    next() {
       bus.$emit(PLAYER_NEXT)
     },
-    onRepeatOne() {
-      this.$store.dispatch(TOGGLE_REPEAT_ONE_ACTION)
+    repeatOne() {
+      this.$store.dispatch(PLAYER_TOGGLE_REPEAT_ONE_ACTION)
     },
-    onEnded() {
+    repeatAll() {
+      this.$store.dispatch(PLAYER_TOGGLE_REPEAT_ALL_ACTION)
+    },
+    onYoutubeVideoPlayerPlay() {
+      this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
+    },
+    onYoutubeVideoPlayerPaused(_id) {
+      if (_id === this._id) {
+        this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
+      }
+    },
+    onYoutubeVideoPlayerEnded() {
       if (!this.player.repeatOne) {
-        this.onNext()
+        this.next()
       } else {
-        this.onPlay()
+        this.play()
       }
     }
   },
   mounted() {
-    this.$store.dispatch(CLEAR_ACTION)
+    this.$store.dispatch(PLAYER_CLEAR_ACTION)
 
-    bus.$on(YOUTUBE_VIDEO_PLAYER_PLAYING, this.setPlay)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSED, this.onPause)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_ENDED, this.onEnded)
+    bus.$on(YOUTUBE_VIDEO_PLAYER_PLAYING, this.onYoutubeVideoPlayerPlay)
+    bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSED, this.onYoutubeVideoPlayerPaused)
+    bus.$on(YOUTUBE_VIDEO_PLAYER_ENDED, this.onYoutubeVideoPlayerEnded)
   },
   unmounted() {
-    bus.$off(YOUTUBE_VIDEO_PLAYER_PLAYING, this.setPlay)
-    bus.$off(YOUTUBE_VIDEO_PLAYER_PAUSED, this.onPause)
-    bus.$off(YOUTUBE_VIDEO_PLAYER_ENDED, this.onEnded)
+    bus.$off(YOUTUBE_VIDEO_PLAYER_PLAYING, this.onYoutubeVideoPlayerPlay)
+    bus.$off(YOUTUBE_VIDEO_PLAYER_PAUSED, this.onYoutubeVideoPlayerPaused)
+    bus.$off(YOUTUBE_VIDEO_PLAYER_ENDED, this.onYoutubeVideoPlayerEnded)
   },
   components: {
     Play,
@@ -130,7 +133,7 @@ export default {
     Previous,
     Next,
     RepeatOne,
-    Repeat,
+    RepeatAll,
     Shuffle
   }
 }
