@@ -27,7 +27,7 @@ export const YOUTUBE_VIDEO_PLAYER_VIDEO_CUED = 'YOUTUBE_VIDEO_PLAYER@VIDEO_CUED'
 export default {
   data: () => {
     const proportion = 0.5625
-    const width = 200
+    const width = 485
 
     return {
       width: width,
@@ -164,7 +164,7 @@ $height: $width * $video-proportion
 
 .youtube-player
   position: fixed
-  top: 150px
+  top: 100px
   right: 0px
 
 .video-player

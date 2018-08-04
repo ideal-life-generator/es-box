@@ -2,11 +2,12 @@
 div(
   class="search-results"
 )
-  drag(
+  div(
     class="item"
     v-for="(item, i) in searchResults.items"
     v-bind:key="item._id"
-    v-bind:transfer-data="item"
+    draggable="true"
+    v-on:dragstart="onDragStart(item, ...arguments)"
   )
     item(
       v-bind="item"
@@ -49,6 +50,9 @@ export default {
     ])
   },
   methods: {
+    onDragStart(item, event) {
+      event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'INSERT', data: item }));
+    },
     onLoadMore() {
       return this.$store.dispatch(LOAD_MORE_ACTION)
     },

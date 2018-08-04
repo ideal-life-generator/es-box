@@ -105,6 +105,20 @@ const movePlaylistItem = async (_key, currentIndex, nextIndex) => {
   return await cursor.next()
 }
 
+const removePlaylistItem = async (_key, index) => {
+  const id = `playlists/${_key}`
+
+  const cursor = await db.query(aql`
+    LET playlist = DOCUMENT(${id})
+    UPDATE playlist WITH {
+      ids: REMOVE_NTH(playlist.ids, ${index})
+    } IN playlists
+    RETURN NEW
+  `)
+
+  return await cursor.next()
+}
+
 export default {
   upsertUser,
   getPlaylists,
@@ -112,5 +126,6 @@ export default {
   insertPlaylist,
   removePlaylist,
   addPlaylistItem,
-  movePlaylistItem
+  movePlaylistItem,
+  removePlaylistItem
 }

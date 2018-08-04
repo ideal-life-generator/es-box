@@ -1,11 +1,6 @@
 <template lang="pug">
 div.song
   div.title(v-text="title")
-  plus-icon(
-    class="play-icon"
-    v-bind:size="15"
-    @click.native="addItem"
-  )
 </template>
 
 <script>

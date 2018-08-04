@@ -48,6 +48,11 @@ movePlaylistItem(
   currentIndex: Int!
   nextIndex: Int!
 ) : Playlist
+
+removePlaylistItem(
+  _key: ID!
+  index: Int!
+) : Playlist
 `
 
 const queries = {
@@ -99,6 +104,13 @@ const mutations = {
   movePlaylistItem: async (noth, { _key, currentIndex, nextIndex }, { session }) => {
     try {
       return await db.movePlaylistItem(_key, currentIndex, nextIndex)
+    } catch (error) {
+      throw error
+    }
+  },
+  removePlaylistItem: async (noth, { _key, index }, { session }) => {
+    try {
+      return await db.removePlaylistItem(_key, index)
     } catch (error) {
       throw error
     }

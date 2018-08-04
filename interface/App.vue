@@ -87,7 +87,7 @@ text
   flex-grow: 1
   display: grid
   grid-template-areas: 'header header header' 'subheader subheader subheader' 'left middle right'
-  grid-template-columns: 210px auto 210px
+  grid-template-columns: 300px auto 500px
   grid-template-rows: 50px 50px auto
 
 .header

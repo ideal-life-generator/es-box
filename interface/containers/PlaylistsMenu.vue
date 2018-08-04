@@ -10,33 +10,49 @@ div.playlists
       @click.native="save"
     )
   div.playlist-links
-    drop.playlist-link-container(
+    div.playlist-link-container(
       v-for="(playlist, i) in playlists.items"
       v-bind:key="playlist._key"
-      @drop="dropInPlaylist(playlist._key, ...arguments)"
+      v-on:dragover="onDragOver"
+      v-on:drop="onDrop(playlist._key, ...arguments)"
     )
       router-link.playlist-link(
         v-bind:to="`/playlists/${playlist._key}`"
         v-text="playlist.name"
       )
-      minus.delete(
+      up.close(
+        v-if="playlistsMenu.showItems[i]"
+        v-bind:size="17"
+        v-on:click.native="onHideItems(i)"
+      )
+      down.open(
+        v-else
+        v-bind:size="17"
+        v-on:click.native="onShowItems(i)"
+      )
+      bin.delete(
         v-bind:size="17"
         v-on:click.native="deletePlaylist(playlist._key)"
       )
-      div.items
+      div.items(v-show="playlistsMenu.showItems[i]")
         div.item(
           v-for="(item, i) in playlist.items"
+          v-bind:key="`${i}-${item._id}`"
           v-text="item.title"
           v-bind:data-i="i"
+          draggable="true"
+          v-on:dragstart="onDragStart(playlist._key, item, i, ...arguments)"
         )
 </template>
 
 <script>
 import gql from 'graphql-tag'
 import { mapGetters } from 'vuex'
-import { Drop } from 'vue-drag-drop'
+import { Drop, Drag } from 'vue-drag-drop'
 import Add from 'components/icons/Add.vue'
-import Minus from 'components/icons/Minus.vue'
+import Up from 'components/icons/Up.vue'
+import Down from 'components/icons/Down.vue'
+import Bin from 'components/icons/Bin.vue'
 import api from 'api'
 import { SHOW_ERROR } from 'store/error'
 
@@ -60,7 +76,8 @@ export default {
       offset: 0,
       count: 0,
       total: 0
-    }
+    },
+    showItems: []
   }),
   apollo: {
     playlists: {
@@ -84,19 +101,53 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'newPlaylist'
+      'newPlaylist',
+      'playlistsMenu'
     ])
   },
   methods: {
+    onRemove(event) {
+      const { _key, currentIndex } = JSON.parse(event.dataTransfer.getData('text/plain'))
+
+      this.removeItem(_key, currentIndex)
+    },
+    onDragStart(_key, item, index, event) {
+      event.dataTransfer.setData('text/plain', JSON.stringify({ _key, data: item, currentIndex: index, type: 'MOVE' }))
+    },
+    onDragOver(event) {
+      event.preventDefault()
+    },
+    onDrop(_key, event) {
+      event.preventDefault()
+      event.stopPropagation()
+
+      const { type, data, currentIndex } = JSON.parse(event.dataTransfer.getData('text/plain'))
+      const itemIndex = parseFloat(event.target.dataset.i) || 0
+      const { top, height } = event.target.getBoundingClientRect()
+
+      let index
+      if (event.clientY < top + (height / 2)) {
+        index = itemIndex
+      } else {
+        index = itemIndex + 1
+      }
+
+      if (type === 'INSERT') {
+        this.addItem(_key, data, index)
+      } else {
+        this.moveItem(_key, currentIndex, index)
+      }
+    },
+    onShowItems(i) {
+      this.$store.commit('onShowItems', i)
+    },
+    onHideItems(i) {
+      this.$store.commit('onHideItems', i)
+    },
     rename({ target: { value } }) {
       this.$store.commit('new-playlist@rename', value)
     },
-    dropInPlaylist(_key, item, event) {
-      const index = parseFloat(event.target.dataset.i) || 0
-
-      this.addItem(_key, item, index)
-    },
-    async addItem(_key, item, index) {
+    async addItem(_key, data, index) {
       try {
         await this.$apollo.mutate({
           mutation: gql`
@@ -118,7 +169,7 @@ export default {
           `,
           variables: {
             _key,
-            sourceId: item._id,
+            sourceId: data._id,
             index
           },
           update: (store, { data: { addPlaylistItem } }) => {
@@ -126,6 +177,89 @@ export default {
 
             const replacedPlaylistIndex = data.playlists.items.findIndex(playlist => addPlaylistItem._key === playlist._key)
             data.playlists.items[0] = addPlaylistItem
+
+            store.writeQuery({ query: PLAYLISTS_QUERY, data })
+          }
+        })
+      } catch (error) { // FIXME: Should parse
+        console.log(error)
+
+        this.$store.dispatch(SHOW_ERROR,
+          (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
+            error.graphQLErrors[0].message : 'Playlist creating is failed'
+        )
+      }
+    },
+    async removeItem(_key, index) {
+      try {
+        await this.$apollo.mutate({
+          mutation: gql`
+            mutation(
+              $_key: ID!
+              $index: Int!
+            ) {
+              removePlaylistItem(
+                _key: $_key
+                index: $index
+              ) {
+                _key
+                name
+                ids
+              }
+            }
+          `,
+          variables: {
+            _key,
+            index
+          },
+          update: (store, { data: { removePlaylistItem } }) => {
+            const data = store.readQuery({ query: PLAYLISTS_QUERY })
+
+            const replacedPlaylistIndex = data.playlists.items.findIndex(playlist => removePlaylistItem._key === playlist._key)
+            data.playlists.items[0] = removePlaylistItem
+
+            store.writeQuery({ query: PLAYLISTS_QUERY, data })
+          }
+        })
+      } catch (error) { // FIXME: Should parse
+        console.log(error)
+
+        this.$store.dispatch(SHOW_ERROR,
+          (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
+            error.graphQLErrors[0].message : 'Playlist creating is failed'
+        )
+      }
+    },
+    async moveItem(_key, currentIndex, nextIndex) {
+      try {
+        await this.$apollo.mutate({
+          mutation: gql`
+            mutation(
+              $_key: ID!
+              $currentIndex: Int!
+              $nextIndex: Int!
+            ) {
+              movePlaylistItem(
+                _key: $_key
+                currentIndex: $currentIndex
+                nextIndex: $nextIndex
+              ) {
+                _key
+                name
+                ids
+              }
+            }
+          `,
+          variables: {
+            _key,
+            currentIndex,
+            nextIndex
+          },
+          update: (store, { data: { movePlaylistItem } }) => {
+            const data = store.readQuery({ query: PLAYLISTS_QUERY })
+
+            const replacedPlaylistIndex = data.playlists.items.findIndex(playlist => movePlaylistItem._key === playlist._key)
+            data.playlists.items[0] = movePlaylistItem
 
             store.writeQuery({ query: PLAYLISTS_QUERY, data })
           }
@@ -214,10 +348,17 @@ export default {
       }
     }
   },
+  mounted() {
+    document.addEventListener('dragover', this.onDragOver)
+    document.addEventListener('drop', this.onRemove)
+  },
   components: {
     Add,
-    Minus,
-    Drop
+    Bin,
+    Drop,
+    Drag,
+    Up,
+    Down
   }
 }
 </script>
@@ -245,14 +386,20 @@ export default {
 
   .playlist-link-container
     display: grid
-    grid-template-columns: auto 30px
-    grid-template-areas: 'name delete' 'items items'
+    grid-template-columns: auto 21.6px 21.6px
+    grid-template-areas: 'name toggler delete' 'items items items'
 
     .playlist-link
       grid-area: name
 
       &.active
         color: purple
+
+    .close
+      grid-area: toggler
+
+    .open
+      grid-area: toggler
 
     .delete
       grid-area: delete
