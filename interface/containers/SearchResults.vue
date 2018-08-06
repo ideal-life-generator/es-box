@@ -11,6 +11,8 @@ div(
   )
     item(
       v-bind="item"
+      v-on:play="onPlay"
+      v-on:pause="onPause"
     )
   div.loading(v-show="searchResults.loading") loading
 </template>
@@ -30,7 +32,9 @@ import { PLAYER_SET_ITEM_ACTION } from 'store/player'
 import { COUNTER_UPDATE_CURRENT } from 'store/counter'
 import { UPDATE } from 'components/Counter.vue'
 import {
+  PLAYER_PLAY,
   PLAYER_PREVIOUS,
+  PLAYER_ON_PREVIOUS,
   PLAYER_NEXT
 } from 'containers/Player.vue'
 import {
@@ -50,6 +54,20 @@ export default {
     ])
   },
   methods: {
+    play(item) {
+      bus.$emit(PLAYER_PLAY, item)
+      this.updateCounter(item._id)
+    },
+    updateCounter(_id) {
+      const currentItemIndex = this.searchResults.items.findIndex(item => _id === item._id)
+      this.$store.commit(COUNTER_UPDATE_CURRENT, currentItemIndex)
+    },
+    onPlay(item) {
+      this.play(item)
+    },
+    onPause(item) {
+      this.pause(item)
+    },
     onDragStart(item, event) {
       event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'INSERT', data: item }));
     },
@@ -76,12 +94,7 @@ export default {
       const { items: { [nextIndex]: nextItem } } = this.searchResults
 
       if (nextItem) {
-        const { _id, title } = nextItem
-
-        this.$store.dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
-        this.$store.commit(SET_CURRENT_INDEX_MUTATION, _id)
-        const currentItemIndex = this.searchResults.items.findIndex(item => nextItem._id === item._id)
-        this.$store.commit(COUNTER_UPDATE_CURRENT, currentItemIndex)
+        this.play(nextItem)
 
         if (this.player.play) {
           bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY)
@@ -112,9 +125,7 @@ export default {
         const { _id, title } = nextItem
 
         this.$store.dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
-        this.$store.commit(SET_CURRENT_INDEX_MUTATION, _id)
-        const currentItemIndex = this.searchResults.items.findIndex(item => nextItem._id === item._id)
-        this.$store.commit(COUNTER_UPDATE_CURRENT, currentItemIndex)
+        this.updateCounter(nextItem._id)
 
         if (this.player.play) {
           bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY)

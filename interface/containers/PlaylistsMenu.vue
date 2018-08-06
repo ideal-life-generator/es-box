@@ -38,11 +38,21 @@ div.playlists
         div.item(
           v-for="(item, i) in playlist.items"
           v-bind:key="`${i}-${item._id}`"
-          v-text="item.title"
           v-bind:data-i="i"
           draggable="true"
           v-on:dragstart="onDragStart(playlist._key, item, i, ...arguments)"
         )
+          play-icon.play(
+            v-if="!player.play"
+            v-bind:size="21"
+            v-on:click.native="onPlay"
+          )
+          pause-icon.pause(
+            v-else-if="player.play && player.playlistId === playlist._key && player._id === item._id"
+            v-bind:size="21"
+            v-on:click.native="onPause"
+          )
+          div.title(v-text="item.title")
 </template>
 
 <script>
@@ -53,6 +63,8 @@ import Add from 'components/icons/Add.vue'
 import Up from 'components/icons/Up.vue'
 import Down from 'components/icons/Down.vue'
 import Bin from 'components/icons/Bin.vue'
+import PlayIcon from 'components/icons/Play.vue'
+import PauseIcon from 'components/icons/Pause.vue'
 import api from 'api'
 import { SHOW_ERROR } from 'store/error'
 
@@ -101,6 +113,7 @@ export default {
   },
   computed: {
     ...mapGetters([
+      'player',
       'newPlaylist',
       'playlistsMenu'
     ])
@@ -358,7 +371,9 @@ export default {
     Drop,
     Drag,
     Up,
-    Down
+    Down,
+    PlayIcon,
+    PauseIcon
   }
 }
 </script>
@@ -411,8 +426,17 @@ export default {
       flex-direction: column
 
       .item
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+        display: grid
+        grid-template-columns: 21.6px auto
+        grid-template-areas: 'playback title'
+
+        .play, .pause
+          grid-area: playback
+
+        .title
+          grid-area: title
+          white-space: nowrap
+          overflow: hidden
+          text-overflow: ellipsis
 
 </style>

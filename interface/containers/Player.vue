@@ -2,22 +2,22 @@
 div.player
   previous(
     v-bind:size="25"
-    v-on:click.native="previous"
+    v-on:click.native="onPrevious"
     v-bind:disabled="counter.current <= 0"
   )
   play(
     v-if="!player.play"
     v-bind:size="25"
-    v-on:click.native="play"
+    v-on:click.native="onPlay"
   )
   pause(
     v-else
     v-bind:size="25"
-    v-on:click.native="pause"
+    v-on:click.native="onPause"
   )
   next(
     v-bind:size="25"
-    v-on:click.native="next"
+    v-on:click.native="onNext"
   )
   shuffle(
     v-bind:color="player.shuffle ? 'white' : 'gray'"
@@ -26,12 +26,12 @@ div.player
   repeat-one(
     v-bind:color="player.repeatOne ? 'white' : 'gray'"
     v-bind:size="25"
-    v-on:click.native="repeatOne"
+    v-on:click.native="onRepeatOne"
   )
   repeat-all(
     v-bind:color="player.repeatAll ? 'white' : 'gray'"
     v-bind:size="20"
-    v-on:click.native="repeatAll"
+    v-on:click.native="onRepeatAll"
   )
   div.title(v-text="player.title")
 </template>
@@ -48,6 +48,7 @@ import Shuffle from 'components/icons/Shuffle.vue'
 import {
   PLAYER_PLAYBACK_MUTATION,
   PLAYER_SET_ITEM_ACTION,
+  PLAYER_PLAY_ACTION,
   PLAYER_CLEAR_ACTION,
   PLAYER_TOGGLE_REPEAT_ONE_ACTION,
   PLAYER_TOGGLE_REPEAT_ALL_ACTION
@@ -61,9 +62,13 @@ import {
 import bus from 'events-bus'
 
 export const PLAYER_PLAY = 'PLAYER@PLAY'
+export const PLAYER_ON_PLAY = 'PLAYER@ON_PLAY'
 export const PLAYER_PAUSE = 'PLAYER@PAUSE'
+export const PLAYER_ON_PAUSE = 'PLAYER@ON_PAUSE'
 export const PLAYER_PREVIOUS = 'PLAYER@PREVIOUS'
+export const PLAYER_ON_PREVIOUS = 'PLAYER@ON_PREVIOUS'
 export const PLAYER_NEXT = 'PLAYER@NEXT'
+export const PLAYER_ON_NEXT = 'PLAYER@ON_NEXT'
 
 export default {
   computed: {
@@ -77,27 +82,43 @@ export default {
     }
   },
   methods: {
-    play() {
-      this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
-
-      bus.$emit(PLAYER_PLAY, this._id)
+    onPlay() {
+      this[PLAYER_PLAY]()
     },
-    pause() {
-      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
-
-      bus.$emit(PLAYER_PAUSE, this._id)
+    onPause() {
+      this[PLAYER_PAUSE]()
     },
-    previous() {
-      bus.$emit(PLAYER_PREVIOUS)
+    onPrevious() {
+      this[PLAYER_PREVIOUS]()
     },
-    next() {
-      bus.$emit(PLAYER_NEXT)
+    onNext() {
+      this[PLAYER_NEXT]()
     },
-    repeatOne() {
+    onRepeatOne() {
       this.$store.dispatch(PLAYER_TOGGLE_REPEAT_ONE_ACTION)
     },
-    repeatAll() {
+    onRepeatAll() {
       this.$store.dispatch(PLAYER_TOGGLE_REPEAT_ALL_ACTION)
+    },
+    [PLAYER_PLAY](item) {
+      if (item) {
+        this.$store.dispatch(PLAYER_PLAY_ACTION, item)
+        bus.$emit(PLAYER_ON_PLAY, this._id, true)
+      } else {
+        this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
+        bus.$emit(PLAYER_ON_PLAY, this._id)
+      }
+    },
+    [PLAYER_PAUSE]() {
+      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
+
+      bus.$emit(PLAYER_ON_PAUSE, this._id)
+    },
+    [PLAYER_PREVIOUS]() {
+      bus.$emit(PLAYER_ON_PREVIOUS)
+    },
+    [PLAYER_NEXT]() {
+      bus.$emit(PLAYER_ON_NEXT)
     },
     onYoutubeVideoPlayerPlay() {
       this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
@@ -109,20 +130,28 @@ export default {
     },
     onYoutubeVideoPlayerEnded() {
       if (!this.player.repeatOne) {
-        this.next()
+        this[PLAYER_NEXT]()
       } else {
-        this.play()
+        this[PLAYER_PLAY]()
       }
     }
   },
   mounted() {
     this.$store.dispatch(PLAYER_CLEAR_ACTION)
 
+    bus.$on(PLAYER_PLAY, this[PLAYER_PLAY])
+    bus.$on(PLAYER_PAUSE, this[PLAYER_PAUSE])
+    bus.$on(PLAYER_PREVIOUS, this[PLAYER_PREVIOUS])
+    bus.$on(PLAYER_NEXT, this[PLAYER_NEXT])
     bus.$on(YOUTUBE_VIDEO_PLAYER_PLAYING, this.onYoutubeVideoPlayerPlay)
     bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSED, this.onYoutubeVideoPlayerPaused)
     bus.$on(YOUTUBE_VIDEO_PLAYER_ENDED, this.onYoutubeVideoPlayerEnded)
   },
   unmounted() {
+    bus.$off(PLAYER_PLAY, this[PLAYER_PLAY])
+    bus.$off(PLAYER_PAUSE, this[PLAYER_PAUSE])
+    bus.$off(PLAYER_PREVIOUS, this[PLAYER_PREVIOUS])
+    bus.$off(PLAYER_NEXT, this[PLAYER_NEXT])
     bus.$off(YOUTUBE_VIDEO_PLAYER_PLAYING, this.onYoutubeVideoPlayerPlay)
     bus.$off(YOUTUBE_VIDEO_PLAYER_PAUSED, this.onYoutubeVideoPlayerPaused)
     bus.$off(YOUTUBE_VIDEO_PLAYER_ENDED, this.onYoutubeVideoPlayerEnded)

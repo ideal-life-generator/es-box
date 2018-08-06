@@ -70,15 +70,15 @@ export default {
           commit(MORE_MUTATION, { items, count, total, nextPageToken })
         }
 
-        if (!rootState.player._id && count > 0) {
+        if (count > 0) {
           const [{ _id, title }] = items
 
           dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
 
           commit(SET_CURRENT_INDEX_MUTATION, _id)
-
-          commit(COUNTER_UPDATE, { current: state.currentItemIndex, count: state.count })
         }
+
+        commit(COUNTER_UPDATE, { current: state.currentItemIndex, count: state.total })
       } catch (error) {
         console.error(error)
 

@@ -11,6 +11,7 @@ export const PLAYER_TOGGLE_REPEAT_ALL_ACTION = 'PLAYER@TOGGLE_REPEAT_ALL'
 
 export default {
   state: {
+    playlistId: null,
     _id: null,
     play: false,
     repeatOne: false,

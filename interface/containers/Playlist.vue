@@ -13,7 +13,8 @@ import gql from 'graphql-tag'
 import api from 'api'
 import Item from './Item.vue'
 import { PLAYER_SET_ITEM_ACTION } from 'store/player'
-import { UPDATE } from 'components/Counter.vue'
+import { COUNTER_UPDATE } from 'store/counter'
+import { YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID } from 'containers/YoutubeVideo.vue'
 import bus from 'events-bus'
 
 export default {
@@ -64,7 +65,8 @@ export default {
           this.currentItemId = _id
 
           bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID)
-          bus.$emit(UPDATE, { current: this.currentItemIndex, count: this.count })
+
+          this.$store.commit(COUNTER_UPDATE, { current: 0, count: this.videos.total })
         }
       }
     }

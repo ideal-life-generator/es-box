@@ -1,5 +1,15 @@
 <template lang="pug">
 div.song
+  play-icon.play(
+    v-if="!play"
+    v-bind:size="21"
+    v-on:click.native="onPlay"
+  )
+  pause-icon.pause(
+    v-else
+    v-bind:size="21"
+    v-on:click.native="onPause"
+  )
   div.title(v-text="title")
 </template>
 
@@ -7,7 +17,8 @@ div.song
 import { mapGetters } from 'vuex'
 import { search } from 'store/search-results'
 import VideoPlayer from 'components/VideoPlayer.vue'
-import PlusIcon from 'components/icons/Plus.vue'
+import PlayIcon from 'components/icons/Play.vue'
+import PauseIcon from 'components/icons/Pause.vue'
 import {
   PLAYER_PLAYBACK_MUTATION,
   PLAYER_SET_ITEM_ACTION,
@@ -19,10 +30,31 @@ export default {
   props: {
     _id: { type: String, required: true },
     sourceId: { type: String, required: true },
-    title: { type: String, required: true },
+    title: { type: String, required: true }
     // duration: { type: String, required: true }
   },
+  data: () => ({
+    play: false
+  }),
   methods: {
+    onPlay() {
+      this.$emit('play', {
+        _id: this._id,
+        sourceId: this.sourceId,
+        title: this.title
+      })
+
+      this.play = true
+    },
+    onPause() {
+      this.$emit('pause', {
+        _id: this._id,
+        sourceId: this.sourceId,
+        title: this.title
+      })
+
+      this.play = false
+    },
     onUnstarted() {
       const { _id, title } = this
 
@@ -53,7 +85,8 @@ export default {
   },
   components: {
     VideoPlayer,
-    PlusIcon
+    PlayIcon,
+    PauseIcon
   }
 }
 </script>
@@ -63,10 +96,20 @@ export default {
 
 .song
   height: 35px
-  display: flex
+  display: grid
+  grid-template-areas: 'play title'
+  grid-template-columns: 35px auto
+
+  .play
+    grid-area: play
+    display: flex
+    justify-content: center
+    align-items: center
 
   .title
-    fill: $primary-color2
+    grid-area: title
+    display: flex
+    align-items: center
 
   .playback
     user-select: none
