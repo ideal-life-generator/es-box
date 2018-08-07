@@ -1,7 +1,7 @@
 <template lang="pug">
-div.song
+div.song(v-bind:class="{ active }")
   play-icon.play(
-    v-if="!play"
+    v-if="playing"
     v-bind:size="21"
     v-on:click.native="onPlay"
   )
@@ -30,12 +30,11 @@ export default {
   props: {
     _id: { type: String, required: true },
     sourceId: { type: String, required: true },
-    title: { type: String, required: true }
+    title: { type: String, required: true },
+    playing: { type: Boolean, required: true },
+    active: { type: Boolean, required: true }
     // duration: { type: String, required: true }
   },
-  data: () => ({
-    play: false
-  }),
   methods: {
     onPlay() {
       this.$emit('play', {
@@ -43,8 +42,6 @@ export default {
         sourceId: this.sourceId,
         title: this.title
       })
-
-      this.play = true
     },
     onPause() {
       this.$emit('pause', {
@@ -52,8 +49,6 @@ export default {
         sourceId: this.sourceId,
         title: this.title
       })
-
-      this.play = false
     },
     onUnstarted() {
       const { _id, title } = this
@@ -121,5 +116,9 @@ export default {
 
   .play-icon
     margin-left: auto
+
+  &.active
+    .title
+      color: purple
 
 </style>

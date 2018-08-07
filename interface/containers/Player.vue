@@ -55,12 +55,15 @@ import {
 } from 'store/player'
 import { LOAD_MORE_ACTION } from 'store/search-results'
 import {
+  YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID,
   YOUTUBE_VIDEO_PLAYER_PLAYING,
-  YOUTUBE_VIDEO_PLAYER_PAUSED,
+  YOUTUBE_VIDEO_PLAYER_PAUSE,
   YOUTUBE_VIDEO_PLAYER_ENDED
 } from 'containers/YoutubeVideo.vue'
 import bus from 'events-bus'
 
+export const PLAYER_SET_ITEM = 'PLAYER@SET_ITEM'
+export const PLAYER_ON_SET_ITEM = 'PLAYER@ON_SET_ITEM'
 export const PLAYER_PLAY = 'PLAYER@PLAY'
 export const PLAYER_ON_PLAY = 'PLAYER@ON_PLAY'
 export const PLAYER_PAUSE = 'PLAYER@PAUSE'
@@ -100,13 +103,18 @@ export default {
     onRepeatAll() {
       this.$store.dispatch(PLAYER_TOGGLE_REPEAT_ALL_ACTION)
     },
+    [PLAYER_SET_ITEM](item) {
+      this.$store.dispatch(PLAYER_SET_ITEM_ACTION, item)
+
+      bus.$emit(PLAYER_ON_SET_ITEM)
+    },
     [PLAYER_PLAY](item) {
       if (item) {
         this.$store.dispatch(PLAYER_PLAY_ACTION, item)
-        bus.$emit(PLAYER_ON_PLAY, this._id, true)
+        bus.$emit(PLAYER_ON_PLAY, this.player._id, true)
       } else {
         this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
-        bus.$emit(PLAYER_ON_PLAY, this._id)
+        bus.$emit(PLAYER_ON_PLAY, this.player._id)
       }
     },
     [PLAYER_PAUSE]() {
@@ -125,7 +133,7 @@ export default {
     },
     onYoutubeVideoPlayerPaused(_id) {
       if (_id === this._id) {
-        this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
+        this[PLAYER_PAUSE]()
       }
     },
     onYoutubeVideoPlayerEnded() {
@@ -137,17 +145,19 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch(PLAYER_CLEAR_ACTION)
+    this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
 
+    bus.$on(PLAYER_SET_ITEM, this[PLAYER_SET_ITEM])
     bus.$on(PLAYER_PLAY, this[PLAYER_PLAY])
     bus.$on(PLAYER_PAUSE, this[PLAYER_PAUSE])
     bus.$on(PLAYER_PREVIOUS, this[PLAYER_PREVIOUS])
     bus.$on(PLAYER_NEXT, this[PLAYER_NEXT])
     bus.$on(YOUTUBE_VIDEO_PLAYER_PLAYING, this.onYoutubeVideoPlayerPlay)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSED, this.onYoutubeVideoPlayerPaused)
+    bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSE, this.onYoutubeVideoPlayerPaused)
     bus.$on(YOUTUBE_VIDEO_PLAYER_ENDED, this.onYoutubeVideoPlayerEnded)
   },
   unmounted() {
+    bus.$off(PLAYER_SET_ITEM, this[PLAYER_SET_ITEM])
     bus.$off(PLAYER_PLAY, this[PLAYER_PLAY])
     bus.$off(PLAYER_PAUSE, this[PLAYER_PAUSE])
     bus.$off(PLAYER_PREVIOUS, this[PLAYER_PREVIOUS])

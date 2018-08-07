@@ -16,7 +16,7 @@ div.app
     div.menu
       playlists-menu
   div.middle
-    router-view
+    //- router-view
   div.right
   youtube-video
   div.error(v-if="showErrorMessage" v-text="errorMessage")

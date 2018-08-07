@@ -13,6 +13,8 @@ div(
       v-bind="item"
       v-on:play="onPlay"
       v-on:pause="onPause"
+      v-bind:playing="!player.play || (player.play && player._id !== item._id)"
+      v-bind:active="player._id === item._id"
     )
   div.loading(v-show="searchResults.loading") loading
 </template>
@@ -32,10 +34,12 @@ import { PLAYER_SET_ITEM_ACTION } from 'store/player'
 import { COUNTER_UPDATE_CURRENT } from 'store/counter'
 import { UPDATE } from 'components/Counter.vue'
 import {
+  PLAYER_SET_ITEM,
   PLAYER_PLAY,
+  PLAYER_PAUSE,
   PLAYER_PREVIOUS,
   PLAYER_ON_PREVIOUS,
-  PLAYER_NEXT
+  PLAYER_ON_NEXT
 } from 'containers/Player.vue'
 import {
   YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID,
@@ -54,19 +58,26 @@ export default {
     ])
   },
   methods: {
-    play(item) {
-      bus.$emit(PLAYER_PLAY, item)
-      this.updateCounter(item._id)
-    },
-    updateCounter(_id) {
-      const currentItemIndex = this.searchResults.items.findIndex(item => _id === item._id)
-      this.$store.commit(COUNTER_UPDATE_CURRENT, currentItemIndex)
-    },
     onPlay(item) {
       this.play(item)
     },
     onPause(item) {
       this.pause(item)
+    },
+    play(item) {
+      if (this.player._id === item._id) {
+        bus.$emit(PLAYER_PLAY)
+      } else {
+        bus.$emit(PLAYER_PLAY, item)
+        this.updateCounter(item._id)
+      }
+    },
+    pause() {
+      bus.$emit(PLAYER_PAUSE)
+    },
+    updateCounter(_id) {
+      this.$store.commit(SET_CURRENT_INDEX_MUTATION, _id)
+      this.$store.commit(COUNTER_UPDATE_CURRENT, this.searchResults.currentItemIndex)
     },
     onDragStart(item, event) {
       event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'INSERT', data: item }));
@@ -81,8 +92,8 @@ export default {
         this.onLoadMore()
       }
     },
-    async onPlayerPrevious() {
-      const { items, count, total, currentItemIndex } = this.searchResults
+    [PLAYER_ON_PREVIOUS]() {
+      const { count, total, currentItemIndex } = this.searchResults
 
       let nextIndex
       if (currentItemIndex > 0) {
@@ -94,17 +105,17 @@ export default {
       const { items: { [nextIndex]: nextItem } } = this.searchResults
 
       if (nextItem) {
-        this.play(nextItem)
-
         if (this.player.play) {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY)
+          bus.$emit(PLAYER_PLAY, nextItem)
         } else {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID)
+          bus.$emit(PLAYER_SET_ITEM, nextItem)
         }
+
+        this.updateCounter(nextItem._id)
       }
     },
-    async onPlayerNext() {
-      const { items, count, total, currentItemIndex } = this.searchResults
+    async [PLAYER_ON_NEXT]() {
+      const { count, total, currentItemIndex } = this.searchResults
 
       let nextIndex
       if (currentItemIndex < total - 1) {
@@ -122,36 +133,33 @@ export default {
       const { items: { [nextIndex]: nextItem } } = this.searchResults
 
       if (nextItem) {
-        const { _id, title } = nextItem
-
-        this.$store.dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
-        this.updateCounter(nextItem._id)
-
         if (this.player.play) {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY)
+          bus.$emit(PLAYER_PLAY, nextItem)
         } else {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID)
+          bus.$emit(PLAYER_SET_ITEM, nextItem)
         }
+
+        this.updateCounter(nextItem._id)
       }
     }
   },
   async mounted() {
-    window.addEventListener('scroll', this.onScroll)
+    // window.addEventListener('scroll', this.onScroll)
 
-    bus.$on(PLAYER_NEXT, this.onPlayerNext)
-    bus.$on(PLAYER_PREVIOUS, this.onPlayerPrevious)
+    // bus.$on(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
+    // bus.$on(PLAYER_ON_NEXT, this[PLAYER_ON_NEXT])
 
-    this.$store.commit(CLEAR_MUTATION)
+    // this.$store.commit(CLEAR_MUTATION)
 
-    await this.$store.dispatch(REQUEST_ACTION)
+    // await this.$store.dispatch(REQUEST_ACTION)
 
-    bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID)
+    // bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID)
   },
   unmounted() {
     window.removeEventListener('scroll', this.onScroll)
 
-    bus.$off(PLAYER_NEXT, this.onPlayerNext)
-    bus.$off(PLAYER_PREVIOUS, this.onPlayerPrevious)
+    bus.$off(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
+    bus.$off(PLAYER_ON_NEXT, this[PLAYER_ON_NEXT])
   },
   components: {
     virtualList,

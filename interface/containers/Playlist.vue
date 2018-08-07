@@ -4,6 +4,10 @@ div.playlist
     v-for="(item, i) in videos.items"
     v-bind:key="`${item.id}-${i}`"
     v-bind="item"
+    v-on:play="onPlay"
+    v-on:pause="onPause"
+    v-bind:playing="!player.play || (player.play && player._id !== item._id)"
+    v-bind:active="player._id === item._id"
   )
 </template>
 
@@ -69,6 +73,14 @@ export default {
           this.$store.commit(COUNTER_UPDATE, { current: 0, count: this.videos.total })
         }
       }
+    }
+  },
+  methods: {
+    onPlay() {
+
+    },
+    onPause() {
+      
     }
   },
   components: {

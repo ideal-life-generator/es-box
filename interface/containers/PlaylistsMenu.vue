@@ -36,6 +36,7 @@ div.playlists
       )
       div.items(v-show="playlistsMenu.showItems[i]")
         div.item(
+          v-bind:class="{ active: player._id === item._id }"
           v-for="(item, i) in playlist.items"
           v-bind:key="`${i}-${item._id}`"
           v-bind:data-i="i"
@@ -43,14 +44,14 @@ div.playlists
           v-on:dragstart="onDragStart(playlist._key, item, i, ...arguments)"
         )
           play-icon.play(
-            v-if="!player.play"
+            v-if="!player.play || (player.play && player._id !== item._id)"
             v-bind:size="21"
-            v-on:click.native="onPlay"
+            v-on:click.native="onPlay(playlist, item)"
           )
           pause-icon.pause(
-            v-else-if="player.play && player.playlistId === playlist._key && player._id === item._id"
+            v-else
             v-bind:size="21"
-            v-on:click.native="onPause"
+            v-on:click.native="onPause(playlist, item)"
           )
           div.title(v-text="item.title")
 </template>
@@ -58,19 +59,34 @@ div.playlists
 <script>
 import gql from 'graphql-tag'
 import { mapGetters } from 'vuex'
-import { Drop, Drag } from 'vue-drag-drop'
+import {
+  PLAYER_SET_ITEM,
+  PLAYER_PLAY,
+  PLAYER_PAUSE,
+  PLAYER_PREVIOUS,
+  PLAYER_ON_PREVIOUS,
+  PLAYER_ON_NEXT
+} from 'containers/Player.vue'
 import Add from 'components/icons/Add.vue'
 import Up from 'components/icons/Up.vue'
 import Down from 'components/icons/Down.vue'
 import Bin from 'components/icons/Bin.vue'
 import PlayIcon from 'components/icons/Play.vue'
 import PauseIcon from 'components/icons/Pause.vue'
+import {
+  PLAYLISTS_MENU_SET_CURRENT_PLAYLIST_ID_MUTATION,
+  PLAYLISTS_MENU_SET_PLAYLIST_CURRENT_INDEX_ACTION
+} from 'store/playlists-menu'
+import { COUNTER_UPDATE_CURRENT } from 'store/counter'
+import { COUNTER_UPDATE } from 'store/counter'
 import api from 'api'
+import bus from 'events-bus'
 import { SHOW_ERROR } from 'store/error'
 
 const PLAYLISTS_QUERY = gql`{
   playlists {
     items {
+      _id
       _key
       name
       ids
@@ -88,8 +104,7 @@ export default {
       offset: 0,
       count: 0,
       total: 0
-    },
-    showItems: []
+    }
   }),
   apollo: {
     playlists: {
@@ -115,10 +130,63 @@ export default {
     ...mapGetters([
       'player',
       'newPlaylist',
-      'playlistsMenu'
-    ])
+      'playlistsMenu',
+      'currentPlaylistId',
+      'currentPlaylistSettings'
+    ]),
+    currentPlaylist() {
+      return this.playlists.items.find(playlist => playlist._id === this.currentPlaylistId)
+    }
   },
   methods: {
+    onPlay(playlist, item) {
+      this.play(playlist, item)
+    },
+    onPause(playlist, item) {
+      this.pause(playlist, item)
+    },
+    play(playlist, item) {
+      this.$store.commit(PLAYLISTS_MENU_SET_CURRENT_PLAYLIST_ID_MUTATION, playlist._id)
+
+      if (this.player._id === item._id) {
+        bus.$emit(PLAYER_PLAY)
+      } else {
+        bus.$emit(PLAYER_PLAY, item)
+      }
+
+      this.updateCounter(item._id)
+    },
+    pause() {
+      bus.$emit(PLAYER_PAUSE)
+    },
+    updateCounter(itemId) {
+      const itemIndex = this.currentPlaylist.items.findIndex(findItem => findItem._id === itemId)
+      this.$store.dispatch(PLAYLISTS_MENU_SET_PLAYLIST_CURRENT_INDEX_ACTION, itemIndex)
+      this.$store.commit(COUNTER_UPDATE, { current: itemIndex, total: this.currentPlaylist.total })
+    },
+    [PLAYER_ON_PREVIOUS]() {
+      const { currentItemIndex } = this.$store.getters.getPlaylistsSettingsById(this.playlistsMenu.currentPlaylistId)
+      const currentPlaylist = this.playlists.items.find(playlist => playlist._id === this.playlistsMenu.currentPlaylistId)
+
+      let nextIndex
+      if (currentItemIndex > 0) {
+        nextIndex = currentItemIndex - 1
+      } else {
+        nextIndex = 0
+      }
+
+      const { items: { [nextIndex]: nextItem } } = currentPlaylist
+
+      if (nextItem) {
+        if (this.player.play) {
+          bus.$emit(PLAYER_PLAY, nextItem)
+        } else {
+          bus.$emit(PLAYER_SET_ITEM, nextItem)
+        }
+
+        this.updateCounter(currentPlaylist, nextItem._id)
+      }
+    },
     onRemove(event) {
       const { _key, currentIndex } = JSON.parse(event.dataTransfer.getData('text/plain'))
 
@@ -362,14 +430,28 @@ export default {
     }
   },
   mounted() {
+    // console.log(this.currentPlaylistSettings)
+    // this.$store.commit(COUNTER_UPDATE, {
+    //   current: this.currentPlaylistSettings.currentItemIndex,
+    //   // count: currentPlaylist.total
+    // })
+
+    bus.$on(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
+    bus.$on(PLAYER_ON_NEXT, this[PLAYER_ON_NEXT])
+
     document.addEventListener('dragover', this.onDragOver)
     document.addEventListener('drop', this.onRemove)
+  },
+  unmounted() {
+    bus.$off(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
+    bus.$off(PLAYER_ON_NEXT, this[PLAYER_ON_NEXT])
+
+    document.removeEventListener('dragover', this.onDragOver)
+    document.removeEventListener('drop', this.onRemove)
   },
   components: {
     Add,
     Bin,
-    Drop,
-    Drag,
     Up,
     Down,
     PlayIcon,
@@ -438,5 +520,9 @@ export default {
           white-space: nowrap
           overflow: hidden
           text-overflow: ellipsis
+
+        &.active
+          .title
+            color: purple
 
 </style>
