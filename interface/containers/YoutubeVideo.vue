@@ -38,7 +38,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'player'
+      'player',
+      'currentItemId'
     ]),
     playerVideoId() {
       return this.$store.state.player._id
@@ -84,9 +85,8 @@ export default {
         }
       }
     },
-    [YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID](id) {
-      console.log(id)
-      this.youtubePlayer.loadVideoById(id)
+    [YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID]() {
+      this.youtubePlayer.cueVideoById(this.currentItemId)
     },
     // onCuetVideoId() {
     //   this.youtubePlayer.cueVideoById(this.playerVideoId)
@@ -143,7 +143,7 @@ export default {
     // bus.$on(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
     bus.$on(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this.onSetAndPlay)
     // bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
-    bus.$on(PLAYER_ON_SET_ITEM, this.onSetVideoId)
+    bus.$on(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
     bus.$on(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
     bus.$on(PLAYER_ON_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
     // bus.$on('player@previous', this.onChangeId)
@@ -158,7 +158,7 @@ export default {
     // bus.$off(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
     bus.$off(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this.onSetAndPlay)
     // bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
-    bus.$off(PLAYER_ON_SET_ITEM, this.onSetVideoId)
+    bus.$off(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
     bus.$off(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
     bus.$off(PLAYER_ON_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
     bus.$off('player@previous', this.onChangeId)

@@ -3,7 +3,7 @@ div.player
   previous(
     v-bind:size="25"
     v-on:click.native="onPrevious"
-    v-bind:disabled="counter.current <= 0"
+    v-bind:disabled="!(counter.current !== 0 || player.repeatAll)"
   )
   play(
     v-if="!player.play"
@@ -18,6 +18,7 @@ div.player
   next(
     v-bind:size="25"
     v-on:click.native="onNext"
+    v-bind:disabled="!(counter.current !== counter.total - 1 || player.repeatAll)"
   )
   shuffle(
     v-bind:color="player.shuffle ? 'white' : 'gray'"
@@ -106,7 +107,7 @@ export default {
     [PLAYER_SET_ITEM](item) {
       this.$store.dispatch(PLAYER_SET_ITEM_ACTION, item)
 
-      bus.$emit(PLAYER_ON_SET_ITEM)
+      bus.$emit(PLAYER_ON_SET_ITEM, item._id)
     },
     [PLAYER_PLAY](item) {
       if (item) {

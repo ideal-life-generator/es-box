@@ -36,7 +36,7 @@ div.playlists
       )
       div.items(v-show="playlistsMenu.showItems[i]")
         div.item(
-          v-bind:class="{ active: player._id === item._id }"
+          v-bind:class="{ active: player._id === item._id && currentItemIndex === i }"
           v-for="(item, i) in playlist.items"
           v-bind:key="`${i}-${item._id}`"
           v-bind:data-i="i"
@@ -44,14 +44,14 @@ div.playlists
           v-on:dragstart="onDragStart(playlist._key, item, i, ...arguments)"
         )
           play-icon.play(
-            v-if="!player.play || (player.play && player._id !== item._id)"
+            v-if="!player.play || (player.play && !(player._id === item._id && currentItemIndex === i))"
             v-bind:size="21"
-            v-on:click.native="onPlay(playlist, item)"
+            v-on:click.native="onPlay(playlist, item, i)"
           )
           pause-icon.pause(
             v-else
             v-bind:size="21"
-            v-on:click.native="onPause(playlist, item)"
+            v-on:click.native="onPause(playlist, item, i)"
           )
           div.title(v-text="item.title")
 </template>
@@ -75,7 +75,7 @@ import PlayIcon from 'components/icons/Play.vue'
 import PauseIcon from 'components/icons/Pause.vue'
 import {
   PLAYLISTS_MENU_SET_CURRENT_PLAYLIST_ID_MUTATION,
-  PLAYLISTS_MENU_SET_PLAYLIST_CURRENT_INDEX_ACTION
+  PLAYLISTS_MENU_SET_CURRENT_ACTION
 } from 'store/playlists-menu'
 import { COUNTER_UPDATE_CURRENT } from 'store/counter'
 import { COUNTER_UPDATE } from 'store/counter'
@@ -131,22 +131,24 @@ export default {
       'player',
       'newPlaylist',
       'playlistsMenu',
+      'currentPlaylistSettings',
       'currentPlaylistId',
-      'currentPlaylistSettings'
+      'currentItemId',
+      'currentItemIndex'
     ]),
     currentPlaylist() {
       return this.playlists.items.find(playlist => playlist._id === this.currentPlaylistId)
     }
   },
   methods: {
-    onPlay(playlist, item) {
-      this.play(playlist, item)
+    onPlay(playlist, item, index) {
+      this.play(playlist, item, index)
     },
-    onPause(playlist, item) {
-      this.pause(playlist, item)
+    onPause(playlist, item, index) {
+      this.pause(playlist, item, index)
     },
-    play(playlist, item) {
-      this.$store.commit(PLAYLISTS_MENU_SET_CURRENT_PLAYLIST_ID_MUTATION, playlist._id)
+    play(playlist, item, index) {
+      this.updateCurrent(playlist._id, item._id, index)
 
       if (this.player._id === item._id) {
         bus.$emit(PLAYER_PLAY)
@@ -159,23 +161,27 @@ export default {
     pause() {
       bus.$emit(PLAYER_PAUSE)
     },
-    updateCounter(itemId) {
-      const itemIndex = this.currentPlaylist.items.findIndex(findItem => findItem._id === itemId)
-      this.$store.dispatch(PLAYLISTS_MENU_SET_PLAYLIST_CURRENT_INDEX_ACTION, itemIndex)
-      this.$store.commit(COUNTER_UPDATE, { current: itemIndex, total: this.currentPlaylist.total })
+    updateCurrent(currentPlaylistId, currentItemId, currentItemIndex) {
+      this.$store.dispatch(PLAYLISTS_MENU_SET_CURRENT_ACTION, {
+        currentPlaylistId,
+        currentItemId,
+        currentItemIndex
+      })
+    },
+    updateCounter() {
+      this.$store.commit(COUNTER_UPDATE, { current: this.currentItemIndex, total: this.currentPlaylist.total })
     },
     [PLAYER_ON_PREVIOUS]() {
-      const { currentItemIndex } = this.$store.getters.getPlaylistsSettingsById(this.playlistsMenu.currentPlaylistId)
-      const currentPlaylist = this.playlists.items.find(playlist => playlist._id === this.playlistsMenu.currentPlaylistId)
-
       let nextIndex
-      if (currentItemIndex > 0) {
-        nextIndex = currentItemIndex - 1
+      if (this.currentItemIndex > 0) {
+        nextIndex = this.currentItemIndex - 1
+      } else if (this.player.repeatAll) {
+        nextIndex = this.currentPlaylist.total - 1
       } else {
         nextIndex = 0
       }
 
-      const { items: { [nextIndex]: nextItem } } = currentPlaylist
+      const { items: { [nextIndex]: nextItem } } = this.currentPlaylist
 
       if (nextItem) {
         if (this.player.play) {
@@ -184,7 +190,35 @@ export default {
           bus.$emit(PLAYER_SET_ITEM, nextItem)
         }
 
-        this.updateCounter(currentPlaylist, nextItem._id)
+        this.updateCurrent(this.currentPlaylist._id, nextItem._id, nextIndex)
+        this.updateCounter()
+      }
+    },
+    [PLAYER_ON_NEXT]() {
+      let nextIndex
+      if (this.currentItemIndex < this.currentPlaylist.total - 1) {
+        // if (this.currentItemIndex >= count - 1) {
+        //   await this.onLoadMore()
+        // }
+
+        nextIndex = this.currentItemIndex + 1
+      } else if (this.player.repeatAll) {
+        nextIndex = 0
+      } else {
+        nextIndex = this.currentPlaylist.total - 1
+      }
+
+      const { items: { [nextIndex]: nextItem } } = this.currentPlaylist
+
+      if (nextItem) {
+        if (this.player.play) {
+          bus.$emit(PLAYER_PLAY, nextItem)
+        } else {
+          bus.$emit(PLAYER_SET_ITEM, nextItem)
+        }
+
+        this.updateCurrent(this.currentPlaylist._id, nextItem._id, nextIndex)
+        this.updateCounter()
       }
     },
     onRemove(event) {
