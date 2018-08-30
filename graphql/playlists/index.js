@@ -6,12 +6,22 @@ type Playlist {
   _key: ID!
   name: String!
   ids: [ID]
+  total: Int!
+}
+
+type Song {
+  _id: ID!
+  _key: ID!
+  youtubeVideoId: ID!
 }
 
 type PlaylistsPagination {
   items: [Playlist]!
-  offset: Int!
-  count: Int!
+  total: Int!
+}
+
+type PlaylistSongsPagination {
+  items: [Song]!
   total: Int!
 }
 `
@@ -23,8 +33,14 @@ playlists(
 ) : PlaylistsPagination
 
 playlist(
-  key: String!
+  _key: String!
 ) : Playlist
+
+playlistSongs(
+  _key: String!
+  offset: Int
+  limit: Int
+) : PlaylistSongsPagination
 `
 
 const mutationsQL = `
@@ -56,23 +72,23 @@ removePlaylistItem(
 `
 
 const queries = {
-  playlists: async (noth, params) => {
+  playlists: async (noth, { offset, limit }) => {
     try {
-      const items = await db.getPlaylists(params)
-
-      return {
-        items,
-        offset: 0,
-        count: 5,
-        total: 50
-      }
+      return await db.getPlaylists({ offset, limit })
     } catch (error) {
       throw error
     }
   },
-  playlist: async (noth, { key }) => {
+  playlist: async (noth, { _key }) => {
     try {
-      return await db.getPlaylist(key)
+      return await db.getPlaylist(_key)
+    } catch (error) {
+      throw error
+    }
+  },
+  playlistSongs: async (noth, { _key, offset, limit }) => {
+    try {
+      return await db.getPlaylistSongs(_key, { offset, limit })
     } catch (error) {
       throw error
     }

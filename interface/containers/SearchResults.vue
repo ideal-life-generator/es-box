@@ -172,9 +172,11 @@ export default {
 <style lang="sass">
 .search-results
   position: relative
+  background-color: rgba(0, 0, 0, 0.3)
+  border: 1px solid white
+  border-radius: 5px
 
   .item
-    border-bottom: 1px solid white
     box-sizing: border-box
     cursor: pointer
 

@@ -105,6 +105,9 @@ export default {
     grid-area: title
     display: flex
     align-items: center
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
 
   .playback
     user-select: none

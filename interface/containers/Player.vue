@@ -23,6 +23,7 @@ div.player
   shuffle(
     v-bind:color="player.shuffle ? 'white' : 'gray'"
     v-bind:size="20"
+    v-on:click.native="onShuffle"
   )
   repeat-one(
     v-bind:color="player.repeatOne ? 'white' : 'gray'"
@@ -51,6 +52,7 @@ import {
   PLAYER_SET_ITEM_ACTION,
   PLAYER_PLAY_ACTION,
   PLAYER_CLEAR_ACTION,
+  PLAYER_TOGGLE_SHUFFLE_ACTION,
   PLAYER_TOGGLE_REPEAT_ONE_ACTION,
   PLAYER_TOGGLE_REPEAT_ALL_ACTION
 } from 'store/player'
@@ -73,6 +75,7 @@ export const PLAYER_PREVIOUS = 'PLAYER@PREVIOUS'
 export const PLAYER_ON_PREVIOUS = 'PLAYER@ON_PREVIOUS'
 export const PLAYER_NEXT = 'PLAYER@NEXT'
 export const PLAYER_ON_NEXT = 'PLAYER@ON_NEXT'
+export const PLAYER_ON_SHUFFLE = 'PLAYER@ON_SHUFFLE'
 
 export default {
   computed: {
@@ -97,6 +100,11 @@ export default {
     },
     onNext() {
       this[PLAYER_NEXT]()
+    },
+    onShuffle() {
+      this.$store.dispatch(PLAYER_TOGGLE_SHUFFLE_ACTION)
+
+      bus.$emit(PLAYER_ON_SHUFFLE)
     },
     onRepeatOne() {
       this.$store.dispatch(PLAYER_TOGGLE_REPEAT_ONE_ACTION)

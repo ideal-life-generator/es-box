@@ -46,23 +46,35 @@ const removePlaylist = async _key => {
 }
 
 const getPlaylists = async ({ offset, limit }) => {
-  const cursor = await db.query(aql`
+  const itemsCursor = await db.query(aql`
     FOR playlist IN playlists
     SORT playlist.createdAt DESC
+    LIMIT ${offset}, ${limit}
     RETURN playlist
   `)
 
-  return await cursor.all()
+  const totalCursor = await db.query(aql`
+    RETURN LENGTH(playlists)
+  `)
+
+  const items = await itemsCursor.all()
+  const total = await totalCursor.next()
+
+  return {
+    items,
+    total
+  }
 }
 
-const getPlaylist = async key => {
+const getPlaylistSongs = async key => {
   const id = `playlists/${key}`
 
   const cursor = await db.query(aql`
-    RETURN DOCUMENT(${id})
+    FOR song IN ANY ${id} used_in_playlist
+    RETURN song
   `)
 
-  return await cursor.next()
+  return await cursor.all()
 }
 
 const addPlaylistItem = async (_key, sourceId, index = 0) => {
@@ -81,7 +93,12 @@ const addPlaylistItem = async (_key, sourceId, index = 0) => {
     RETURN NEW
   `)
 
-  return await cursor.next()
+  const playlist = await cursor.next()
+
+  return {
+    ...playlist,
+    total: playlist.ids.length
+  }
 }
 
 const movePlaylistItem = async (_key, currentIndex, nextIndex) => {
@@ -102,7 +119,12 @@ const movePlaylistItem = async (_key, currentIndex, nextIndex) => {
     RETURN NEW
   `)
 
-  return await cursor.next()
+  const playlist = await cursor.next()
+
+  return {
+    ...playlist,
+    total: playlist.ids.length
+  }
 }
 
 const removePlaylistItem = async (_key, index) => {
@@ -116,13 +138,18 @@ const removePlaylistItem = async (_key, index) => {
     RETURN NEW
   `)
 
-  return await cursor.next()
+  const playlist = await cursor.next()
+
+  return {
+    ...playlist,
+    total: playlist.ids.length
+  }
 }
 
 export default {
   upsertUser,
   getPlaylists,
-  getPlaylist,
+  getPlaylistSongs,
   insertPlaylist,
   removePlaylist,
   addPlaylistItem,

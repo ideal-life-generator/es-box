@@ -14,46 +14,51 @@ div.playlists
       v-for="(playlist, i) in playlists.items"
       v-bind:key="playlist._key"
       v-on:dragover="onDragOver"
-      v-on:drop="onDrop(playlist._key, ...arguments)"
+      v-on:drop="onDrop(playlist._key, ...arguments, this)"
     )
-      router-link.playlist-link(
-        v-bind:to="`/playlists/${playlist._key}`"
-        v-text="playlist.name"
-      )
-      up.close(
-        v-if="playlistsMenu.showItems[i]"
-        v-bind:size="17"
-        v-on:click.native="onHideItems(i)"
-      )
-      down.open(
-        v-else
-        v-bind:size="17"
-        v-on:click.native="onShowItems(i)"
-      )
-      bin.delete(
-        v-bind:size="17"
-        v-on:click.native="deletePlaylist(playlist._key)"
-      )
-      div.items(v-show="playlistsMenu.showItems[i]")
-        div.item(
-          v-bind:class="{ active: player._id === item._id && currentItemIndex === i }"
-          v-for="(item, i) in playlist.items"
-          v-bind:key="`${i}-${item._id}`"
-          v-bind:data-i="i"
-          draggable="true"
-          v-on:dragstart="onDragStart(playlist._key, item, i, ...arguments)"
+      header.header
+        router-link.playlist-link(
+          v-bind:to="`/playlist/${playlist._key}`"
+          v-text="playlist.name"
         )
-          play-icon.play(
-            v-if="!player.play || (player.play && !(player._id === item._id && currentItemIndex === i))"
-            v-bind:size="21"
-            v-on:click.native="onPlay(playlist, item, i)"
-          )
-          pause-icon.pause(
-            v-else
-            v-bind:size="21"
-            v-on:click.native="onPause(playlist, item, i)"
-          )
-          div.title(v-text="item.title")
+        //- div.toggler
+        //-   up.close(
+        //-     v-if="playlistsMenu.showItems[i]"
+        //-     v-bind:size="17"
+        //-     v-on:click.native="onHideItems(i)"
+        //-   )
+        //-   down.open(
+        //-     v-else
+        //-     v-bind:size="17"
+        //-     v-on:click.native="onShowItems(i)"
+        //-   )
+        bin.delete(
+          v-bind:size="17"
+          v-on:click.native="deletePlaylist(playlist._key)"
+        )
+      //- div.items(
+      //-   v-show="playlistsMenu.showItems[i]"
+      //-   v-bind:data-i="0"
+      //- )
+      //-   div.item(
+      //-     v-bind:class="{ active: player._id === item._id && currentItemIndex === i }"
+      //-     v-for="(item, i) in playlist.items"
+      //-     v-bind:key="`${i}-${item._id}`"
+      //-     v-bind:data-i="i"
+      //-     draggable="true"
+      //-     v-on:dragstart="onDragStart(playlist._key, item, i, ...arguments)"
+      //-   )
+      //-     play-icon.play(
+      //-       v-if="!player.play || (player.play && !(player._id === item._id && currentItemIndex === i))"
+      //-       v-bind:size="21"
+      //-       v-on:click.native="onPlay(playlist, item, i)"
+      //-     )
+      //-     pause-icon.pause(
+      //-       v-else
+      //-       v-bind:size="21"
+      //-       v-on:click.native="onPause(playlist, item, i)"
+      //-     )
+      //-     div.title(v-text="item.title")
 </template>
 
 <script>
@@ -83,32 +88,43 @@ import api from 'api'
 import bus from 'events-bus'
 import { SHOW_ERROR } from 'store/error'
 
-const PLAYLISTS_QUERY = gql`{
-  playlists {
-    items {
-      _id
-      _key
-      name
-      ids
+const PLAYLISTS_QUERY = gql`
+  query Playlists(
+    $offset: Int!
+    $limit: Int!
+  ) {
+    playlists(
+      offset: $offset
+      limit: $limit
+    ) {
+      items {
+        _id
+        _key
+        name
+      }
+      total
     }
-    offset
-    count
-    total
   }
-}`
+`
 
 export default {
   data: () => ({
     playlists: {
       items: [],
       offset: 0,
-      count: 0,
+      limit: 0,
       total: 0
     }
   }),
   apollo: {
     playlists: {
       query: PLAYLISTS_QUERY,
+      variables() {
+        return {
+          offset: 0,
+          limit: 10
+        }
+      },
       manual: true,
       async result({ data, loading, networkStatus }) {
         if (!loading) {
@@ -116,12 +132,20 @@ export default {
             api.getVideos(playlist.ids)
           ))
 
-          const resuts = {
+          const results = {
             ...data.playlists,
             items: data.playlists.items.map((item, i) => ({ ...item, ...youtubeVideos[i] }))
           }
 
-          this.playlists = resuts
+          this.playlists = results
+
+          if (!this.player._id && this.playlists.limit > 0) {
+            if (this.playlists.items[0].limit > 0) {
+              const { items: [item] } = this.playlists.items[0]
+
+              this.setItem(this.playlists.items[0], this.playlists.items[0].items[0], 0)
+            }
+          }
         }
       }
     }
@@ -141,6 +165,17 @@ export default {
     }
   },
   methods: {
+    setItem(playlist, item, index) {
+      this.updateCurrent(playlist._id, item._id, index)
+
+      if (this.player._id === item._id) {
+        bus.$emit(PLAYER_SET_ITEM)
+      } else {
+        bus.$emit(PLAYER_SET_ITEM, item)
+      }
+
+      this.updateCounter(item._id)
+    },
     onPlay(playlist, item, index) {
       this.play(playlist, item, index)
     },
@@ -232,12 +267,12 @@ export default {
     onDragOver(event) {
       event.preventDefault()
     },
-    onDrop(_key, event) {
+    onDrop(_key, event, ...args) {
       event.preventDefault()
       event.stopPropagation()
 
       const { type, data, currentIndex } = JSON.parse(event.dataTransfer.getData('text/plain'))
-      const itemIndex = parseFloat(event.target.dataset.i) || 0
+      const itemIndex = parseFloat(event.target.closest('[data-i]').dataset.i)
       const { top, height } = event.target.getBoundingClientRect()
 
       let index
@@ -276,6 +311,7 @@ export default {
                 sourceId: $sourceId
                 index: $index
               ) {
+                _id
                 _key
                 name
                 ids
@@ -317,6 +353,7 @@ export default {
                 _key: $_key
                 index: $index
               ) {
+                _id
                 _key
                 name
                 ids
@@ -359,6 +396,7 @@ export default {
                 currentIndex: $currentIndex
                 nextIndex: $nextIndex
               ) {
+                _id
                 _key
                 name
                 ids
@@ -394,8 +432,8 @@ export default {
           mutation: gql`
             mutation($name: String!, $ids: [ID]!) {
               createPlaylist(name: $name, ids: $ids) {
-                _key
                 _id
+                _key
                 name
                 ids
               }
@@ -432,8 +470,8 @@ export default {
           mutation: gql`
             mutation($_key: ID!) {
               deletePlaylist(_key: $_key) {
-                _key
                 _id
+                _key
                 name
                 ids
               }
@@ -470,18 +508,18 @@ export default {
     //   // count: currentPlaylist.total
     // })
 
-    bus.$on(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
-    bus.$on(PLAYER_ON_NEXT, this[PLAYER_ON_NEXT])
+    // bus.$on(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
+    // bus.$on(PLAYER_ON_NEXT, this[PLAYER_ON_NEXT])
 
-    document.addEventListener('dragover', this.onDragOver)
-    document.addEventListener('drop', this.onRemove)
+    // document.addEventListener('dragover', this.onDragOver)
+    // document.addEventListener('drop', this.onRemove)
   },
   unmounted() {
-    bus.$off(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
-    bus.$off(PLAYER_ON_NEXT, this[PLAYER_ON_NEXT])
+    // bus.$off(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
+    // bus.$off(PLAYER_ON_NEXT, this[PLAYER_ON_NEXT])
 
-    document.removeEventListener('dragover', this.onDragOver)
-    document.removeEventListener('drop', this.onRemove)
+    // document.removeEventListener('dragover', this.onDragOver)
+    // document.removeEventListener('drop', this.onRemove)
   },
   components: {
     Add,
@@ -516,27 +554,31 @@ export default {
   flex-direction: column
 
   .playlist-link-container
-    display: grid
-    grid-template-columns: auto 21.6px 21.6px
-    grid-template-areas: 'name toggler delete' 'items items items'
 
-    .playlist-link
-      grid-area: name
+    .header
+      // display: grid
+      // grid-template-columns: 300px 21.6px 21.6px
+      // grid-template-areas: 'name toggler delete'
 
-      &.active
-        color: purple
+      .playlist-link
+        grid-area: name
 
-    .close
-      grid-area: toggler
+        &.active
+          color: purple
 
-    .open
-      grid-area: toggler
+      .toggler
+        margin-left: 5px
+        grid-area: toggler
+        
+        .close
 
-    .delete
-      grid-area: delete
+        .open
+
+      .delete
+        margin-left: 5px
+        grid-area: delete
 
     .items
-      width: 190px
       grid-area: items
       display: flex
       flex-direction: column

@@ -1,7 +1,8 @@
 <template lang="pug">
-button(
+button.button(
   @click="onClick"
   v-bind:disabled="disabled"
+  v-bind:style="additionalStyle"
 )
   svg.icon(
     style="{ width: `${size}px`, height: `${size}px` }"
@@ -23,6 +24,7 @@ export default {
     y: { type: Number },
     size: { type: Number, required: true },
     disabled: { type: Boolean },
+    additionalStyle: { type: Object },
   },
   methods: {
     onClick() { this.$emit('click') }
@@ -32,13 +34,14 @@ export default {
 
 <style lang="sass">
 .icon
-  cursor: pointer
 
-button
+.button
   padding: 0px
   border: none
   outline: none
   background-color: transparent
+  cursor: pointer
+
   &[disabled]
     opacity: 0.5
 

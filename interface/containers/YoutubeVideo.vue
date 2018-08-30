@@ -24,15 +24,20 @@ export const YOUTUBE_VIDEO_PLAYER_PLAYING = 'YOUTUBE_VIDEO_PLAYER@PLAYING'
 export const YOUTUBE_VIDEO_PLAYER_PAUSE = 'YOUTUBE_VIDEO_PLAYER@PAUSE'
 export const YOUTUBE_VIDEO_PLAYER_BUFFERING = 'YOUTUBE_VIDEO_PLAYER@BUFFERING'
 export const YOUTUBE_VIDEO_PLAYER_VIDEO_CUED = 'YOUTUBE_VIDEO_PLAYER@VIDEO_CUED'
+export const YOUTUBE_VIDEO_PLAYER_RESIZE = 'YOUTUBE_VIDEO_PLAYER@RESIZE'
 
 export default {
+  props: {
+    width: { type: Number, required: true },
+    height: { type: Number, required: true }
+  },
   data: () => {
-    const proportion = 0.5625
-    const width = 485
+    // const proportion = 0.5625
+    // const width = 485
 
     return {
-      width: width,
-      height: `${width * proportion}`,
+      // width: width,
+      // height: `${width * proportion}`,
       play: false
     }
   },
@@ -115,6 +120,9 @@ export default {
     [YOUTUBE_VIDEO_PLAYER_PAUSE]() {
       this.youtubePlayer.pauseVideo()
     },
+    [YOUTUBE_VIDEO_PLAYER_RESIZE](width, height) {
+      this.youtubePlayer.setSize(width, height)
+    },
     onStop() {
       this.youtubePlayer.pauseVideo()
     },
@@ -123,7 +131,7 @@ export default {
 
       await this.youtubePlayer.pauseVideo()
 
-      setTimeout(() => this.youtubePlayer.loadVideoById(this.playerVideoId), 10)
+      setTimeout(() => this.youtubePlayer.loadVideoById(this.playerVideoId), 50)
 
       // this.youtubePlayer.playVideo()
     }
@@ -143,6 +151,7 @@ export default {
     // bus.$on(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
     bus.$on(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this.onSetAndPlay)
     // bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
+    bus.$on(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
     bus.$on(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
     bus.$on(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
     bus.$on(PLAYER_ON_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
@@ -158,6 +167,7 @@ export default {
     // bus.$off(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
     bus.$off(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this.onSetAndPlay)
     // bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
+    bus.$off(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
     bus.$off(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
     bus.$off(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
     bus.$off(PLAYER_ON_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
@@ -168,32 +178,5 @@ export default {
 </script>
 
 <style lang="sass">
-$video-proportion: 0.5625
-$width: 220px
-$height: $width * $video-proportion
-
-.youtube-player
-  position: fixed
-  top: 100px
-  right: 0px
-
-.video-player
-  width: $width
-  height: $height
-
-  // .background
-  //   width: $width
-  //   height: $height
-
-  .video-wrapper
-    width: $width
-    height: $height
-
-    .video
-      // width: 125%
-      // height: 125%
-      position: absolute
-      left: 50px
-
 
 </style>

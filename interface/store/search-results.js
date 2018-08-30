@@ -73,7 +73,7 @@ export default {
         if (count > 0) {
           const [{ _id, title }] = items
 
-          dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
+          // dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
 
           commit(SET_CURRENT_INDEX_MUTATION, _id)
         }

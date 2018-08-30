@@ -9,33 +9,12 @@ import playlists from './playlists'
 const typeDefs = `
 ${playlists.typesQL}
 
-type Song {
-  id: ID!
-  title: String!
-  thumbnail: String!
-}
-
-type SongsPagination {
-  items: [Song]
-  count: Int!
-  total: Int!
-}
-
-type Youtube {
-  songs(
-    key: String
-    cursor: Int
-    count: Int
-  ): SongsPagination
-}
-
 type User {
   _id: ID!
   email: String!
 }
 
 type Query {
-  youtube: Youtube
   user: User
   ${playlists.queriesQL}
 }
@@ -58,7 +37,6 @@ type Schema {
 
 const resolvers = {
   Query: {
-    youtube: () => ({ songs: { count: 1 } }),
     user: (none, args, { session }) => session.user,
     ...playlists.queries
   },
@@ -80,17 +58,6 @@ const resolvers = {
       }
     },
     ...playlists.mutations
-  },
-  Youtube: {
-    songs: async (youtube, params) => {
-      // try {
-      //   const { data } = await search({ key: null, count: 5 })
-
-      //   return data
-      // } catch (error) {
-
-      // }
-    },
   }
 }
 
