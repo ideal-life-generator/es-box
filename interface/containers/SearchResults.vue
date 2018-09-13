@@ -80,7 +80,7 @@ export default {
       this.$store.commit(COUNTER_UPDATE_CURRENT, this.searchResults.currentItemIndex)
     },
     onDragStart(item, event) {
-      event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'INSERT', data: item }));
+      event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'INSERT', item }));
     },
     onLoadMore() {
       return this.$store.dispatch(LOAD_MORE_ACTION)

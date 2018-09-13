@@ -9,19 +9,28 @@ type Playlist {
   total: Int!
 }
 
-type Song {
-  _id: ID!
-  _key: ID!
-  youtubeVideoId: ID!
-}
-
 type PlaylistsPagination {
   items: [Playlist]!
   total: Int!
 }
 
+type Song {
+  _id: ID!
+  youtubeVideoId: ID!
+}
+
+type InPlaylistAs {
+  _id: ID!
+  index: Int!
+}
+
+type ItemInPlaylistSongs {
+  song: Song!
+  inPlaylistAs: InPlaylistAs!
+}
+
 type PlaylistSongsPagination {
-  items: [Song]!
+  items: [ItemInPlaylistSongs]!
   total: Int!
 }
 `
@@ -37,7 +46,7 @@ playlist(
 ) : Playlist
 
 playlistSongs(
-  _key: String!
+  playlistId: ID!
   offset: Int
   limit: Int
 ) : PlaylistSongsPagination
@@ -53,42 +62,42 @@ deletePlaylist(
   _key: ID!
 ) : Playlist
 
-addPlaylistItem(
-  _key: ID!
-  sourceId: ID!
-  index: Int!
-) : Playlist
+addPlaylistSong(
+  playlistId: ID!
+  youtubeVideoId: ID!
+  index: Int
+) : PlaylistSongsPagination
 
 movePlaylistItem(
   _key: ID!
   currentIndex: Int!
   nextIndex: Int!
-) : Playlist
+) : PlaylistSongsPagination
 
-removePlaylistItem(
-  _key: ID!
-  index: Int!
-) : Playlist
+removePlaylistSong(
+  playlistId: ID!
+  itemId: ID!
+) : PlaylistSongsPagination
 `
 
 const queries = {
-  playlists: async (noth, { offset, limit }) => {
+  playlists: async (parent, { offset, limit }) => {
     try {
       return await db.getPlaylists({ offset, limit })
     } catch (error) {
       throw error
     }
   },
-  playlist: async (noth, { _key }) => {
+  playlist: async (parent, { _key }) => {
     try {
       return await db.getPlaylist(_key)
     } catch (error) {
       throw error
     }
   },
-  playlistSongs: async (noth, { _key, offset, limit }) => {
+  playlistSongs: async (parent, { playlistId, offset, limit }) => {
     try {
-      return await db.getPlaylistSongs(_key, { offset, limit })
+      return await db.getPlaylistSongs(playlistId, { offset, limit })
     } catch (error) {
       throw error
     }
@@ -96,37 +105,37 @@ const queries = {
 }
 
 const mutations = {
-  createPlaylist: async (noth, data, { session }) => {
+  createPlaylist: async (parent, data, { session }) => {
     try {
       return await db.insertPlaylist(data)
     } catch (error) {
       throw error
     }
   },
-  deletePlaylist: async (noth, data, { session }) => {
+  deletePlaylist: async (parent, data, { session }) => {
     try {
       return await db.removePlaylist(data)
     } catch (error) {
       throw error
     }
   },
-  addPlaylistItem: async (noth, { _key, sourceId, index }, { session }) => {
+  addPlaylistSong: async (parent, { playlistId, youtubeVideoId, index }, { session }) => {
     try {
-      return await db.addPlaylistItem(_key, sourceId, index)
+      return await db.addPlaylistSong(playlistId, youtubeVideoId, index)
     } catch (error) {
       throw error
     }
   },
-  movePlaylistItem: async (noth, { _key, currentIndex, nextIndex }, { session }) => {
+  movePlaylistItem: async (parent, { _key, currentIndex, nextIndex }, { session }) => {
     try {
       return await db.movePlaylistItem(_key, currentIndex, nextIndex)
     } catch (error) {
       throw error
     }
   },
-  removePlaylistItem: async (noth, { _key, index }, { session }) => {
+  removePlaylistSong: async (parent, { playlistId, itemId }, { session }) => {
     try {
-      return await db.removePlaylistItem(_key, index)
+      return await db.removePlaylistItem(playlistId, itemId)
     } catch (error) {
       throw error
     }

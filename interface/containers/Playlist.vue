@@ -4,25 +4,25 @@ div.playlist(
   v-on:drop="onDrop(...arguments, this)"
 )
   div.item(
-    v-for="(item, i) in videoItems"
-    v-bind:key="`${i}-${item._id}`"
-    v-bind:class="{ active: player._id === item._id && currentItemIndex === i }"
+    v-for="(videoItem, i) in videoItems"
+    v-bind:key="`${i}-${videoItem._id}`"
+    v-bind:class="{ active: player._id === videoItem._id && currentItemIndex === i }"
     v-bind:data-i="i"
     draggable="true"
-    v-on:dragstart="onDragStart(item, i, ...arguments)"
+    v-on:dragstart="onDragStart(playlistSongs.items[i], videoItem, i, ...arguments)"
   )
     div.playback
       play-icon.play(
-        v-if="!player.play || (player.play && !(player._id === item._id && currentItemIndex === i))"
+        v-if="!player.play || (player.play && !(player._id === videoItem._id && currentItemIndex === i))"
         v-bind:size="21"
-        v-on:click.native="onPlay(item, i)"
+        v-on:click.native="onPlay(videoItem, i)"
       )
       pause-icon.pause(
         v-else
         v-bind:size="21"
-        v-on:click.native="onPause(item, i)"
+        v-on:click.native="onPause(videoItem, i)"
       )
-    div.title(v-text="item.title")
+    div.title(v-text="videoItem.title")
 </template>
 
 <script>
@@ -52,12 +52,17 @@ import bus from 'events-bus'
 import { SHOW_ERROR } from 'store/error'
 
 const PLAYLIST_QUERY = gql`
-  query PlaylistSongs($_key: String!) {
-    playlistSongs(_key: $_key) {
+  query PlaylistSongs($playlistId: ID!) {
+    playlistSongs(playlistId: $playlistId) {
       items {
-        _id
-        _key
-        youtubeVideoId
+        song {
+          _id
+          youtubeVideoId
+        }
+        inPlaylistAs {
+          _id
+          index
+        }
       }
       total
     }
@@ -66,8 +71,10 @@ const PLAYLIST_QUERY = gql`
 
 export default {
   data: () => ({
-    items: [],
-    total: null,
+    playlistSongs: {
+      items: [],
+      total: null
+    },
     videoItems: [],
     shuffled: []
   }),
@@ -80,32 +87,25 @@ export default {
       'currentItemIndex'
     ]),
     count() {
-      return this.items.length
+      return this.videoItems.length
     },
+    playlistId() {
+      return `playlists/${this.$route.params._key}`
+    }
   },
   apollo: {
-    playlist: {
+    playlistSongs: {
       query: PLAYLIST_QUERY,
       variables() {
         return {
-          _key: this.$route.params._key,
+          playlistId: this.playlistId,
         }
       },
-      async result({ data: { items } }) {
-        const { items: videoItems } = await api.getVideos(items)
-        this.videoItems = videoItems
+      async result({ data: { playlistSongs } }) {
+        const youtubeVideoIds = playlistSongs.items.map(item => item.song.youtubeVideoId)
 
-        // if (this.playlist.ids.length > 0) {
-        //   const [{ _id, title }] = this.items
-
-        //   this.$store.dispatch(PLAYER_SET_ITEM_ACTION, { _id, title })
-
-        //   this.currentItemId = _id
-
-        //   bus.$emit(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID)
-
-        //   this.$store.commit(COUNTER_UPDATE, { current: 0, count: this.total })
-        // }
+        const { items } = await api.getVideos(youtubeVideoIds)
+        this.videoItems = items
       }
     }
   },
@@ -132,7 +132,7 @@ export default {
     },
     updateCurrent(currentItemId, currentItemIndex) {
       this.$store.dispatch(PLAYLISTS_MENU_SET_CURRENT_ACTION, {
-        currentPlaylistId: `playlists/${this.$route.params._key}`,
+        currentPlaylistId: this.playlistId,
         currentItemId,
         currentItemIndex
       })
@@ -141,12 +141,12 @@ export default {
       this.$store.commit(PLAYLISTS_MENU_SET_CURRENT_ITEM_INDEX_MUTATION, currentItemIndex)
     },
     updateCounter() {
-      this.$store.commit(COUNTER_UPDATE, { current: this.currentItemIndex, total: this.playlist.total })
+      this.$store.commit(COUNTER_UPDATE, { current: this.currentItemIndex, total: this.playlistSongs.total })
     },
     onRemove(event) {
-      const { currentIndex } = JSON.parse(event.dataTransfer.getData('text/plain'))
+      const { item: { inPlaylistAs: { _id } } } = JSON.parse(event.dataTransfer.getData('text/plain'))
 
-      this.removeItem(currentIndex)
+      this.removeItem(_id)
     },
     onDragOver(event) {
       event.preventDefault()
@@ -155,32 +155,34 @@ export default {
       event.preventDefault()
       event.stopPropagation()
 
-      const { type, data, currentIndex } = JSON.parse(event.dataTransfer.getData('text/plain'))
+      const { type, item, currentIndex } = JSON.parse(event.dataTransfer.getData('text/plain'))
       let itemIndex
-      if (event.target.closest('[data-i]')) {
-        itemIndex = parseFloat(event.target.closest('[data-i]').dataset.i)
-      } else {
-        itemIndex = 0
-      }
-
-      const { top, height } = event.target.getBoundingClientRect()
-
       let index
-      if (event.clientY < top + (height / 2)) {
-        index = itemIndex > 0 ? itemIndex - 1 : 0
+      const target = event.target.closest('[data-i]')
+      if (target) {
+        itemIndex = parseFloat(target.dataset.i)
+
+        const { top, height } = target.getBoundingClientRect()
+
+        if (event.clientY < top + (height / 2)) {
+          index = itemIndex
+        } else {
+          index = itemIndex + 1
+        }
       } else {
-        index = itemIndex
+        index = this.playlistSongs.total
       }
 
       if (type === 'INSERT') {
-        this.addItem(data, index)
+        this.addItem(item._id, typeof index === 'number' ? index : this.playlistSongs.items.length + 1)
       } else {
         this.moveItem(currentIndex, index)
       }
     },
-    onDragStart(item, index, event) {
+    onDragStart(item, videoItem, index, event) {
       event.dataTransfer.setData('text/plain', JSON.stringify({
-        data: item,
+        item,
+        videoItem,
         currentIndex: index,
         type: 'MOVE'
       }))
@@ -190,12 +192,12 @@ export default {
       if (this.currentItemIndex > 0) {
         nextIndex = this.currentItemIndex - 1
       } else if (this.player.repeatAll) {
-        nextIndex = this.playlist.total - 1
+        nextIndex = this.playlistSongs.total - 1
       } else {
         nextIndex = 0
       }
 
-      const { [nextIndex]: nextItem } = this.items
+      const { [nextIndex]: nextItem } = this.videoItems
 
       if (nextItem) {
         if (this.player.play) {
@@ -210,7 +212,7 @@ export default {
     },
     [PLAYER_ON_NEXT]() {
       let nextIndex
-      if (this.currentItemIndex < this.playlist.total - 1) {
+      if (this.currentItemIndex < this.playlistSongs.total - 1) {
         // if (this.currentItemIndex >= count - 1) {
         //   await this.onLoadMore()
         // }
@@ -219,10 +221,10 @@ export default {
       } else if (this.player.repeatAll) {
         nextIndex = 0
       } else {
-        nextIndex = this.playlist.total - 1
+        nextIndex = this.playlistSongs.total - 1
       }
 
-      const { [nextIndex]: nextItem } = this.items
+      const { [nextIndex]: nextItem } = this.videoItems
 
       if (nextItem) {
         if (this.player.play) {
@@ -238,44 +240,56 @@ export default {
     [PLAYER_ON_SHUFFLE]() {
       console.log('shuffle', this.player.shuffle)
     },
-    async addItem(data, index) {
+    async addItem(youtubeVideoId, index) {
       try {
         await this.$apollo.mutate({
           mutation: gql`
             mutation(
-              $_key: ID!
-              $sourceId: ID!
-              $index: Int!
+              $playlistId: ID!
+              $youtubeVideoId: ID!
+              $index: Int
             ) {
-              addPlaylistItem(
-                _key: $_key
-                sourceId: $sourceId
+              addPlaylistSong(
+                playlistId: $playlistId
+                youtubeVideoId: $youtubeVideoId
                 index: $index
               ) {
-                _id
-                _key
-                name
-                ids
+                items {
+                  song {
+                    _id
+                    youtubeVideoId
+                  }
+                  inPlaylistAs {
+                    _id
+                    index
+                  }
+                }
                 total
               }
             }
           `,
           variables: {
-            _key: this.$route.params._key,
-            sourceId: data._id,
+            playlistId: this.playlistId,
+            youtubeVideoId,
             index
           },
-          update: (store, { data: { addPlaylistItem } }) => {
+          update: (store, { data: { addPlaylistSong } }) => {
             const data = store.readQuery({
               query: PLAYLIST_QUERY,
               variables: {
-                key: this.$route.params._key
+                playlistId: this.playlistId
               }
             })
 
-            data.playlist = addPlaylistItem
+            data.playlistSongs = addPlaylistSong
 
-            store.writeQuery({ query: PLAYLIST_QUERY, data })
+            store.writeQuery({
+              query: PLAYLIST_QUERY,
+              variables: {
+                playlistId: this.playlistId
+              },
+              data
+            })
           }
         })
       } catch (error) { // FIXME: Should parse
@@ -287,41 +301,53 @@ export default {
         )
       }
     },
-    async removeItem(index) {
+    async removeItem(itemId) {
       try {
         await this.$apollo.mutate({
           mutation: gql`
             mutation(
-              $_key: ID!
-              $index: Int!
+              $playlistId: ID!
+              $itemId: ID!
             ) {
-              removePlaylistItem(
-                _key: $_key
-                index: $index
+              removePlaylistSong(
+                playlistId: $playlistId
+                itemId: $itemId
               ) {
-                _id
-                _key
-                name
-                ids
+                items {
+                  song {
+                    _id
+                    youtubeVideoId
+                  }
+                  inPlaylistAs {
+                    _id
+                    index
+                  }
+                }
                 total
               }
             }
           `,
           variables: {
-            _key: this.$route.params._key,
-            index
+            playlistId: this.playlistId,
+            itemId
           },
-          update: (store, { data: { removePlaylistItem } }) => {
+          update: (store, { data: { removePlaylistSong } }) => {
             const data = store.readQuery({
               query: PLAYLIST_QUERY,
               variables: {
-                key: this.$route.params._key
+                playlistId: this.playlistId
               }
             })
 
-            data.playlist = removePlaylistItem
+            data.playlistSongs = removePlaylistSong
 
-            store.writeQuery({ query: PLAYLIST_QUERY, data })
+            store.writeQuery({
+              query: PLAYLIST_QUERY,
+              variables: {
+                playlistId: this.playlistId
+              },
+              data
+            })
           }
         })
       } catch (error) { // FIXME: Should parse
@@ -415,6 +441,7 @@ export default {
     display: grid
     grid-template-columns: 21.6px auto
     grid-template-areas: 'playback title'
+    border: 1px solid white
 
     .playback
       grid-area: playback
