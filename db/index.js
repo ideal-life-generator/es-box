@@ -66,7 +66,9 @@ const getPlaylists = async ({ offset, limit }) => {
   }
 }
 
-const getPlaylistSongs = async (playlistId, { offset, limit, order = 'ASC' }) => {
+const getPlaylistSongs = async (playlistId, options = {}) => {
+  const { offset, limit, order = 'ASC' } = options
+
   const itemsCursor = await db.query(aql`
     FOR song, inPlaylistAs IN ANY ${playlistId} used_in_playlist
       SORT inPlaylistAs.index ${order}
@@ -125,33 +127,7 @@ const addPlaylistSong = async (playlistId, youtubeVideoId, index = 0) => {
 
   await usedInPlaylistEdgeCursor.next()
 
-  return await getPlaylistSongs(playlistId, {})
-}
-
-const movePlaylistItem = async (_key, currentIndex, nextIndex) => {
-  const id = `playlists/${_key}`
-
-  const cursor = await db.query(aql`
-    LET playlist = DOCUMENT(${id})
-    LET sourceId = NTH(playlist.ids, ${currentIndex})
-    LET idsWithRemovedItem = REMOVE_NTH(playlist.ids, ${currentIndex})
-    LET nextIds = UNION(
-      SLICE(idsWithRemovedItem, 0, ${nextIndex}),
-      [sourceId],
-      SLICE(idsWithRemovedItem, ${nextIndex})
-    )
-    UPDATE playlist WITH {
-      ids: nextIds
-    } IN playlists
-    RETURN NEW
-  `)
-
-  const playlist = await cursor.next()
-
-  return {
-    ...playlist,
-    total: playlist.ids.length
-  }
+  return await getPlaylistSongs(playlistId)
 }
 
 const removePlaylistItem = async (playlistId, itemId) => {
@@ -177,7 +153,47 @@ const removePlaylistItem = async (playlistId, itemId) => {
 
   await updateNextIndexesCursor.all()
 
-  return await getPlaylistSongs(playlistId, {})
+  return await getPlaylistSongs(playlistId)
+}
+
+const movePlaylistItem = async ({ playlistId, inPlaylistAsId, currentIndex, nextIndex }) => {
+  if (nextIndex > currentIndex) {
+    const updateNextIndexesCursor = await db.query(aql`
+      FOR song, inPlaylistAs IN ANY ${playlistId} used_in_playlist
+        FILTER inPlaylistAs.index > ${currentIndex} AND inPlaylistAs.index <= ${nextIndex}
+        UPDATE inPlaylistAs WITH { index: inPlaylistAs.index - 1 } IN used_in_playlist
+    `)
+
+    await updateNextIndexesCursor.all()
+
+    const updateCurrentIndexCursor = await db.query(aql`
+      UPDATE DOCUMENT(${inPlaylistAsId})
+      WITH {
+        index: ${nextIndex}
+      } IN used_in_playlist
+    `)
+
+    await updateCurrentIndexCursor.next()
+  } else if (nextIndex < currentIndex) {
+    const updateNextIndexesCursor = await db.query(aql`
+      FOR song, inPlaylistAs IN ANY ${playlistId} used_in_playlist
+        FILTER inPlaylistAs.index >= ${nextIndex} AND inPlaylistAs.index < ${currentIndex}
+        UPDATE inPlaylistAs WITH { index: inPlaylistAs.index + 1 } IN used_in_playlist
+    `)
+
+    await updateNextIndexesCursor.all()
+
+    const updateCurrentIndexCursor = await db.query(aql`
+      UPDATE DOCUMENT(${inPlaylistAsId})
+      WITH {
+        index: ${nextIndex}
+      } IN used_in_playlist
+    `)
+
+    await updateCurrentIndexCursor.next()
+  }
+
+  return await getPlaylistSongs(playlistId)
 }
 
 export default {

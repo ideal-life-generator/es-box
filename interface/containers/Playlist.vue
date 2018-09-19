@@ -176,7 +176,7 @@ export default {
       if (type === 'INSERT') {
         this.addItem(item._id, typeof index === 'number' ? index : this.playlistSongs.items.length + 1)
       } else {
-        this.moveItem(currentIndex, index)
+        this.moveItem(item.inPlaylistAs._id, currentIndex, index)
       }
     },
     onDragStart(item, videoItem, index, event) {
@@ -359,46 +359,59 @@ export default {
         )
       }
     },
-    async moveItem(currentIndex, nextIndex) {
+    async moveItem(inPlaylistAsId, currentIndex, nextIndex) {
       try {
         await this.$apollo.mutate({
           mutation: gql`
             mutation(
-              $_key: ID!
+              $playlistId: ID!
+              $inPlaylistAsId: ID!
               $currentIndex: Int!
               $nextIndex: Int!
             ) {
-              movePlaylistItem(
-                _key: $_key
+              movePlaylistSong(
+                playlistId: $playlistId
+                inPlaylistAsId: $inPlaylistAsId
                 currentIndex: $currentIndex
                 nextIndex: $nextIndex
               ) {
-                _id
-                _key
-                name
-                ids
+                items {
+                  song {
+                    _id
+                    youtubeVideoId
+                  }
+                  inPlaylistAs {
+                    _id
+                    index
+                  }
+                }
                 total
               }
             }
           `,
           variables: {
-            _key: this.$route.params._key,
+            playlistId: this.playlistId,
+            inPlaylistAsId,
             currentIndex,
             nextIndex
           },
-          update: (store, { data: { movePlaylistItem } }) => {
+          update: (store, { data: { movePlaylistSong } }) => {
             const data = store.readQuery({
               query: PLAYLIST_QUERY,
               variables: {
-                key: this.$route.params._key
+                playlistId: this.playlistId
               }
             })
 
-            data.playlist = movePlaylistItem
+            data.playlistSongs = movePlaylistSong
 
-            store.writeQuery({ query: PLAYLIST_QUERY, data })
-
-            this.updateCurrentItemIndex(nextIndex)
+            store.writeQuery({
+              query: PLAYLIST_QUERY,
+              variables: {
+                playlistId: this.playlistId
+              },
+              data
+            })
           }
         })
       } catch (error) { // FIXME: Should parse

@@ -68,8 +68,9 @@ addPlaylistSong(
   index: Int
 ) : PlaylistSongsPagination
 
-movePlaylistItem(
-  _key: ID!
+movePlaylistSong(
+  playlistId: ID!
+  inPlaylistAsId: ID!
   currentIndex: Int!
   nextIndex: Int!
 ) : PlaylistSongsPagination
@@ -126,9 +127,9 @@ const mutations = {
       throw error
     }
   },
-  movePlaylistItem: async (parent, { _key, currentIndex, nextIndex }, { session }) => {
+  movePlaylistSong: async (parent, params) => {
     try {
-      return await db.movePlaylistItem(_key, currentIndex, nextIndex)
+      return await db.movePlaylistItem(params)
     } catch (error) {
       throw error
     }
