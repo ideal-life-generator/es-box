@@ -1,3 +1,5 @@
+export const NEW_PLAYLIST_CLEAR = 'NEW-PLAYLIST@CLEAR'
+
 export default {
   state: {
     name: '',
@@ -13,7 +15,7 @@ export default {
     'new-playlist@rename': (state, name) => {
       state.name = name
     },
-    'new-playlist@clear': state => {
+    [NEW_PLAYLIST_CLEAR]: state => {
       state.name = ''
       state.items = []
     },

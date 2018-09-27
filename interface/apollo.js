@@ -11,10 +11,10 @@ const httpLink = new HttpLink({
   credentials: 'include'
 })
 
-const defaultClient = new ApolloClient({
+export const graphqlClient = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),
   connectToDevTools: true
 })
 
-export default new VueApollo({ defaultClient })
+export default new VueApollo({ defaultClient: graphqlClient })

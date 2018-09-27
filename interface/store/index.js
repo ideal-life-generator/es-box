@@ -11,6 +11,7 @@ import googleOAuth from './google-oauth'
 import player from './player'
 import counter from './counter'
 import youtubePlayer from './youtube-player'
+import songs from './songs'
 import error from './error'
 
 Vue.use(Vuex)
@@ -27,6 +28,7 @@ export default () => new Store({
     player,
     counter,
     youtubePlayer,
+    songs,
     error
   },
   plugins: [createPersistedState()]

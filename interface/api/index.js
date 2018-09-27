@@ -2,6 +2,7 @@ import moment from 'moment'
 import youtube from './utils/youtube'
 import graphql from './utils/graphql'
 import googleOAuth from './google-oauth'
+import songs from './songs'
 
 const normalizeIds = ({
   items,
@@ -92,5 +93,6 @@ export default {
   search,
   token,
   getVideos,
-  googleOAuth
+  googleOAuth,
+  ...songs
 }

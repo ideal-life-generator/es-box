@@ -1,13 +1,18 @@
 <template lang="pug">
 div.playlists
   div.new-playlist
-    input.input(type="text" v-bind:value="newPlaylist.name" v-on:input="rename")
+    input.input(
+      type="text"
+      v-bind:value="newPlaylist.name"
+      v-on:input="rename"
+      v-on:keyup.enter="createPlaylist"
+    )
     div(v-for="(item, i) in newPlaylist.items")
       div(v-bind:key="item.id" v-text="item.title")
     add(
       class="add"
       v-bind:size="16"
-      @click.native="save"
+      @click.native="createPlaylist"
     )
   div.playlist-links
     div.playlist-link-container(
@@ -82,8 +87,11 @@ import {
   PLAYLISTS_MENU_SET_CURRENT_PLAYLIST_ID_MUTATION,
   PLAYLISTS_MENU_SET_CURRENT_ACTION
 } from 'store/playlists-menu'
-import { COUNTER_UPDATE_CURRENT } from 'store/counter'
-import { COUNTER_UPDATE } from 'store/counter'
+import { NEW_PLAYLIST_CLEAR } from 'store/new-playlist'
+import {
+  COUNTER_UPDATE_CURRENT,
+  COUNTER_UPDATE
+} from 'store/counter'
 import api from 'api'
 import bus from 'events-bus'
 import { SHOW_ERROR } from 'store/error'
@@ -297,145 +305,21 @@ export default {
     rename({ target: { value } }) {
       this.$store.commit('new-playlist@rename', value)
     },
-    async addItem(_key, data, index) {
+    async createPlaylist() {
       try {
         await this.$apollo.mutate({
           mutation: gql`
             mutation(
-              $_key: ID!
-              $sourceId: ID!
-              $index: Int!
+              $name: String!
+              $ids: [ID]!
             ) {
-              addPlaylistItem(
-                _key: $_key
-                sourceId: $sourceId
-                index: $index
+              createPlaylist(
+                name: $name
+                ids: $ids
               ) {
                 _id
                 _key
                 name
-                ids
-              }
-            }
-          `,
-          variables: {
-            _key,
-            sourceId: data._id,
-            index
-          },
-          update: (store, { data: { addPlaylistItem } }) => {
-            const data = store.readQuery({ query: PLAYLISTS_QUERY })
-
-            const replacedPlaylistIndex = data.playlists.items.findIndex(playlist => addPlaylistItem._key === playlist._key)
-            data.playlists.items[0] = addPlaylistItem
-
-            store.writeQuery({ query: PLAYLISTS_QUERY, data })
-          }
-        })
-      } catch (error) { // FIXME: Should parse
-        console.log(error)
-
-        this.$store.dispatch(SHOW_ERROR,
-          (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
-            error.graphQLErrors[0].message : 'Playlist creating is failed'
-        )
-      }
-    },
-    async removeItem(_key, index) {
-      try {
-        await this.$apollo.mutate({
-          mutation: gql`
-            mutation(
-              $_key: ID!
-              $index: Int!
-            ) {
-              removePlaylistItem(
-                _key: $_key
-                index: $index
-              ) {
-                _id
-                _key
-                name
-                ids
-              }
-            }
-          `,
-          variables: {
-            _key,
-            index
-          },
-          update: (store, { data: { removePlaylistItem } }) => {
-            const data = store.readQuery({ query: PLAYLISTS_QUERY })
-
-            const replacedPlaylistIndex = data.playlists.items.findIndex(playlist => removePlaylistItem._key === playlist._key)
-            data.playlists.items[0] = removePlaylistItem
-
-            store.writeQuery({ query: PLAYLISTS_QUERY, data })
-          }
-        })
-      } catch (error) { // FIXME: Should parse
-        console.log(error)
-
-        this.$store.dispatch(SHOW_ERROR,
-          (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
-            error.graphQLErrors[0].message : 'Playlist creating is failed'
-        )
-      }
-    },
-    async moveItem(_key, currentIndex, nextIndex) {
-      try {
-        await this.$apollo.mutate({
-          mutation: gql`
-            mutation(
-              $_key: ID!
-              $currentIndex: Int!
-              $nextIndex: Int!
-            ) {
-              movePlaylistItem(
-                _key: $_key
-                currentIndex: $currentIndex
-                nextIndex: $nextIndex
-              ) {
-                _id
-                _key
-                name
-                ids
-              }
-            }
-          `,
-          variables: {
-            _key,
-            currentIndex,
-            nextIndex
-          },
-          update: (store, { data: { movePlaylistItem } }) => {
-            const data = store.readQuery({ query: PLAYLISTS_QUERY })
-
-            const replacedPlaylistIndex = data.playlists.items.findIndex(playlist => movePlaylistItem._key === playlist._key)
-            data.playlists.items[0] = movePlaylistItem
-
-            store.writeQuery({ query: PLAYLISTS_QUERY, data })
-          }
-        })
-      } catch (error) { // FIXME: Should parse
-        console.log(error)
-
-        this.$store.dispatch(SHOW_ERROR,
-          (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
-            error.graphQLErrors[0].message : 'Playlist creating is failed'
-        )
-      }
-    },
-    async save() {
-      try {
-        await this.$apollo.mutate({
-          mutation: gql`
-            mutation($name: String!, $ids: [ID]!) {
-              createPlaylist(name: $name, ids: $ids) {
-                _id
-                _key
-                name
-                ids
               }
             }
           `,
@@ -444,15 +328,28 @@ export default {
             ids: this.newPlaylist.items.map(({ id }) => id)
           },
           update: (store, { data: { createPlaylist } }) => {
-            const data = store.readQuery({ query: PLAYLISTS_QUERY })
+            const data = store.readQuery({
+              query: PLAYLISTS_QUERY,
+              variables: {
+                offset: 0,
+                limit: 10
+              }
+            })
 
             data.playlists.items.unshift(createPlaylist)
             data.playlists.count += 1
             data.playlists.total += 1
 
-            store.writeQuery({ query: PLAYLISTS_QUERY, data })
+            store.writeQuery({
+              query: PLAYLISTS_QUERY,
+              variables: {
+                offset: 0,
+                limit: 10
+              },
+              data
+            })
 
-            this.$store.commit('new-playlist@clear')
+            this.$store.commit(NEW_PLAYLIST_CLEAR)
           },
         })
       } catch (error) { // FIXME: Should parse
@@ -473,7 +370,6 @@ export default {
                 _id
                 _key
                 name
-                ids
               }
             }
           `,
@@ -481,14 +377,27 @@ export default {
             _key
           },
           update: (store, { data: { deletePlaylist } }) => {
-            const data = store.readQuery({ query: PLAYLISTS_QUERY })
+            const data = store.readQuery({
+              query: PLAYLISTS_QUERY,
+              variables: {
+                offset: 0,
+                limit: 10
+              }
+            })
 
             const deletedPlaylistIndex = data.playlists.items.findIndex(playlist => deletePlaylist._key === playlist._key)
             data.playlists.items.splice(deletedPlaylistIndex, 1)
             data.playlists.count -= 1
             data.playlists.total -= 1
 
-            store.writeQuery({ query: PLAYLISTS_QUERY, data })
+            store.writeQuery({
+              query: PLAYLISTS_QUERY,
+              variables: {
+                offset: 0,
+                limit: 10
+              },
+              data
+            })
           },
         })
       } catch (error) { // FIXME: Should parse

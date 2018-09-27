@@ -3,26 +3,31 @@ div.playlist(
   v-on:dragover="onDragOver"
   v-on:drop="onDrop(...arguments, this)"
 )
-  div.item(
-    v-for="(videoItem, i) in videoItems"
-    v-bind:key="`${i}-${videoItem._id}`"
-    v-bind:class="{ active: player._id === videoItem._id && currentItemIndex === i }"
-    v-bind:data-i="i"
-    draggable="true"
-    v-on:dragstart="onDragStart(playlistSongs.items[i], videoItem, i, ...arguments)"
+  div(v-if="songs.processing") Loading
+  div.items-container(
+    v-else-if="playlistSongs.total > 0"
   )
-    div.playback
-      play-icon.play(
-        v-if="!player.play || (player.play && !(player._id === videoItem._id && currentItemIndex === i))"
-        v-bind:size="21"
-        v-on:click.native="onPlay(videoItem, i)"
-      )
-      pause-icon.pause(
-        v-else
-        v-bind:size="21"
-        v-on:click.native="onPause(videoItem, i)"
-      )
-    div.title(v-text="videoItem.title")
+    div.item(
+      v-for="(item, i) in playlistSongs.items"
+      v-bind:key="`${i}-${item.youtubeVideoId}`"
+      v-bind:class="{ active: player._id === item.youtubeVideoId && currentItemIndex === i }"
+      v-bind:data-i="i"
+      draggable="true"
+      v-on:dragstart="onDragStart(item, i, ...arguments)"
+    )
+      div.playback
+        play-icon.play(
+          v-if="!player.play || (player.play && !(player._id === item.youtubeVideoId && currentItemIndex === i))"
+          v-bind:size="21"
+          v-on:click.native="onPlay(item.youtubeVideo, i)"
+        )
+        pause-icon.pause(
+          v-else
+          v-bind:size="21"
+          v-on:click.native="onPause(item.youtubeVideo, i)"
+        )
+      div.title(v-text="item.youtubeVideo.title")
+  div(v-else) No items found
 </template>
 
 <script>
@@ -48,65 +53,38 @@ import {
   PLAYLISTS_MENU_SET_CURRENT_PLAYLIST_ID_MUTATION,
   PLAYLISTS_MENU_SET_CURRENT_ACTION
 } from 'store/playlists-menu'
+import {
+  SONGS_ACTION_FETCH_PLAYLIST_SONGS,
+  SONGS_ACTION_SHUFFLE_PLAYLIST_SONGS,
+  SONGS_ACTION_UNSHUFFLE_PLAYLIST_SONGS,
+} from 'store/songs'
 import bus from 'events-bus'
+import { store } from '/'
 import { SHOW_ERROR } from 'store/error'
 
-const PLAYLIST_QUERY = gql`
-  query PlaylistSongs($playlistId: ID!) {
-    playlistSongs(playlistId: $playlistId) {
-      items {
-        song {
-          _id
-          youtubeVideoId
-        }
-        inPlaylistAs {
-          _id
-          index
-        }
-      }
-      total
-    }
-  }
-`
-
 export default {
-  data: () => ({
-    playlistSongs: {
-      items: [],
-      total: null
-    },
-    videoItems: [],
-    shuffled: []
-  }),
   computed: {
     ...mapGetters([
       'player',
       'currentPlaylistSettings',
       'currentPlaylistId',
       'currentItemId',
-      'currentItemIndex'
+      'currentItemIndex',
+      'songs',
+      'playlistSongs',
     ]),
     count() {
       return this.videoItems.length
     },
     playlistId() {
       return `playlists/${this.$route.params._key}`
-    }
-  },
-  apollo: {
-    playlistSongs: {
-      query: PLAYLIST_QUERY,
-      variables() {
-        return {
-          playlistId: this.playlistId,
-        }
-      },
-      async result({ data: { playlistSongs } }) {
-        const youtubeVideoIds = playlistSongs.items.map(item => item.song.youtubeVideoId)
-
-        const { items } = await api.getVideos(youtubeVideoIds)
-        this.videoItems = items
+    },
+    items() {
+      if (this.player.shuffle) {
+        return this.shuffle.map(i => this.extendedItems[i])
       }
+
+      return this.extendedItems
     }
   },
   methods: {
@@ -179,10 +157,9 @@ export default {
         this.moveItem(item.inPlaylistAs._id, currentIndex, index)
       }
     },
-    onDragStart(item, videoItem, index, event) {
+    onDragStart(playlistSong, index, event) {
       event.dataTransfer.setData('text/plain', JSON.stringify({
-        item,
-        videoItem,
+        playlistSong,
         currentIndex: index,
         type: 'MOVE'
       }))
@@ -238,7 +215,11 @@ export default {
       }
     },
     [PLAYER_ON_SHUFFLE]() {
-      console.log('shuffle', this.player.shuffle)
+      if (this.player.shuffle) {
+        this.$store.dispatch(SONGS_ACTION_SHUFFLE_PLAYLIST_SONGS)
+      } else {
+        this.$store.dispatch(SONGS_ACTION_UNSHUFFLE_PLAYLIST_SONGS)
+      }
     },
     async addItem(youtubeVideoId, index) {
       try {
@@ -275,7 +256,7 @@ export default {
           },
           update: (store, { data: { addPlaylistSong } }) => {
             const data = store.readQuery({
-              query: PLAYLIST_QUERY,
+              query: PLAYLIST_SONGS_QUERY,
               variables: {
                 playlistId: this.playlistId
               }
@@ -284,7 +265,7 @@ export default {
             data.playlistSongs = addPlaylistSong
 
             store.writeQuery({
-              query: PLAYLIST_QUERY,
+              query: PLAYLIST_SONGS_QUERY,
               variables: {
                 playlistId: this.playlistId
               },
@@ -333,7 +314,7 @@ export default {
           },
           update: (store, { data: { removePlaylistSong } }) => {
             const data = store.readQuery({
-              query: PLAYLIST_QUERY,
+              query: PLAYLIST_SONGS_QUERY,
               variables: {
                 playlistId: this.playlistId
               }
@@ -342,7 +323,7 @@ export default {
             data.playlistSongs = removePlaylistSong
 
             store.writeQuery({
-              query: PLAYLIST_QUERY,
+              query: PLAYLIST_SONGS_QUERY,
               variables: {
                 playlistId: this.playlistId
               },
@@ -397,7 +378,7 @@ export default {
           },
           update: (store, { data: { movePlaylistSong } }) => {
             const data = store.readQuery({
-              query: PLAYLIST_QUERY,
+              query: PLAYLIST_SONGS_QUERY,
               variables: {
                 playlistId: this.playlistId
               }
@@ -406,7 +387,7 @@ export default {
             data.playlistSongs = movePlaylistSong
 
             store.writeQuery({
-              query: PLAYLIST_QUERY,
+              query: PLAYLIST_SONGS_QUERY,
               variables: {
                 playlistId: this.playlistId
               },
@@ -423,6 +404,14 @@ export default {
         )
       }
     },
+  },
+  beforeRouteEnter(from, to, next) {
+    store.dispatch(SONGS_ACTION_FETCH_PLAYLIST_SONGS, `playlists/${from.params._key}`)
+    next()
+  },
+  beforeRouteUpdate(from, to, next) {
+    store.dispatch(SONGS_ACTION_FETCH_PLAYLIST_SONGS, `playlists/${from.params._key}`)
+    next()
   },
   mounted() {
     bus.$on(PLAYER_ON_PREVIOUS, this[PLAYER_ON_PREVIOUS])
