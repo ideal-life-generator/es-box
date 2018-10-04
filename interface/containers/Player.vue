@@ -8,12 +8,12 @@ div.player
   play(
     v-if="!player.play"
     v-bind:size="25"
-    v-on:click.native="onPlay"
+    v-on:click.native="play"
   )
   pause(
     v-else
     v-bind:size="25"
-    v-on:click.native="onPause"
+    v-on:click.native="pause"
   )
   next(
     v-bind:size="25"
@@ -35,7 +35,7 @@ div.player
     v-bind:size="20"
     v-on:click.native="onRepeatAll"
   )
-  div.title(v-text="player.title")
+  div.title(v-text="player.item && player.item.youtubeVideo.title")
 </template>
 
 <script>
@@ -89,11 +89,19 @@ export default {
     }
   },
   methods: {
-    onPlay() {
-      this[PLAYER_PLAY]()
+    play(item) {
+      if (item) {
+        this.$store.dispatch(PLAYER_PLAY_ACTION, item)
+        bus.$emit(PLAYER_ON_PLAY, this.player._id, true)
+      } else {
+        this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
+        bus.$emit(PLAYER_ON_PLAY, this.player._id)
+      }
     },
-    onPause() {
-      this[PLAYER_PAUSE]()
+    pause() {
+      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
+
+      bus.$emit(PLAYER_ON_PAUSE, this._id)
     },
     onPrevious() {
       this[PLAYER_PREVIOUS]()
@@ -117,20 +125,6 @@ export default {
 
       bus.$emit(PLAYER_ON_SET_ITEM, item._id)
     },
-    [PLAYER_PLAY](item) {
-      if (item) {
-        this.$store.dispatch(PLAYER_PLAY_ACTION, item)
-        bus.$emit(PLAYER_ON_PLAY, this.player._id, true)
-      } else {
-        this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
-        bus.$emit(PLAYER_ON_PLAY, this.player._id)
-      }
-    },
-    [PLAYER_PAUSE]() {
-      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
-
-      bus.$emit(PLAYER_ON_PAUSE, this._id)
-    },
     [PLAYER_PREVIOUS]() {
       bus.$emit(PLAYER_ON_PREVIOUS)
     },
@@ -140,8 +134,8 @@ export default {
     onYoutubeVideoPlayerPlay() {
       this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
     },
-    onYoutubeVideoPlayerPaused(_id) {
-      if (_id === this._id) {
+    onYoutubeVideoPlayerPaused(item, _id) {
+      if (_id === this.player.item.youtubeVideo._id) {
         this[PLAYER_PAUSE]()
       }
     },

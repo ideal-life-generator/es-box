@@ -47,6 +47,47 @@ const playlistSongsQuery = async playlistId => {
   }
 }
 
+const addPlaylistSongMutation = async ({ playlistId, youtubeVideoId, index }) => {
+  const { data: { addPlaylistSong: { song, inPlaylistAs } } } = await graphqlClient.mutate({
+    mutation: gql`
+      mutation(
+        $playlistId: ID!
+        $youtubeVideoId: ID!
+        $index: Int
+      ) {
+        addPlaylistSong(
+          playlistId: $playlistId
+          youtubeVideoId: $youtubeVideoId
+          index: $index
+        ) {
+          song {
+            _id
+            youtubeVideoId
+          }
+          inPlaylistAs {
+            _id
+            index
+          }
+        }
+      }
+    `,
+    variables: {
+      playlistId,
+      youtubeVideoId,
+      index
+    },
+  })
+
+  const { items: [youtubeVideo] } = await api.getVideos([song.youtubeVideoId])
+
+  return {
+    song,
+    inPlaylistAs,
+    youtubeVideo,
+  }
+}
+
 export default {
-  playlistSongsQuery
+  playlistSongsQuery,
+  addPlaylistSongMutation,
 }

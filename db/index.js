@@ -92,7 +92,7 @@ const getPlaylistSongs = async (playlistId, options = {}) => {
   }
 }
 
-const addPlaylistSong = async (playlistId, youtubeVideoId, index = 0) => {
+const addPlaylistSong = async ({ playlistId, youtubeVideoId, index = 0 }) => {
   const songCursor = await db.query(aql`
     UPSERT { youtubeVideoId: ${youtubeVideoId} }
     INSERT {
@@ -125,9 +125,12 @@ const addPlaylistSong = async (playlistId, youtubeVideoId, index = 0) => {
     RETURN NEW
   `)
 
-  await usedInPlaylistEdgeCursor.next()
+  const inPlaylistAs = await usedInPlaylistEdgeCursor.next()
 
-  return await getPlaylistSongs(playlistId)
+  return {
+    song,
+    inPlaylistAs,
+  }
 }
 
 const removePlaylistItem = async (playlistId, itemId) => {

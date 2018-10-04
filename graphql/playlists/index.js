@@ -24,13 +24,13 @@ type InPlaylistAs {
   index: Int!
 }
 
-type ItemInPlaylistSongs {
+type PlaylistSong {
   song: Song!
   inPlaylistAs: InPlaylistAs!
 }
 
 type PlaylistSongsPagination {
-  items: [ItemInPlaylistSongs]!
+  items: [PlaylistSong]!
   total: Int!
 }
 `
@@ -66,7 +66,7 @@ addPlaylistSong(
   playlistId: ID!
   youtubeVideoId: ID!
   index: Int
-) : PlaylistSongsPagination
+) : PlaylistSong
 
 movePlaylistSong(
   playlistId: ID!
@@ -106,23 +106,23 @@ const queries = {
 }
 
 const mutations = {
-  createPlaylist: async (parent, data, { session }) => {
+  createPlaylist: async (parent, data) => {
     try {
       return await db.insertPlaylist(data)
     } catch (error) {
       throw error
     }
   },
-  deletePlaylist: async (parent, data, { session }) => {
+  deletePlaylist: async (parent, data) => {
     try {
       return await db.removePlaylist(data)
     } catch (error) {
       throw error
     }
   },
-  addPlaylistSong: async (parent, { playlistId, youtubeVideoId, index }, { session }) => {
+  addPlaylistSong: async (parent, { playlistId, youtubeVideoId, index }) => {
     try {
-      return await db.addPlaylistSong(playlistId, youtubeVideoId, index)
+      return await db.addPlaylistSong({ playlistId, youtubeVideoId, index })
     } catch (error) {
       throw error
     }
@@ -134,7 +134,7 @@ const mutations = {
       throw error
     }
   },
-  removePlaylistSong: async (parent, { playlistId, itemId }, { session }) => {
+  removePlaylistSong: async (parent, { playlistId, itemId }) => {
     try {
       return await db.removePlaylistItem(playlistId, itemId)
     } catch (error) {

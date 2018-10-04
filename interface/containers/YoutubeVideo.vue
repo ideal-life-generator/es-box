@@ -12,6 +12,15 @@ import {
   PLAYER_ON_PLAY,
   PLAYER_ON_PAUSE
 } from 'containers/Player.vue'
+import {
+  STATUS_UNSTARTED,
+  STATUS_ENDED,
+  STATUS_PLAYING,
+  STATUS_PAUSE,
+  STATUS_BUFFERING,
+  STATUS_VIDEO_CUED,
+  YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS,
+} from 'store/youtube-player'
 import { getIdFromUrl } from 'utils/youtube'
 
 export const YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID = 'YOUTUBE_VIDEO_PLAYER@SET_VIDEO_ID'
@@ -29,7 +38,7 @@ export const YOUTUBE_VIDEO_PLAYER_RESIZE = 'YOUTUBE_VIDEO_PLAYER@RESIZE'
 export default {
   props: {
     width: { type: Number, required: true },
-    height: { type: Number, required: true }
+    height: { type: Number, required: true },
   },
   data: () => {
     // const proportion = 0.5625
@@ -44,10 +53,10 @@ export default {
   computed: {
     ...mapGetters([
       'player',
-      'currentItemId'
+      'currentItemId',
     ]),
     playerVideoId() {
-      return this.$store.state.player._id
+      return this.player.item.youtubeVideo._id
     },
   },
   methods: {
@@ -59,32 +68,32 @@ export default {
 
       switch (status) {
         case -1: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_UNSTARTED, videoId)
+          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_UNSTARTED, videoId })
 
           break
         }
         case 0: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_ENDED, videoId)
+          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_ENDED, videoId })
 
           break
         }
         case 1: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_PLAYING, videoId)
+          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_PLAYING, videoId })
 
           break
         }
         case 2: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_PAUSE, videoId)
+          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_PAUSE, videoId })
 
           break
         }
         case 3: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_BUFFERING, videoId)
+          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_BUFFERING, videoId })
 
           break
         }
         case 5: {
-          bus.$emit(YOUTUBE_VIDEO_PLAYER_VIDEO_CUED, videoId)
+          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_VIDEO_CUED, videoId })
 
           break
         }
@@ -106,19 +115,15 @@ export default {
       if (this.play) video.play()
       else video.pause()
 
-      bus.$emit('youtube-video@play', this.play)
+      this.$bus.$emit('youtube-video@play', this.play)
     },
-    async [YOUTUBE_VIDEO_PLAYER_PLAY](id, load) {
-      if (load) {
-        await this.youtubePlayer.pauseVideo()
+    async [YOUTUBE_VIDEO_PLAYER_PLAY]() {
+      // await this.youtubePlayer.pauseVideo()
 
-        setTimeout(() => this.youtubePlayer.loadVideoById(id), 50)
-      } else {
-        this.youtubePlayer.playVideo()
-      }
+      this.youtubePlayer.playVideo()
     },
-    [YOUTUBE_VIDEO_PLAYER_PAUSE]() {
-      this.youtubePlayer.pauseVideo()
+    async [YOUTUBE_VIDEO_PLAYER_PAUSE]() {
+      await this.youtubePlayer.pauseVideo()
     },
     [YOUTUBE_VIDEO_PLAYER_RESIZE](width, height) {
       this.youtubePlayer.setSize(width, height)
@@ -126,54 +131,64 @@ export default {
     onStop() {
       this.youtubePlayer.pauseVideo()
     },
-    async onSetAndPlay() {
-      const videoId = await this.getVideoId()
+    [YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY](id) {
+      // const videoId = await this.getVideoId()
 
-      await this.youtubePlayer.pauseVideo()
+      // await this.youtubePlayer.pauseVideo()
 
-      setTimeout(() => this.youtubePlayer.loadVideoById(this.playerVideoId), 50)
+      // setTimeout(() => this.youtubePlayer.loadVideoById(this.playerVideoId), 50)
+      this.youtubePlayer.loadVideoById(id)
 
       // this.youtubePlayer.playVideo()
     }
   },
   mounted() {
     this.youtubePlayer = YoutubePlayer('youtube-player', {
-      videoId: this.player._id,
+      videoId: this.playerVideoId,
       width: this.width,
       height: this.height
     })
 
     this.youtubePlayer.on('stateChange', this.stateChange)
 
-    bus.$on('stop', this.onStop)
+    this.$bus.$on('stop', this.onStop)
 
-    bus.$on(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
-    // bus.$on(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this.onSetAndPlay)
-    // bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
-    bus.$on(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
-    bus.$on(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
-    bus.$on(PLAYER_ON_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
-    // bus.$on('player@previous', this.onChangeId)
-    // bus.$on('player@next', this.onChangeId)
+    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
+    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
+    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
+    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this[YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY])
+    // this.$bus.$on(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
+    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
+    this.$bus.$on(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
+    this.$bus.$on(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
+    // this.$bus.$on('player@previous', this.onChangeId)
+    // this.$bus.$on('player@next', this.onChangeId)
   },
   unmounted() {
     this.youtubePlayer.off('stateChange', this.stateChange)
 
-    bus.$off('stop', this.onStop)
+    this.$bus.$off('stop', this.onStop)
 
-    bus.$off(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
-    // bus.$off(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
-    bus.$off(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this.onSetAndPlay)
-    // bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
-    bus.$off(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
-    bus.$off(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
-    bus.$off(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
-    bus.$off(PLAYER_ON_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
-    bus.$off('player@previous', this.onChangeId)
-    // bus.$off('player@next', this.onChangeId)
+    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
+    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
+    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
+    // this.$bus.$off(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
+    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this[YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY])
+    // this.$bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
+    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
+    this.$bus.$off(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
+    this.$bus.$off('player@previous', this.onChangeId)
+    // this.$bus.$off('player@next', this.onChangeId)
   },
+  watch: {
+    async playerVideoId(nextPlayerVideoId, prevPlayerVideoId) {
+      await this.youtubePlayer.stopVideo()
+
+      setTimeout(() => {
+        this.youtubePlayer.loadVideoById(nextPlayerVideoId)
+      }, 50)
+    }
+  }
 }
 </script>
 

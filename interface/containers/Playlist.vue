@@ -3,28 +3,27 @@ div.playlist(
   v-on:dragover="onDragOver"
   v-on:drop="onDrop(...arguments, this)"
 )
-  div(v-if="songs.processing") Loading
   div.items-container(
-    v-else-if="playlistSongs.total > 0"
+    v-if="playlistSongs.total > 0"
   )
     div.item(
       v-for="(item, i) in playlistSongs.items"
       v-bind:key="`${i}-${item.youtubeVideoId}`"
-      v-bind:class="{ active: player._id === item.youtubeVideoId && currentItemIndex === i }"
+      v-bind:class="{ active: player._id === item.song.youtubeVideoId && currentItemIndex === i }"
       v-bind:data-i="i"
       draggable="true"
       v-on:dragstart="onDragStart(item, i, ...arguments)"
     )
       div.playback
         play-icon.play(
-          v-if="!player.play || (player.play && !(player._id === item.youtubeVideoId && currentItemIndex === i))"
+          v-if="!player.play || (player.play && !(player._id === item.song.youtubeVideoId && currentItemIndex === i))"
           v-bind:size="21"
-          v-on:click.native="onPlay(item.youtubeVideo, i)"
+          v-on:click.native="onPlay(item)"
         )
         pause-icon.pause(
           v-else
           v-bind:size="21"
-          v-on:click.native="onPause(item.youtubeVideo, i)"
+          v-on:click.native="onPause(item)"
         )
       div.title(v-text="item.youtubeVideo.title")
   div(v-else) No items found
@@ -54,7 +53,8 @@ import {
   PLAYLISTS_MENU_SET_CURRENT_ACTION
 } from 'store/playlists-menu'
 import {
-  SONGS_ACTION_FETCH_PLAYLIST_SONGS,
+  fetchPlaylistSongs,
+  addPlaylistSong,
   SONGS_ACTION_SHUFFLE_PLAYLIST_SONGS,
   SONGS_ACTION_UNSHUFFLE_PLAYLIST_SONGS,
 } from 'store/songs'
@@ -95,6 +95,7 @@ export default {
       this.pause(item, index)
     },
     play(item, index) {
+      console.log(item)
       this.updateCurrent(item._id, index)
 
       if (this.player._id === item._id) {
@@ -129,6 +130,13 @@ export default {
     onDragOver(event) {
       event.preventDefault()
     },
+    onDragStart(item, index, event) {
+      event.dataTransfer.setData('text/plain', JSON.stringify({
+        item,
+        currentIndex: index,
+        type: 'MOVE'
+      }))
+    },
     onDrop(event, ...args) {
       event.preventDefault()
       event.stopPropagation()
@@ -156,13 +164,6 @@ export default {
       } else {
         this.moveItem(item.inPlaylistAs._id, currentIndex, index)
       }
-    },
-    onDragStart(playlistSong, index, event) {
-      event.dataTransfer.setData('text/plain', JSON.stringify({
-        playlistSong,
-        currentIndex: index,
-        type: 'MOVE'
-      }))
     },
     [PLAYER_ON_PREVIOUS]() {
       let nextIndex
@@ -222,65 +223,13 @@ export default {
       }
     },
     async addItem(youtubeVideoId, index) {
-      try {
-        await this.$apollo.mutate({
-          mutation: gql`
-            mutation(
-              $playlistId: ID!
-              $youtubeVideoId: ID!
-              $index: Int
-            ) {
-              addPlaylistSong(
-                playlistId: $playlistId
-                youtubeVideoId: $youtubeVideoId
-                index: $index
-              ) {
-                items {
-                  song {
-                    _id
-                    youtubeVideoId
-                  }
-                  inPlaylistAs {
-                    _id
-                    index
-                  }
-                }
-                total
-              }
-            }
-          `,
-          variables: {
-            playlistId: this.playlistId,
-            youtubeVideoId,
-            index
-          },
-          update: (store, { data: { addPlaylistSong } }) => {
-            const data = store.readQuery({
-              query: PLAYLIST_SONGS_QUERY,
-              variables: {
-                playlistId: this.playlistId
-              }
-            })
+      const { playlistId } = this
 
-            data.playlistSongs = addPlaylistSong
-
-            store.writeQuery({
-              query: PLAYLIST_SONGS_QUERY,
-              variables: {
-                playlistId: this.playlistId
-              },
-              data
-            })
-          }
-        })
-      } catch (error) { // FIXME: Should parse
-        console.log(error)
-
-        this.$store.dispatch(SHOW_ERROR,
-          (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
-            error.graphQLErrors[0].message : 'Playlist creating is failed'
-        )
-      }
+      await this.$store.dispatch(addPlaylistSong.ACTION_TYPE, {
+        playlistId,
+        youtubeVideoId,
+        index,
+      })
     },
     async removeItem(itemId) {
       try {
@@ -406,11 +355,11 @@ export default {
     },
   },
   beforeRouteEnter(from, to, next) {
-    store.dispatch(SONGS_ACTION_FETCH_PLAYLIST_SONGS, `playlists/${from.params._key}`)
+    store.dispatch(fetchPlaylistSongs.ACTION_TYPE, `playlists/${from.params._key}`)
     next()
   },
   beforeRouteUpdate(from, to, next) {
-    store.dispatch(SONGS_ACTION_FETCH_PLAYLIST_SONGS, `playlists/${from.params._key}`)
+    store.dispatch(fetchPlaylistSongs.ACTION_TYPE, `playlists/${from.params._key}`)
     next()
   },
   mounted() {

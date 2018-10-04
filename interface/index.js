@@ -18,6 +18,8 @@ const app = new Vue({
 Vue.use(infiniteScroll)
 Vue.use(VueDragDrop)
 
+Vue.prototype.$bus = new Vue()
+
 app.$mount('#app')
 
 if (!PRODUCTION) {

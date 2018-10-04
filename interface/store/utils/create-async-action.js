@@ -1,56 +1,62 @@
-import { mapGetters } from 'vuex'
-
 const { assign } = Object
 
-export default (TYPE, request) => {
-  const defaultState = {
-    loading: true,
-    error: null
-  }
+export default (key, request, options = {}) => {
+  const REQUEST_MUTATION_TYPE = `${key}_REQUEST_MUTATION`
+  const SUCCESS_MUTATION_TYPE = `${key}_SUCCESS_MUTATION`
+  const FAILURE_MUTATION_TYPE = `${key}_FAILURE_MUTATION`
 
-  const getters = {
-    loading: state => state.loading,
-    error: state => state.error
-  }
+  const ACTION_TYPE = `${key}_ACTION`
 
-  const REQUEST = `${TYPE}@REQUEST`
-  const SUCCESS = `${TYPE}@SUCCESS`
-  const FAILURE = `${TYPE}@FAILURE`
+  const progressingKey = options.progressingKey || 'progressing'
+  const errorKey = options.errorKey || 'error'
 
-  const mutations = {
-    [REQUEST]: state => assign(state, { loading: true, error: null }),
-    [SUCCESS]: (state, data) => assign(state, { loading: false, ...data }),
-    [FAILURE]: (state, error) => assign(state, { loading: false, error })
-  }
+  const mutationRequest = state => assign(state, {
+    [progressingKey]: true,
+    [errorKey]: null,
+  })
 
-  const action = async (...args) => {
-    const [{ commit }] = args
+  const mutationSuccess = (state, data) => assign(state, {
+    [progressingKey]: false,
+    ...data,
+  })
+
+  const mutationFailure = (state, error) => assign(state, {
+    [progressingKey]: false,
+    [errorKey]: error,
+  })
+
+  const action = async (store, ...args) => {
+    const { commit } = store
 
     try {
-      commit(REQUEST)
+      commit(REQUEST_MUTATION_TYPE)
 
-      const data = await request(...args)
+      const result = await request(store, ...args)
 
-      commit(SUCCESS, data)
+      commit(SUCCESS_MUTATION_TYPE, result)
     } catch (error) {
-      commit(FAILURE, error)
+      console.error(ACTION_TYPE, error)
+
+      commit(FAILURE_MUTATION_TYPE)
     }
   }
 
-  const gettersMap = mapGetters([
-    'loading',
-    'error'
-  ])
+  const mutations = {
+    [REQUEST_MUTATION_TYPE]: mutationRequest,
+    [SUCCESS_MUTATION_TYPE]: mutationSuccess,
+    [FAILURE_MUTATION_TYPE]: mutationFailure,
+  }
+
+  const actions = {
+    [ACTION_TYPE]: action,
+  }
 
   return {
-    TYPE,
-    defaultState,
-    getters,
-    REQUEST,
-    SUCCESS,
-    FAILURE,
+    REQUEST_MUTATION_TYPE,
+    SUCCESS_MUTATION_TYPE,
+    FAILURE_MUTATION_TYPE,
+    ACTION_TYPE,
     mutations,
-    action,
-    gettersMap
+    actions,
   }
 }

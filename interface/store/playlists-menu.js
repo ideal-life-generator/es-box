@@ -14,8 +14,8 @@ export default {
   },
   getters: {
     playlistsMenu: state => state,
-    currentPlaylistId: state => state.currentPlaylistId,
     currentPlaylistSettings: state => state.playlistsSettings[state.currentPlaylistId],
+    currentPlaylistId: state => state.currentPlaylistId,
     currentItemId: state => state.currentItemId,
     currentItemIndex: state => state.currentItemIndex
   },
@@ -25,11 +25,11 @@ export default {
         state.playlistsSettings[playlistId] = {}
       }
     },
-    [PLAYLISTS_MENU_SET_CURRENT_ITEM_INDEX_MUTATION]: (state, currentItemIndex) => {
-      state.currentItemIndex = currentItemIndex
-    },
     [PLAYLISTS_MENU_SET_CURRENT_PLAYLIST_ID_MUTATION]: (state, playlistId) => {
       state.currentPlaylistId = playlistId
+    },
+    [PLAYLISTS_MENU_SET_CURRENT_ITEM_INDEX_MUTATION]: (state, currentItemIndex) => {
+      state.currentItemIndex = currentItemIndex
     },
     [PLAYLISTS_MENU_SET_CURRENT_PLAYLIST_ITEM_MUTATION]: (state, {
       currentPlaylistId,

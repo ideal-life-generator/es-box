@@ -1,4 +1,4 @@
-import { REQUEST_ACTION } from 'store/search-results'
+import { fetchPlaylistSongs } from 'store/search-results'
 
 export const SEARCH_INPUT = 'SEARCH_INPUT'
 
@@ -18,10 +18,10 @@ export default {
     }
   },
   actions: {
-    [SEARCH_INPUT]: (context, input) => {
-      context.commit('change', input)
+    [SEARCH_INPUT]: ({ dispatch, commit }, input) => {
+      commit('change', input)
 
-      context.dispatch(REQUEST_ACTION)
+      dispatch(fetchPlaylistSongs.ACTION_TYPE)
     }
   }
 }
