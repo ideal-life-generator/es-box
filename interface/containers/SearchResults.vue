@@ -35,11 +35,14 @@ import PlayIcon from 'components/icons/Play.vue'
 import PauseIcon from 'components/icons/Pause.vue'
 import {
   REQUEST_ACTION,
+  SEARCH_RESULTS_ACTIONS_PLAY,
+  SEARCH_RESULTS_ACTIONS_PAUSE,
   LOAD_MORE_ACTION,
   CLEAR_MUTATION,
   SET_CURRENT_INDEX_MUTATION
 } from 'store/search-results'
 import {
+  SEARCH_RESULTS,
   PLAYER_PLAY_ACTION,
   PLAYER_PAUSE_ACTION,
 } from 'store/player'
@@ -79,17 +82,17 @@ export default {
         },
       } = this
 
-      return itemIn === 'search' && (item && item.youtubeVideo._id === youtubeVideoId)
+      return itemIn === SEARCH_RESULTS && (item && item.youtubeVideo._id === youtubeVideoId)
     },
     play(item) {
-      this.$store.dispatch(PLAYER_PLAY_ACTION, { itemIn: 'search', item })
-
-      this.$bus.$emit(YOUTUBE_VIDEO_PLAYER_PLAY)
+      if (!this.player.item.youtubeVideo._id || this.player.item.youtubeVideo._id !== item._id) {
+        this.$store.dispatch(SEARCH_RESULTS_ACTIONS_PLAY, item)
+      } else {
+        this.$store.dispatch(SEARCH_RESULTS_ACTIONS_PLAY)
+      }
     },
     pause() {
-      this.$store.dispatch(PLAYER_PAUSE_ACTION)
-
-      this.$bus.$emit(YOUTUBE_VIDEO_PLAYER_PAUSE)
+      this.$store.dispatch(SEARCH_RESULTS_ACTIONS_PAUSE)
     },
     updateCounter(_id) {
       this.$store.commit(SET_CURRENT_INDEX_MUTATION, _id)

@@ -115,7 +115,7 @@ export default {
       if (this.play) video.play()
       else video.pause()
 
-      this.$bus.$emit('youtube-video@play', this.play)
+      bus.$emit('youtube-video@play', this.play)
     },
     async [YOUTUBE_VIDEO_PLAYER_PLAY]() {
       // await this.youtubePlayer.pauseVideo()
@@ -151,41 +151,47 @@ export default {
 
     this.youtubePlayer.on('stateChange', this.stateChange)
 
-    this.$bus.$on('stop', this.onStop)
+    bus.$on('stop', this.onStop)
 
-    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
-    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
-    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
-    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this[YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY])
-    // this.$bus.$on(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
-    this.$bus.$on(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
-    this.$bus.$on(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
-    this.$bus.$on(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
-    // this.$bus.$on('player@previous', this.onChangeId)
-    // this.$bus.$on('player@next', this.onChangeId)
+    bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
+    bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
+    bus.$on(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
+    bus.$on(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this[YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY])
+    // bus.$on(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
+    bus.$on(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
+    bus.$on(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
+    bus.$on(PLAYER_ON_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
+    // bus.$on('player@previous', this.onChangeId)
+    // bus.$on('player@next', this.onChangeId)
   },
   unmounted() {
     this.youtubePlayer.off('stateChange', this.stateChange)
 
-    this.$bus.$off('stop', this.onStop)
+    bus.$off('stop', this.onStop)
 
-    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
-    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
-    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
-    // this.$bus.$off(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
-    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this[YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY])
-    // this.$bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
-    this.$bus.$off(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
-    this.$bus.$off(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
-    this.$bus.$off('player@previous', this.onChangeId)
-    // this.$bus.$off('player@next', this.onChangeId)
+    bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
+    bus.$off(YOUTUBE_VIDEO_PLAYER_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
+    bus.$off(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
+    // bus.$off(YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID, this.onCuetVideoId)
+    bus.$off(YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY, this[YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY])
+    // bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this.onPlayerPlay)
+    bus.$off(YOUTUBE_VIDEO_PLAYER_RESIZE, this[YOUTUBE_VIDEO_PLAYER_RESIZE])
+    bus.$off(PLAYER_ON_SET_ITEM, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
+    bus.$off('player@previous', this.onChangeId)
+    // bus.$off('player@next', this.onChangeId)
   },
   watch: {
     async playerVideoId(nextPlayerVideoId, prevPlayerVideoId) {
+      const play = this.player.play
+
       await this.youtubePlayer.stopVideo()
 
       setTimeout(() => {
-        this.youtubePlayer.loadVideoById(nextPlayerVideoId)
+        if (!play) {
+          this.youtubePlayer.cueVideoById(nextPlayerVideoId)
+        } else {
+          this.youtubePlayer.loadVideoById(nextPlayerVideoId)
+        }
       }, 50)
     }
   }

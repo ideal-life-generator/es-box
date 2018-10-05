@@ -2,8 +2,8 @@
 div.player
   previous(
     v-bind:size="25"
-    v-on:click.native="onPrevious"
-    v-bind:disabled="!(counter.current !== 0 || player.repeatAll)"
+    v-on:click.native="previous"
+    v-bind:disabled="!isPreviousAvailable"
   )
   play(
     v-if="!player.play"
@@ -17,8 +17,8 @@ div.player
   )
   next(
     v-bind:size="25"
-    v-on:click.native="onNext"
-    v-bind:disabled="!(counter.current !== counter.total - 1 || player.repeatAll)"
+    v-on:click.native="next"
+    v-bind:disabled="!isNextAvailable"
   )
   shuffle(
     v-bind:color="player.shuffle ? 'white' : 'gray'"
@@ -48,20 +48,31 @@ import RepeatOne from 'components/icons/RepeatOne.vue'
 import RepeatAll from 'components/icons/RepeatAll.vue'
 import Shuffle from 'components/icons/Shuffle.vue'
 import {
+  SEARCH_RESULTS,
   PLAYER_PLAYBACK_MUTATION,
   PLAYER_SET_ITEM_ACTION,
   PLAYER_PLAY_ACTION,
+  PLAYER_PAUSE_ACTION,
+  PLAYER_PREVIOUS_ACTION,
+  PLAYER_NEXT_ACTION,
   PLAYER_CLEAR_ACTION,
   PLAYER_TOGGLE_SHUFFLE_ACTION,
   PLAYER_TOGGLE_REPEAT_ONE_ACTION,
   PLAYER_TOGGLE_REPEAT_ALL_ACTION
 } from 'store/player'
-import { LOAD_MORE_ACTION } from 'store/search-results'
 import {
-  YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID,
-  YOUTUBE_VIDEO_PLAYER_PLAYING,
+  LOAD_MORE_ACTION,
+  SEARCH_RESULTS_ACTIONS_PLAY_PREVIOUS,
+  SEARCH_RESULTS_ACTIONS_PLAY_NEXT,
+} from 'store/search-results'
+import {
+  YOUTUBE_VIDEO_PLAYER_PLAY,
   YOUTUBE_VIDEO_PLAYER_PAUSE,
-  YOUTUBE_VIDEO_PLAYER_ENDED
+  YOUTUBE_VIDEO_PLAYER_PLAYING,
+  YOUTUBE_VIDEO_PLAYER_ENDED,
+  YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID,
+  YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID,
+  YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY,
 } from 'containers/YoutubeVideo.vue'
 import bus from 'events-bus'
 
@@ -82,32 +93,43 @@ export default {
     ...mapGetters([
       'player',
       'searchResults',
-      'counter'
+      'counter',
+      'searchResultsCurrentItemIndex'
     ]),
     _id() {
       return this.$store.state.player._id
-    }
-  },
-  methods: {
-    play(item) {
-      if (item) {
-        this.$store.dispatch(PLAYER_PLAY_ACTION, item)
-        bus.$emit(PLAYER_ON_PLAY, this.player._id, true)
+    },
+    isPreviousAvailable() {
+      if (!this.player.repeatAll) {
+        if (this.player.itemIn === SEARCH_RESULTS) {
+          return this.searchResultsCurrentItemIndex > 0
+        }
       } else {
-        this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
-        bus.$emit(PLAYER_ON_PLAY, this.player._id)
+        return true
       }
     },
+    isNextAvailable() {
+      if (!this.player.repeatAll) {
+        if (this.player.itemIn === SEARCH_RESULTS) {
+          return this.searchResultsCurrentItemIndex < this.searchResults.total - 1
+        }
+      } else {
+        return true
+      }
+    },
+  },
+  methods: {
+    play() {
+      this.$store.dispatch(PLAYER_PLAY_ACTION)
+    },
     pause() {
-      this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
-
-      bus.$emit(PLAYER_ON_PAUSE, this._id)
+      this.$store.dispatch(PLAYER_PAUSE_ACTION)
     },
-    onPrevious() {
-      this[PLAYER_PREVIOUS]()
+    previous() {
+      this.$store.dispatch(PLAYER_PREVIOUS_ACTION)
     },
-    onNext() {
-      this[PLAYER_NEXT]()
+    next() {
+      this.$store.dispatch(PLAYER_NEXT_ACTION)
     },
     onShuffle() {
       this.$store.dispatch(PLAYER_TOGGLE_SHUFFLE_ACTION)
@@ -124,12 +146,6 @@ export default {
       this.$store.dispatch(PLAYER_SET_ITEM_ACTION, item)
 
       bus.$emit(PLAYER_ON_SET_ITEM, item._id)
-    },
-    [PLAYER_PREVIOUS]() {
-      bus.$emit(PLAYER_ON_PREVIOUS)
-    },
-    [PLAYER_NEXT]() {
-      bus.$emit(PLAYER_ON_NEXT)
     },
     onYoutubeVideoPlayerPlay() {
       this.$store.commit(PLAYER_PLAYBACK_MUTATION, true)
