@@ -1,13 +1,15 @@
-import bus from 'events-bus'
 import {
-  YOUTUBE_VIDEO_PLAYER_PLAY,
-  YOUTUBE_VIDEO_PLAYER_PAUSE,
-} from 'containers/YoutubeVideo.vue'
-import {
-  LOAD_MORE_ACTION,
   SEARCH_RESULTS_ACTIONS_PLAY_PREVIOUS,
   SEARCH_RESULTS_ACTIONS_PLAY_NEXT,
 } from 'store/search-results'
+import {
+  SONGS_ACTIONS_PLAY_PREVIOUS,
+  SONGS_ACTIONS_PLAY_NEXT,
+} from 'store/songs'
+import {
+  YOUTUBE_VIDEO_PLAYER_ACTIONS_PLAY,
+  YOUTUBE_VIDEO_PLAYER_ACTIONS_PAUSE,
+} from 'store/youtube-player'
 
 const { assign } = Object
 
@@ -21,6 +23,8 @@ export const PLAYER_REPEAT_ONE_MUTATION = 'PLAYER_MUTATIONS@REPEAT_ONE'
 export const PLAYER_REPEAT_ALL_MUTATION = 'PLAYER_MUTATIONS@REPEAT_ALL'
 
 export const PLAYER_SET_ITEM_ACTION = 'PLAYER_ACTIONS@SET_ITEM'
+export const PLAYER_SET_PLAY_ACTION = 'PLAYER_ACTIONS@SET_PLAY'
+export const PLAYER_SET_PAUSE_ACTION = 'PLAYER_ACTIONS@SET_PAUSE'
 export const PLAYER_PLAY_ACTION = 'PLAYER_ACTIONS@PLAY'
 export const PLAYER_PAUSE_ACTION = 'PLAYER_ACTIONS@PAUSE'
 export const PLAYER_PREVIOUS_ACTION = 'PLAYER_ACTIONS@PREVIOUS'
@@ -43,6 +47,12 @@ export default {
   },
   getters: {
     player: state => state,
+    currentItem: ({ itemIn, item }) => ({
+      itemIn,
+      item,
+    }),
+    playerCurrentVideoId: state => state.item.youtubeVideo._id,
+    isPlayerItemVideoId: state => id => state.item.youtubeVideo._id === id,
   },
   mutations: {
     [PLAYER_SET_ITEM_MUTATION]: (state, { itemIn, item }) => assign(state, { itemIn, item }),
@@ -55,26 +65,31 @@ export default {
     [PLAYER_SET_ITEM_ACTION]: ({ commit }, { itemIn, item }) => {
       commit(PLAYER_SET_ITEM_MUTATION, { itemIn, item })
     },
-    [PLAYER_PLAY_ACTION]: ({ commit }, song) => {
-      if (song) {
-        const { itemIn, item } = song
-
-        commit(PLAYER_SET_ITEM_MUTATION, { itemIn, item })
-      }
-
+    [PLAYER_SET_PLAY_ACTION]: ({ commit }) => {
       commit(PLAYER_PLAYBACK_MUTATION, true)
-
-      bus.$emit(YOUTUBE_VIDEO_PLAYER_PLAY)
     },
-    [PLAYER_PAUSE_ACTION]: ({ commit }) => {
+    [PLAYER_SET_PAUSE_ACTION]: ({ commit }) => {
       commit(PLAYER_PLAYBACK_MUTATION, false)
+    },
+    [PLAYER_PLAY_ACTION]: ({ dispatch }) => {
+      dispatch(PLAYER_SET_PLAY_ACTION)
 
-      bus.$emit(YOUTUBE_VIDEO_PLAYER_PAUSE)
+      dispatch(YOUTUBE_VIDEO_PLAYER_ACTIONS_PLAY)
+    },
+    [PLAYER_PAUSE_ACTION]: ({ dispatch }) => {
+      dispatch(PLAYER_SET_PAUSE_ACTION)
+
+      dispatch(YOUTUBE_VIDEO_PLAYER_ACTIONS_PAUSE)
     },
     [PLAYER_PREVIOUS_ACTION]: ({ dispatch, rootState }) => {
       switch (rootState.player.itemIn) {
         case SEARCH_RESULTS: {
           dispatch(SEARCH_RESULTS_ACTIONS_PLAY_PREVIOUS)
+
+          break
+        }
+        case PLAYLIST: {
+          dispatch(SONGS_ACTIONS_PLAY_PREVIOUS)
 
           break
         }
@@ -84,6 +99,11 @@ export default {
       switch (rootState.player.itemIn) {
         case SEARCH_RESULTS: {
           dispatch(SEARCH_RESULTS_ACTIONS_PLAY_NEXT)
+
+          break
+        }
+        case PLAYLIST: {
+          dispatch(SONGS_ACTIONS_PLAY_NEXT)
 
           break
         }

@@ -35,6 +35,7 @@ import PlayIcon from 'components/icons/Play.vue'
 import PauseIcon from 'components/icons/Pause.vue'
 import {
   REQUEST_ACTION,
+  SEARCH_RESULTS_ACTIONS_SET_ITEM,
   SEARCH_RESULTS_ACTIONS_PLAY,
   SEARCH_RESULTS_ACTIONS_PAUSE,
   LOAD_MORE_ACTION,
@@ -85,11 +86,7 @@ export default {
       return itemIn === SEARCH_RESULTS && (item && item.youtubeVideo._id === youtubeVideoId)
     },
     play(item) {
-      if (!this.player.item.youtubeVideo._id || this.player.item.youtubeVideo._id !== item._id) {
-        this.$store.dispatch(SEARCH_RESULTS_ACTIONS_PLAY, item)
-      } else {
-        this.$store.dispatch(SEARCH_RESULTS_ACTIONS_PLAY)
-      }
+      this.$store.dispatch(SEARCH_RESULTS_ACTIONS_PLAY, item)
     },
     pause() {
       this.$store.dispatch(SEARCH_RESULTS_ACTIONS_PAUSE)

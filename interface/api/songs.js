@@ -87,7 +87,42 @@ const addPlaylistSongMutation = async ({ playlistId, youtubeVideoId, index }) =>
   }
 }
 
+const removePlaylistSongMutation = async ({ playlistId, itemId }) => {
+  const { data: { removePlaylistSong: { song, inPlaylistAs } } } = await graphqlClient.mutate({
+    mutation: gql`
+      mutation(
+        $playlistId: ID!
+        $itemId: ID!
+      ) {
+        removePlaylistSong(
+          playlistId: $playlistId
+          itemId: $itemId
+        ) {
+          song {
+            _id
+            youtubeVideoId
+          }
+          inPlaylistAs {
+            _id
+            index
+          }
+        }
+      }
+    `,
+    variables: {
+      playlistId,
+      itemId,
+    },
+  })
+
+  return {
+    song,
+    inPlaylistAs,
+  }
+}
+
 export default {
   playlistSongsQuery,
   addPlaylistSongMutation,
+  removePlaylistSongMutation,
 }

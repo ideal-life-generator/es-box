@@ -1,6 +1,11 @@
 import bus from 'events-bus'
 import {
-  YOUTUBE_VIDEO_PLAYER_RESIZE
+  YOUTUBE_VIDEO_PLAYER_RESIZE,
+  YOUTUBE_VIDEO_PLAYER_SET,
+  YOUTUBE_VIDEO_PLAYER_LOAD,
+  YOUTUBE_VIDEO_PLAYER_RELOAD,
+  YOUTUBE_VIDEO_PLAYER_PLAY,
+  YOUTUBE_VIDEO_PLAYER_PAUSE,
 } from 'containers/YoutubeVideo.vue'
 import {
   PLAYER_PLAY_ACTION,
@@ -21,6 +26,11 @@ export const YOUTUBE_PLAYER_MUTATIONS_SET_SIZE = 'YOUTUBE_PLAYER_MUTATIONS@SET_S
 export const YOUTUBE_PLAYER_MUTATIONS_SET_VIDEO_ID = 'YOUTUBE_PLAYER_MUTATIONS@SET_VIDEO_ID'
 export const YOUTUBE_PLAYER_MUTATIONS_CHANGE_STATUS = 'YOUTUBE_PLAYER_MUTATIONS@CHANGE_STATUS'
 
+export const YOUTUBE_VIDEO_PLAYER_ACTIONS_SET = 'YOUTUBE_VIDEO_PLAYER_ACTIONS@SET'
+export const YOUTUBE_VIDEO_PLAYER_ACTIONS_LOAD = 'YOUTUBE_VIDEO_PLAYER_ACTIONS@LOAD'
+export const YOUTUBE_VIDEO_PLAYER_ACTIONS_RELOAD = 'YOUTUBE_VIDEO_PLAYER_ACTIONS@RELOAD'
+export const YOUTUBE_VIDEO_PLAYER_ACTIONS_PLAY = 'YOUTUBE_VIDEO_PLAYER_ACTIONS@PLAY'
+export const YOUTUBE_VIDEO_PLAYER_ACTIONS_PAUSE = 'YOUTUBE_VIDEO_PLAYER_ACTIONS@PAUSE'
 export const YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS = 'YOUTUBE_PLAYER_ACTIONS@CHANGE_STATUS'
 export const YOUTUBE_PLAYER_ACTIONS_SET_VIDEO_ID = 'YOUTUBE_PLAYER_ACTIONS@SET_VIDEO_ID'
 
@@ -30,24 +40,12 @@ export default {
     y: 150,
     width: 500,
     height: 500 * 0.5625,
-    videoId: null,
     status: null,
-    statuses: {
-      UNSTARTED: STATUS_UNSTARTED,
-      ENDED: STATUS_ENDED,
-      PLAYING: STATUS_PLAYING,
-      PAUSE: STATUS_PAUSE,
-      BUFFERING: STATUS_BUFFERING,
-      VIDEO_CUED: STATUS_VIDEO_CUED,
-    },
   },
   getters: {
     youtubePlayer: state => state,
   },
   mutations: {
-    [YOUTUBE_PLAYER_MUTATIONS_SET_VIDEO_ID]: videoId => assign({
-      videoId,
-    }),
     [YOUTUBE_PLAYER_MUTATIONS_SET_COORDINATES]: (state, { x, y }) => assign(state, {
       x,
       y,
@@ -62,10 +60,25 @@ export default {
     }),
   },
   actions: {
+    [YOUTUBE_VIDEO_PLAYER_ACTIONS_SET]: () => {
+      bus.$emit(YOUTUBE_VIDEO_PLAYER_SET)
+    },
+    [YOUTUBE_VIDEO_PLAYER_ACTIONS_LOAD]: () => {
+      bus.$emit(YOUTUBE_VIDEO_PLAYER_LOAD)
+    },
+    [YOUTUBE_VIDEO_PLAYER_ACTIONS_RELOAD]: () => {
+      bus.$emit(YOUTUBE_VIDEO_PLAYER_RELOAD)
+    },
+    [YOUTUBE_VIDEO_PLAYER_ACTIONS_PLAY]: () => {
+      bus.$emit(YOUTUBE_VIDEO_PLAYER_PLAY)
+    },
+    [YOUTUBE_VIDEO_PLAYER_ACTIONS_PAUSE]: () => {
+      bus.$emit(YOUTUBE_VIDEO_PLAYER_PAUSE)
+    },
     [YOUTUBE_PLAYER_MUTATIONS_SET_VIDEO_ID]: ({ commit }, videoId) => {
       commit(YOUTUBE_PLAYER_MUTATIONS_SET_VIDEO_ID, videoId)
     },
-    [YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS]: ({ commit, dispatch, rootState }, { status, videoId }) => {
+    [YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS]: ({ commit, dispatch }, { status, videoId }) => {
       commit(YOUTUBE_PLAYER_MUTATIONS_CHANGE_STATUS, status)
 
       switch (status) {
@@ -74,20 +87,18 @@ export default {
 
         //   break
         // }
-        // case STATUS_ENDED: {
-        //   dispatch(PLAYER_ENDED_ACTION)
+        case STATUS_ENDED: {
+          // if (rootState.player.)
 
-        //   break
-        // }
+          break
+        }
         case STATUS_PLAYING: {
           dispatch(PLAYER_PLAY_ACTION)
 
           break
         }
         case STATUS_PAUSE: {
-          if (rootState.player.item.youtubeVideo._id === videoId) {
-            dispatch(PLAYER_PAUSE_ACTION, videoId)
-          }
+          dispatch(PLAYER_PAUSE_ACTION, videoId)
 
           break
         }

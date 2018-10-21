@@ -1,16 +1,30 @@
+import createAsyncAction from 'store/utils/create-async-action'
 import api from 'api'
 import shuffle from 'utils/shuffle'
-import createAsyncAction from './utils/create-async-action'
+import {
+  PLAYLIST,
+  PLAYER_SET_PLAY_ACTION,
+  PLAYER_SET_PAUSE_ACTION,
+  PLAYER_SET_ITEM_ACTION,
+} from 'store/player'
+import {
+  YOUTUBE_VIDEO_PLAYER_ACTIONS_PLAY,
+  YOUTUBE_VIDEO_PLAYER_ACTIONS_PAUSE,
+} from 'store/youtube-player'
 
 const { assign } = Object
 
 export const SONGS_MUTATION_SET_PLAYLIST_SONGS = 'SONGS_MUTATION@SET_PLAYLIST_SONGS'
 export const SONGS_MUTATION_SET_PLAYLIST_SONGS_ITEMS = 'SONGS_MUTATION@SET_PLAYLIST_SONGS_ITEMS'
 
+export const SONGS_ACTIONS_PLAY = 'SONGS_ACTIONS@PLAY'
+export const SONGS_ACTIONS_PAUSE = 'SONGS_ACTIONS@PAUSE'
+export const SONGS_ACTIONS_PLAY_PREVIOUS = 'SONGS_ACTION@PLAY_PREVIOUS'
+export const SONGS_ACTIONS_PLAY_NEXT = 'SONGS_ACTION@PLAY_NEXT'
 export const SONGS_ACTION_SHUFFLE_PLAYLIST_SONGS = 'SONGS_ACTION@SHUFFLE_PLAYLIST_SONGS'
 export const SONGS_ACTION_UNSHUFFLE_PLAYLIST_SONGS = 'SONGS_ACTION@UNSHUFFLE_PLAYLIST_SONGS'
 
-export const fetchPlaylistSongs = createAsyncAction('SONGS@FETCH_PLAYLIST_SONGS', async ({ rootState, dispatch, commit }, playlistId) => {
+export const fetchPlaylistSongs = createAsyncAction('SONGS_ACTIONS@FETCH_PLAYLIST_SONGS', async ({ rootState, dispatch, commit }, playlistId) => {
   try {
     const playlistSongs = await api.playlistSongsQuery(playlistId)
 
@@ -30,7 +44,7 @@ export const fetchPlaylistSongs = createAsyncAction('SONGS@FETCH_PLAYLIST_SONGS'
   errorKey: 'fetchingError'
 })
 
-export const addPlaylistSong = createAsyncAction('SONGS@ADD_PLAYLIST_SONG', async ({ state, commit }, { playlistId, youtubeVideoId, index }) => {
+export const addPlaylistSong = createAsyncAction('SONGS_ACTIONS@ADD_PLAYLIST_SONG', async ({ state }, { playlistId, youtubeVideoId, index }) => {
   try {
     const addedPlaylistSong = await api.addPlaylistSongMutation({ playlistId, youtubeVideoId, index })
 
@@ -49,7 +63,9 @@ export const addPlaylistSong = createAsyncAction('SONGS@ADD_PLAYLIST_SONG', asyn
       total: state.playlistSongs.total + 1,
     }
 
-    commit(SONGS_MUTATION_SET_PLAYLIST_SONGS, nextPlaylistSongs)
+    return {
+      playlistSongs: nextPlaylistSongs,
+    }
   } catch (error) {
     console.log(error)
 
@@ -59,6 +75,38 @@ export const addPlaylistSong = createAsyncAction('SONGS@ADD_PLAYLIST_SONG', asyn
 }, {
   progressingKey: 'adding',
   errorKey: 'addingError'
+})
+
+export const removePlaylistSong = createAsyncAction('SONGS_ACTIONS@REMOVE_PLAYLIST_SONG', async ({ state }, { playlistId, itemId }) => {
+  try {
+    const removedPlaylistSong = await api.removePlaylistSongMutation({ playlistId, itemId })
+
+    const nextPlaylistSongs = {
+      items: [
+        ...state.playlistSongs.items.slice(0, removedPlaylistSong.inPlaylistAs.index),
+        ...state.playlistSongs.items.slice(removedPlaylistSong.inPlaylistAs.index + 1).map(playlistSong => ({
+          ...playlistSong,
+          inPlaylistAs: {
+            ...playlistSong.inPlaylistAs,
+            index: playlistSong.inPlaylistAs.index - 1,
+          },
+        })),
+      ],
+      total: state.playlistSongs.total - 1,
+    }
+
+    return {
+      playlistSongs: nextPlaylistSongs,
+    }
+  } catch (error) {
+    console.log(error)
+
+    throw (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message)
+      ? error.graphQLErrors[0].message : error
+  }
+}, {
+  progressingKey: 'removing',
+  errorKey: 'removingError'
 })
 
 export default {
@@ -75,12 +123,75 @@ export default {
   getters: {
     songs: state => state,
     playlistSongs: state => state.playlistSongs,
+    playlistSongsCurrentItemIndex: (state, getters, rootState) =>
+      state.playlistSongs.items.findIndex(item => (
+        item.inPlaylistAs.index === rootState.player.item.inPlaylistAs.index
+        && item.youtubeVideo._id === rootState.player.item.youtubeVideo._id
+      )),
   },
-  mutations: assign(fetchPlaylistSongs.mutations, addPlaylistSong.mutations, {
+  mutations: assign(fetchPlaylistSongs.mutations, addPlaylistSong.mutations, removePlaylistSong.mutations, {
     [SONGS_MUTATION_SET_PLAYLIST_SONGS]: (state, playlistSongs) => assign(state.playlistSongs, playlistSongs),
     [SONGS_MUTATION_SET_PLAYLIST_SONGS_ITEMS]: (state, items) => assign(state.playlistSongs, { items }),
   }),
-  actions: assign(fetchPlaylistSongs.actions, addPlaylistSong.actions, {
+  actions: assign(fetchPlaylistSongs.actions, addPlaylistSong.actions, removePlaylistSong.actions, {
+    [SONGS_ACTIONS_PLAY]: ({ dispatch }, item) => {
+      if (item) {
+        dispatch(PLAYER_SET_ITEM_ACTION, { itemIn: PLAYLIST, item })
+      }
+
+      dispatch(PLAYER_SET_PLAY_ACTION)
+
+      dispatch(YOUTUBE_VIDEO_PLAYER_ACTIONS_PLAY)
+    },
+    [SONGS_ACTIONS_PAUSE]: ({ dispatch }) => {
+      dispatch(PLAYER_SET_PAUSE_ACTION)
+
+      dispatch(YOUTUBE_VIDEO_PLAYER_ACTIONS_PAUSE)
+    },
+    [SONGS_ACTIONS_PLAY_PREVIOUS]: ({ dispatch, state, getters, rootState }) => {
+      const currentItemIndex = getters.playlistSongsCurrentItemIndex
+
+      let nextItemIndex
+      if (currentItemIndex > 0) {
+        nextItemIndex = currentItemIndex - 1
+      } else if (rootState.player.repeatAll) {
+        nextItemIndex = state.playlistSongs.total - 1
+      } else {
+        nextItemIndex = currentItemIndex
+      }
+
+      if (nextItemIndex !== currentItemIndex) {
+        const nextItem = state.playlistSongs.items[nextItemIndex]
+
+        dispatch(PLAYER_SET_ITEM_ACTION, { itemIn: PLAYLIST, item: nextItem })
+
+        if (rootState.player.play) {
+          dispatch(YOUTUBE_VIDEO_PLAYER_ACTIONS_PLAY)
+        }
+      }
+    },
+    [SONGS_ACTIONS_PLAY_NEXT]: ({ dispatch, state, getters, rootState }) => {
+      const currentItemIndex = getters.playlistSongsCurrentItemIndex
+
+      let nextItemIndex
+      if (currentItemIndex < state.playlistSongs.total - 1) {
+        nextItemIndex = currentItemIndex + 1
+      } else if (rootState.player.repeatAll) {
+        nextItemIndex = 0
+      } else {
+        nextItemIndex = currentItemIndex
+      }
+
+      if (nextItemIndex !== currentItemIndex) {
+        const nextItem = state.playlistSongs.items[nextItemIndex]
+
+        dispatch(PLAYER_SET_ITEM_ACTION, { itemIn: PLAYLIST, item: nextItem })
+
+        if (rootState.player.play) {
+          dispatch(YOUTUBE_VIDEO_PLAYER_ACTIONS_PLAY)
+        }
+      }
+    },
     [SONGS_ACTION_SHUFFLE_PLAYLIST_SONGS]: ({ state, commit }) => {
       const shuffledIndexes = shuffle(state.playlistSongs.total)
 

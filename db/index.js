@@ -133,30 +133,34 @@ const addPlaylistSong = async ({ playlistId, youtubeVideoId, index = 0 }) => {
   }
 }
 
-const removePlaylistItem = async (playlistId, itemId) => {
-  const currentItemIndexCursor = await db.query(aql`
-    LET item = DOCUMENT(${itemId})
-    RETURN item.index
-  `)
-
-  const currentItemIndex = await currentItemIndexCursor.next()
+const removePlaylistSong = async ({ playlistId, itemId }) => {
+  const inPlaylistAsKey = itemId.slice(17)
 
   const removedInPlaylistEdgeCursor = await db.query(aql`
-    REMOVE DOCUMENT(${itemId}) IN used_in_playlist
+    REMOVE ${inPlaylistAsKey} IN used_in_playlist
     RETURN OLD
   `)
 
-  await removedInPlaylistEdgeCursor.next()
+  const removedInPlaylist = await removedInPlaylistEdgeCursor.next()
+
+  const songCursor = await db.query(aql`
+    RETURN DOCUMENT (${removedInPlaylist._from})
+  `)
+
+  const song = await songCursor.next()
 
   const updateNextIndexesCursor = await db.query(aql`
     FOR song, inPlaylistAs IN ANY ${playlistId} used_in_playlist
-      FILTER inPlaylistAs.index >= ${currentItemIndex}
+      FILTER inPlaylistAs.index >= ${removedInPlaylist.index}
       UPDATE inPlaylistAs WITH { index: inPlaylistAs.index - 1 } IN used_in_playlist
   `)
 
   await updateNextIndexesCursor.all()
 
-  return await getPlaylistSongs(playlistId)
+  return {
+    song,
+    inPlaylistAs: removedInPlaylist,
+  }
 }
 
 const movePlaylistItem = async ({ playlistId, inPlaylistAsId, currentIndex, nextIndex }) => {
@@ -207,5 +211,5 @@ export default {
   removePlaylist,
   addPlaylistSong,
   movePlaylistItem,
-  removePlaylistItem
+  removePlaylistSong,
 }

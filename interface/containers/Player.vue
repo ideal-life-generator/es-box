@@ -28,7 +28,7 @@ div.player
   repeat-one(
     v-bind:color="player.repeatOne ? 'white' : 'gray'"
     v-bind:size="25"
-    v-on:click.native="onRepeatOne"
+    v-on:click.native="toggleRepeatOne"
   )
   repeat-all(
     v-bind:color="player.repeatAll ? 'white' : 'gray'"
@@ -74,7 +74,6 @@ import {
   YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID,
   YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY,
 } from 'containers/YoutubeVideo.vue'
-import bus from 'events-bus'
 
 export const PLAYER_SET_ITEM = 'PLAYER@SET_ITEM'
 export const PLAYER_ON_SET_ITEM = 'PLAYER@ON_SET_ITEM'
@@ -136,7 +135,7 @@ export default {
 
       bus.$emit(PLAYER_ON_SHUFFLE)
     },
-    onRepeatOne() {
+    toggleRepeatOne() {
       this.$store.dispatch(PLAYER_TOGGLE_REPEAT_ONE_ACTION)
     },
     onRepeatAll() {
@@ -165,25 +164,6 @@ export default {
   },
   mounted() {
     this.$store.commit(PLAYER_PLAYBACK_MUTATION, false)
-
-    bus.$on(PLAYER_SET_ITEM, this[PLAYER_SET_ITEM])
-    bus.$on(PLAYER_PLAY, this[PLAYER_PLAY])
-    bus.$on(PLAYER_PAUSE, this[PLAYER_PAUSE])
-    bus.$on(PLAYER_PREVIOUS, this[PLAYER_PREVIOUS])
-    bus.$on(PLAYER_NEXT, this[PLAYER_NEXT])
-    bus.$on(YOUTUBE_VIDEO_PLAYER_PLAYING, this.onYoutubeVideoPlayerPlay)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSE, this.onYoutubeVideoPlayerPaused)
-    bus.$on(YOUTUBE_VIDEO_PLAYER_ENDED, this.onYoutubeVideoPlayerEnded)
-  },
-  unmounted() {
-    bus.$off(PLAYER_SET_ITEM, this[PLAYER_SET_ITEM])
-    bus.$off(PLAYER_PLAY, this[PLAYER_PLAY])
-    bus.$off(PLAYER_PAUSE, this[PLAYER_PAUSE])
-    bus.$off(PLAYER_PREVIOUS, this[PLAYER_PREVIOUS])
-    bus.$off(PLAYER_NEXT, this[PLAYER_NEXT])
-    bus.$off(YOUTUBE_VIDEO_PLAYER_PLAYING, this.onYoutubeVideoPlayerPlay)
-    bus.$off(YOUTUBE_VIDEO_PLAYER_PAUSED, this.onYoutubeVideoPlayerPaused)
-    bus.$off(YOUTUBE_VIDEO_PLAYER_ENDED, this.onYoutubeVideoPlayerEnded)
   },
   components: {
     Play,

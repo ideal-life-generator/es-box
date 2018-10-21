@@ -23,14 +23,17 @@ import {
 } from 'store/youtube-player'
 import { getIdFromUrl } from 'utils/youtube'
 
+export const YOUTUBE_VIDEO_PLAYER_LOAD = 'YOUTUBE_VIDEO_PLAYER@LOAD'
+export const YOUTUBE_VIDEO_PLAYER_RELOAD = 'YOUTUBE_VIDEO_PLAYER@RELOAD'
+export const YOUTUBE_VIDEO_PLAYER_PLAY = 'YOUTUBE_VIDEO_PLAYER@PLAY'
+export const YOUTUBE_VIDEO_PLAYER_PAUSE = 'YOUTUBE_VIDEO_PLAYER@PAUSE'
+export const YOUTUBE_VIDEO_PLAYER_SET = 'YOUTUBE_VIDEO_PLAYER@SET'
 export const YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID = 'YOUTUBE_VIDEO_PLAYER@SET_VIDEO_ID'
 export const YOUTUBE_VIDEO_PLAYER_CUET_VIDEO_ID = 'YOUTUBE_VIDEO_PLAYER@CUET_VIDEO_ID'
 export const YOUTUBE_VIDEO_PLAYER_SET_AND_PLAY = 'YOUTUBE_VIDEO_PLAYER@SET_AND_PLAY'
-export const YOUTUBE_VIDEO_PLAYER_PLAY = 'YOUTUBE_VIDEO_PLAYER@PLAY'
 export const YOUTUBE_VIDEO_PLAYER_UNSTARTED = 'YOUTUBE_VIDEO_PLAYER@UNSTARTED'
 export const YOUTUBE_VIDEO_PLAYER_ENDED = 'YOUTUBE_VIDEO_PLAYER@ENDED'
 export const YOUTUBE_VIDEO_PLAYER_PLAYING = 'YOUTUBE_VIDEO_PLAYER@PLAYING'
-export const YOUTUBE_VIDEO_PLAYER_PAUSE = 'YOUTUBE_VIDEO_PLAYER@PAUSE'
 export const YOUTUBE_VIDEO_PLAYER_BUFFERING = 'YOUTUBE_VIDEO_PLAYER@BUFFERING'
 export const YOUTUBE_VIDEO_PLAYER_VIDEO_CUED = 'YOUTUBE_VIDEO_PLAYER@VIDEO_CUED'
 export const YOUTUBE_VIDEO_PLAYER_RESIZE = 'YOUTUBE_VIDEO_PLAYER@RESIZE'
@@ -53,7 +56,9 @@ export default {
   computed: {
     ...mapGetters([
       'player',
+      'currentItem',
       'currentItemId',
+      'playerCurrentVideoId',
     ]),
     playerVideoId() {
       return this.player.item.youtubeVideo._id
@@ -63,40 +68,48 @@ export default {
     async getVideoId() {
       return getIdFromUrl(await this.youtubePlayer.getVideoUrl())
     },
+    async stateChangePreloadDisabler({ data: status }) {
+      if (status === 1) {
+        this.youtubePlayer.off(this.stateChangePreloadDisablerListener)
+
+        this.stateChangeListener = this.youtubePlayer.on('stateChange', this.stateChange)
+      }
+    },
     async stateChange({ data: status }) {
+      const { $store: { dispatch } } = this
       const videoId = await this.getVideoId()
 
       switch (status) {
-        case -1: {
-          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_UNSTARTED, videoId })
+        // case -1: {
+        //   dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_UNSTARTED, videoId })
 
-          break
-        }
-        case 0: {
-          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_ENDED, videoId })
+        //   break
+        // }
+        // case 0: {
+        //   dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_ENDED, videoId })
 
-          break
-        }
+        //   break
+        // }
         case 1: {
-          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_PLAYING, videoId })
+          dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_PLAYING, videoId })
 
           break
         }
         case 2: {
-          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_PAUSE, videoId })
+          dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_PAUSE, videoId })
 
           break
         }
-        case 3: {
-          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_BUFFERING, videoId })
+        // case 3: {
+        //   dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_BUFFERING, videoId })
 
-          break
-        }
-        case 5: {
-          this.$store.dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_VIDEO_CUED, videoId })
+        //   break
+        // }
+        // case 5: {
+        //   dispatch(YOUTUBE_PLAYER_ACTIONS_CHANGE_STATUS, { status: STATUS_VIDEO_CUED, videoId })
 
-          break
-        }
+        //   break
+        // }
       }
     },
     [YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID]() {
@@ -117,14 +130,6 @@ export default {
 
       bus.$emit('youtube-video@play', this.play)
     },
-    async [YOUTUBE_VIDEO_PLAYER_PLAY]() {
-      // await this.youtubePlayer.pauseVideo()
-
-      this.youtubePlayer.playVideo()
-    },
-    async [YOUTUBE_VIDEO_PLAYER_PAUSE]() {
-      await this.youtubePlayer.pauseVideo()
-    },
     [YOUTUBE_VIDEO_PLAYER_RESIZE](width, height) {
       this.youtubePlayer.setSize(width, height)
     },
@@ -140,7 +145,26 @@ export default {
       this.youtubePlayer.loadVideoById(id)
 
       // this.youtubePlayer.playVideo()
-    }
+    },
+    async [YOUTUBE_VIDEO_PLAYER_SET]() {
+      await this.youtubePlayer.loadVideoById(this.playerCurrentVideoId)
+
+      await this.youtubePlayer.stopVideo()
+    },
+    [YOUTUBE_VIDEO_PLAYER_LOAD]() {
+      this.youtubePlayer.loadVideoById(this.playerCurrentVideoId)
+    },
+    async [YOUTUBE_VIDEO_PLAYER_RELOAD]() {
+      await this.youtubePlayer.stopVideo()
+
+      this.youtubePlayer.loadVideoById(this.playerCurrentVideoId)
+    },
+    [YOUTUBE_VIDEO_PLAYER_PLAY]() {
+      setTimeout(this.youtubePlayer.playVideo, 100)
+    },
+    [YOUTUBE_VIDEO_PLAYER_PAUSE]() {
+      this.youtubePlayer.pauseVideo()
+    },
   },
   mounted() {
     this.youtubePlayer = YoutubePlayer('youtube-player', {
@@ -149,10 +173,11 @@ export default {
       height: this.height
     })
 
-    this.youtubePlayer.on('stateChange', this.stateChange)
+    this.stateChangeListener = this.youtubePlayer.on('stateChange', this.stateChange)
 
-    bus.$on('stop', this.onStop)
-
+    bus.$on(YOUTUBE_VIDEO_PLAYER_SET, this[YOUTUBE_VIDEO_PLAYER_SET])
+    bus.$on(YOUTUBE_VIDEO_PLAYER_LOAD, this[YOUTUBE_VIDEO_PLAYER_LOAD])
+    bus.$on(YOUTUBE_VIDEO_PLAYER_RELOAD, this[YOUTUBE_VIDEO_PLAYER_RELOAD])
     bus.$on(YOUTUBE_VIDEO_PLAYER_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
     bus.$on(YOUTUBE_VIDEO_PLAYER_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
     bus.$on(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
@@ -165,10 +190,11 @@ export default {
     // bus.$on('player@next', this.onChangeId)
   },
   unmounted() {
-    this.youtubePlayer.off('stateChange', this.stateChange)
+    this.youtubePlayer.off(this.stateChangeListener)
 
-    bus.$off('stop', this.onStop)
-
+    bus.$off(YOUTUBE_VIDEO_PLAYER_SET, this[YOUTUBE_VIDEO_PLAYER_SET])
+    bus.$off(YOUTUBE_VIDEO_PLAYER_LOAD, this[YOUTUBE_VIDEO_PLAYER_LOAD])
+    bus.$off(YOUTUBE_VIDEO_PLAYER_RELOAD, this[YOUTUBE_VIDEO_PLAYER_RELOAD])
     bus.$off(YOUTUBE_VIDEO_PLAYER_PLAY, this[YOUTUBE_VIDEO_PLAYER_PLAY])
     bus.$off(YOUTUBE_VIDEO_PLAYER_PAUSE, this[YOUTUBE_VIDEO_PLAYER_PAUSE])
     bus.$off(YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID, this[YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID])
@@ -181,19 +207,16 @@ export default {
     // bus.$off('player@next', this.onChangeId)
   },
   watch: {
-    async playerVideoId(nextPlayerVideoId, prevPlayerVideoId) {
-      const play = this.player.play
+    async currentItem(nextCurrentItem, prevCurrentItem) {
+      this.youtubePlayer.off(this.stateChangeListener)
+      if (this.stateChangePreloadDisablerListener) {
+        this.youtubePlayer.off(this.stateChangePreloadDisablerListener)
+      }
 
-      await this.youtubePlayer.stopVideo()
+      await this.youtubePlayer.cueVideoById(nextCurrentItem.item.youtubeVideo._id)
 
-      setTimeout(() => {
-        if (!play) {
-          this.youtubePlayer.cueVideoById(nextPlayerVideoId)
-        } else {
-          this.youtubePlayer.loadVideoById(nextPlayerVideoId)
-        }
-      }, 50)
-    }
+      this.stateChangePreloadDisablerListener = this.youtubePlayer.on('stateChange', this.stateChangePreloadDisabler)
+    },
   }
 }
 </script>

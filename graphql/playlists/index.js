@@ -73,12 +73,12 @@ movePlaylistSong(
   inPlaylistAsId: ID!
   currentIndex: Int!
   nextIndex: Int!
-) : PlaylistSongsPagination
+) : PlaylistSong
 
 removePlaylistSong(
   playlistId: ID!
   itemId: ID!
-) : PlaylistSongsPagination
+) : PlaylistSong
 `
 
 const queries = {
@@ -136,7 +136,7 @@ const mutations = {
   },
   removePlaylistSong: async (parent, { playlistId, itemId }) => {
     try {
-      return await db.removePlaylistItem(playlistId, itemId)
+      return await db.removePlaylistSong({ playlistId, itemId })
     } catch (error) {
       throw error
     }

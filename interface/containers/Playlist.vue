@@ -9,21 +9,21 @@ div.playlist(
     div.item(
       v-for="(item, i) in playlistSongs.items"
       v-bind:key="`${i}-${item.youtubeVideoId}`"
-      v-bind:class="{ active: player._id === item.song.youtubeVideoId && currentItemIndex === i }"
+      v-bind:class="{ active: isActiveItem(item) }"
       v-bind:data-i="i"
       draggable="true"
       v-on:dragstart="onDragStart(item, i, ...arguments)"
     )
       div.playback
         play-icon.play(
-          v-if="!player.play || (player.play && !(player._id === item.song.youtubeVideoId && currentItemIndex === i))"
+          v-if="!player.play || (player.play && !isActiveItem(item))"
           v-bind:size="21"
-          v-on:click.native="onPlay(item)"
+          v-on:click.native="play(item)"
         )
         pause-icon.pause(
           v-else
           v-bind:size="21"
-          v-on:click.native="onPause(item)"
+          v-on:click.native="pause(item)"
         )
       div.title(v-text="item.youtubeVideo.title")
   div(v-else) No items found
@@ -45,7 +45,10 @@ import {
 import { YOUTUBE_VIDEO_PLAYER_SET_VIDEO_ID } from 'containers/YoutubeVideo.vue'
 import PlayIcon from 'components/icons/Play.vue'
 import PauseIcon from 'components/icons/Pause.vue'
-import { PLAYER_SET_ITEM_ACTION } from 'store/player'
+import {
+  PLAYLIST,
+  PLAYER_SET_ITEM_ACTION,
+} from 'store/player'
 import { COUNTER_UPDATE } from 'store/counter'
 import {
   PLAYLISTS_MENU_SET_CURRENT_ITEM_INDEX_MUTATION,
@@ -55,6 +58,9 @@ import {
 import {
   fetchPlaylistSongs,
   addPlaylistSong,
+  removePlaylistSong,
+  SONGS_ACTIONS_PLAY,
+  SONGS_ACTIONS_PAUSE,
   SONGS_ACTION_SHUFFLE_PLAYLIST_SONGS,
   SONGS_ACTION_UNSHUFFLE_PLAYLIST_SONGS,
 } from 'store/songs'
@@ -88,26 +94,32 @@ export default {
     }
   },
   methods: {
-    onPlay(item, index) {
-      this.play(item, index)
-    },
-    onPause(item, index) {
-      this.pause(item, index)
-    },
-    play(item, index) {
-      console.log(item)
-      this.updateCurrent(item._id, index)
+    isActiveItem({
+      youtubeVideo: {
+        _id: youtubeVideoId,
+      },
+      inPlaylistAs: {
+        index,
+      },
+    }) {
+      const {
+        player: {
+          itemIn,
+          item,
+        },
+      } = this
 
-      if (this.player._id === item._id) {
-        bus.$emit(PLAYER_PLAY)
+      return itemIn === PLAYLIST && item.inPlaylistAs.index === index && (item && item.youtubeVideo._id === youtubeVideoId)
+    },
+    play(item) {
+      if (!this.player.item.youtubeVideo._id || this.player.item.youtubeVideo._id !== item._id) {
+        this.$store.dispatch(SONGS_ACTIONS_PLAY, item)
       } else {
-        bus.$emit(PLAYER_PLAY, item)
+        this.$store.dispatch(SONGS_ACTIONS_PLAY)
       }
-
-      this.updateCounter()
     },
     pause() {
-      bus.$emit(PLAYER_PAUSE)
+      this.$store.dispatch(SONGS_ACTIONS_PAUSE)
     },
     updateCurrent(currentItemId, currentItemIndex) {
       this.$store.dispatch(PLAYLISTS_MENU_SET_CURRENT_ACTION, {
@@ -160,7 +172,7 @@ export default {
       }
 
       if (type === 'INSERT') {
-        this.addItem(item._id, typeof index === 'number' ? index : this.playlistSongs.items.length + 1)
+        this.addItem(item.youtubeVideo._id, typeof index === 'number' ? index : this.playlistSongs.items.length + 1)
       } else {
         this.moveItem(item.inPlaylistAs._id, currentIndex, index)
       }
@@ -232,62 +244,12 @@ export default {
       })
     },
     async removeItem(itemId) {
-      try {
-        await this.$apollo.mutate({
-          mutation: gql`
-            mutation(
-              $playlistId: ID!
-              $itemId: ID!
-            ) {
-              removePlaylistSong(
-                playlistId: $playlistId
-                itemId: $itemId
-              ) {
-                items {
-                  song {
-                    _id
-                    youtubeVideoId
-                  }
-                  inPlaylistAs {
-                    _id
-                    index
-                  }
-                }
-                total
-              }
-            }
-          `,
-          variables: {
-            playlistId: this.playlistId,
-            itemId
-          },
-          update: (store, { data: { removePlaylistSong } }) => {
-            const data = store.readQuery({
-              query: PLAYLIST_SONGS_QUERY,
-              variables: {
-                playlistId: this.playlistId
-              }
-            })
+      const { playlistId } = this
 
-            data.playlistSongs = removePlaylistSong
-
-            store.writeQuery({
-              query: PLAYLIST_SONGS_QUERY,
-              variables: {
-                playlistId: this.playlistId
-              },
-              data
-            })
-          }
-        })
-      } catch (error) { // FIXME: Should parse
-        console.log(error)
-
-        this.$store.dispatch(SHOW_ERROR,
-          (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
-            error.graphQLErrors[0].message : 'Playlist creating is failed'
-        )
-      }
+      await this.$store.dispatch(removePlaylistSong.ACTION_TYPE, {
+        playlistId,
+        itemId,
+      })
     },
     async moveItem(inPlaylistAsId, currentIndex, nextIndex) {
       try {
