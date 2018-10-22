@@ -68,16 +68,16 @@ addPlaylistSong(
   index: Int
 ) : PlaylistSong
 
+removePlaylistSong(
+  playlistId: ID!
+  itemId: ID!
+) : PlaylistSong
+
 movePlaylistSong(
   playlistId: ID!
   inPlaylistAsId: ID!
   currentIndex: Int!
   nextIndex: Int!
-) : PlaylistSong
-
-removePlaylistSong(
-  playlistId: ID!
-  itemId: ID!
 ) : PlaylistSong
 `
 
@@ -127,20 +127,20 @@ const mutations = {
       throw error
     }
   },
-  movePlaylistSong: async (parent, params) => {
-    try {
-      return await db.movePlaylistItem(params)
-    } catch (error) {
-      throw error
-    }
-  },
   removePlaylistSong: async (parent, { playlistId, itemId }) => {
     try {
       return await db.removePlaylistSong({ playlistId, itemId })
     } catch (error) {
       throw error
     }
-  }
+  },
+  movePlaylistSong: async (parent, { playlistId, inPlaylistAsId, currentIndex, nextIndex }) => {
+    try {
+      return await db.movePlaylistItem({ playlistId, inPlaylistAsId, currentIndex, nextIndex })
+    } catch (error) {
+      throw error
+    }
+  },
 }
 
 export default {

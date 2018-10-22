@@ -121,8 +121,54 @@ const removePlaylistSongMutation = async ({ playlistId, itemId }) => {
   }
 }
 
+const movePlaylistSongMutation = async ({
+  playlistId,
+  inPlaylistAsId,
+  currentIndex,
+  nextIndex,
+}) => {
+  const { data: { movePlaylistSong: { song, inPlaylistAs } } } = await graphqlClient.mutate({
+    mutation: gql`
+      mutation(
+        $playlistId: ID!
+        $inPlaylistAsId: ID!
+        $currentIndex: Int!
+        $nextIndex: Int!
+      ) {
+        movePlaylistSong(
+          playlistId: $playlistId
+          inPlaylistAsId: $inPlaylistAsId
+          currentIndex: $currentIndex
+          nextIndex: $nextIndex
+        ) {
+          song {
+            _id
+            youtubeVideoId
+          }
+          inPlaylistAs {
+            _id
+            index
+          }
+        }
+      }
+    `,
+    variables: {
+      playlistId,
+      inPlaylistAsId,
+      currentIndex,
+      nextIndex,
+    },
+  })
+
+  return {
+    song,
+    inPlaylistAs,
+  }
+}
+
 export default {
   playlistSongsQuery,
   addPlaylistSongMutation,
   removePlaylistSongMutation,
+  movePlaylistSongMutation,
 }

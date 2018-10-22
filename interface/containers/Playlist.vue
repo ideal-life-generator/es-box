@@ -59,6 +59,7 @@ import {
   fetchPlaylistSongs,
   addPlaylistSong,
   removePlaylistSong,
+  movePlaylistSong,
   SONGS_ACTIONS_PLAY,
   SONGS_ACTIONS_PAUSE,
   SONGS_ACTION_SHUFFLE_PLAYLIST_SONGS,
@@ -163,9 +164,17 @@ export default {
         const { top, height } = target.getBoundingClientRect()
 
         if (event.clientY < top + (height / 2)) {
-          index = itemIndex
+          if (currentIndex < itemIndex) {
+            index = itemIndex - 1
+          } else {
+            index = itemIndex
+          }
         } else {
-          index = itemIndex + 1
+          if (currentIndex < itemIndex) {
+            index = itemIndex
+          } else {
+            index = itemIndex + 1
+          }
         }
       } else {
         index = this.playlistSongs.total
@@ -252,68 +261,14 @@ export default {
       })
     },
     async moveItem(inPlaylistAsId, currentIndex, nextIndex) {
-      try {
-        await this.$apollo.mutate({
-          mutation: gql`
-            mutation(
-              $playlistId: ID!
-              $inPlaylistAsId: ID!
-              $currentIndex: Int!
-              $nextIndex: Int!
-            ) {
-              movePlaylistSong(
-                playlistId: $playlistId
-                inPlaylistAsId: $inPlaylistAsId
-                currentIndex: $currentIndex
-                nextIndex: $nextIndex
-              ) {
-                items {
-                  song {
-                    _id
-                    youtubeVideoId
-                  }
-                  inPlaylistAs {
-                    _id
-                    index
-                  }
-                }
-                total
-              }
-            }
-          `,
-          variables: {
-            playlistId: this.playlistId,
-            inPlaylistAsId,
-            currentIndex,
-            nextIndex
-          },
-          update: (store, { data: { movePlaylistSong } }) => {
-            const data = store.readQuery({
-              query: PLAYLIST_SONGS_QUERY,
-              variables: {
-                playlistId: this.playlistId
-              }
-            })
+      const { playlistId } = this
 
-            data.playlistSongs = movePlaylistSong
-
-            store.writeQuery({
-              query: PLAYLIST_SONGS_QUERY,
-              variables: {
-                playlistId: this.playlistId
-              },
-              data
-            })
-          }
-        })
-      } catch (error) { // FIXME: Should parse
-        console.log(error)
-
-        this.$store.dispatch(SHOW_ERROR,
-          (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message) ?
-            error.graphQLErrors[0].message : 'Playlist creating is failed'
-        )
-      }
+      await this.$store.dispatch(movePlaylistSong.ACTION_TYPE, {
+        playlistId,
+        inPlaylistAsId,
+        currentIndex,
+        nextIndex,
+      })
     },
   },
   beforeRouteEnter(from, to, next) {

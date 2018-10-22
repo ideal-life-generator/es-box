@@ -109,6 +109,82 @@ export const removePlaylistSong = createAsyncAction('SONGS_ACTIONS@REMOVE_PLAYLI
   errorKey: 'removingError'
 })
 
+export const movePlaylistSong = createAsyncAction('SONGS_ACTIONS@MOVE_PLAYLIST_SONG', async ({ state }, {
+  playlistId,
+  inPlaylistAsId,
+  currentIndex,
+  nextIndex,
+}) => {
+  try {
+    const movedPlaylistSong = await api.movePlaylistSongMutation({
+      playlistId,
+      inPlaylistAsId,
+      currentIndex,
+      nextIndex,
+    })
+
+    let nextPlaylistSongs
+    const { playlistSongs: { items, ...playlistSongs } } = state
+    if (nextIndex > currentIndex) {
+      nextPlaylistSongs = {
+        ...playlistSongs,
+        items: [
+          ...items.slice(0, currentIndex),
+          ...items.slice(currentIndex + 1, nextIndex + 1).map(playlistSong => ({
+            ...playlistSong,
+            inPlaylistAs: {
+              ...playlistSong.inPlaylistAs,
+              index: playlistSong.inPlaylistAs.index - 1,
+            },
+          })),
+          {
+            ...items[currentIndex],
+            inPlaylistAs: {
+              ...items[currentIndex].inPlaylistAs,
+              index: nextIndex,
+            },
+          },
+          ...items.slice(nextIndex + 1),
+        ],
+      }
+    } else {
+      nextPlaylistSongs = {
+        ...state.playlistSongs,
+        items: [
+          ...items.slice(0, nextIndex),
+          {
+            ...items[currentIndex],
+            inPlaylistAs: {
+              ...items[currentIndex].inPlaylistAs,
+              index: nextIndex,
+            },
+          },
+          ...items.slice(nextIndex, currentIndex).map(playlistSong => ({
+            ...playlistSong,
+            inPlaylistAs: {
+              ...playlistSong.inPlaylistAs,
+              index: playlistSong.inPlaylistAs.index + 1,
+            },
+          })),
+          ...items.slice(currentIndex + 1),
+        ],
+      }
+    }
+
+    return {
+      playlistSongs: nextPlaylistSongs,
+    }
+  } catch (error) {
+    console.log(error)
+
+    throw (error && error.graphQLErrors && error.graphQLErrors[0] && error.graphQLErrors[0].message)
+      ? error.graphQLErrors[0].message : error
+  }
+}, {
+  progressingKey: 'removing',
+  errorKey: 'removingError'
+})
+
 export default {
   state: {
     playlistSongs: {
@@ -129,11 +205,11 @@ export default {
         && item.youtubeVideo._id === rootState.player.item.youtubeVideo._id
       )),
   },
-  mutations: assign(fetchPlaylistSongs.mutations, addPlaylistSong.mutations, removePlaylistSong.mutations, {
+  mutations: assign(fetchPlaylistSongs.mutations, addPlaylistSong.mutations, removePlaylistSong.mutations, movePlaylistSong.mutations, {
     [SONGS_MUTATION_SET_PLAYLIST_SONGS]: (state, playlistSongs) => assign(state.playlistSongs, playlistSongs),
     [SONGS_MUTATION_SET_PLAYLIST_SONGS_ITEMS]: (state, items) => assign(state.playlistSongs, { items }),
   }),
-  actions: assign(fetchPlaylistSongs.actions, addPlaylistSong.actions, removePlaylistSong.actions, {
+  actions: assign(fetchPlaylistSongs.actions, addPlaylistSong.actions, removePlaylistSong.actions, movePlaylistSong.actions, {
     [SONGS_ACTIONS_PLAY]: ({ dispatch }, item) => {
       if (item) {
         dispatch(PLAYER_SET_ITEM_ACTION, { itemIn: PLAYLIST, item })

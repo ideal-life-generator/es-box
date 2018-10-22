@@ -164,43 +164,45 @@ const removePlaylistSong = async ({ playlistId, itemId }) => {
 }
 
 const movePlaylistItem = async ({ playlistId, inPlaylistAsId, currentIndex, nextIndex }) => {
+  let updateNextIndexesCursor
   if (nextIndex > currentIndex) {
-    const updateNextIndexesCursor = await db.query(aql`
+    updateNextIndexesCursor = await db.query(aql`
       FOR song, inPlaylistAs IN ANY ${playlistId} used_in_playlist
         FILTER inPlaylistAs.index > ${currentIndex} AND inPlaylistAs.index <= ${nextIndex}
         UPDATE inPlaylistAs WITH { index: inPlaylistAs.index - 1 } IN used_in_playlist
     `)
-
-    await updateNextIndexesCursor.all()
-
-    const updateCurrentIndexCursor = await db.query(aql`
-      UPDATE DOCUMENT(${inPlaylistAsId})
-      WITH {
-        index: ${nextIndex}
-      } IN used_in_playlist
-    `)
-
-    await updateCurrentIndexCursor.next()
   } else if (nextIndex < currentIndex) {
-    const updateNextIndexesCursor = await db.query(aql`
+    updateNextIndexesCursor = await db.query(aql`
       FOR song, inPlaylistAs IN ANY ${playlistId} used_in_playlist
         FILTER inPlaylistAs.index >= ${nextIndex} AND inPlaylistAs.index < ${currentIndex}
         UPDATE inPlaylistAs WITH { index: inPlaylistAs.index + 1 } IN used_in_playlist
     `)
-
-    await updateNextIndexesCursor.all()
-
-    const updateCurrentIndexCursor = await db.query(aql`
-      UPDATE DOCUMENT(${inPlaylistAsId})
-      WITH {
-        index: ${nextIndex}
-      } IN used_in_playlist
-    `)
-
-    await updateCurrentIndexCursor.next()
   }
 
-  return await getPlaylistSongs(playlistId)
+  console.log(currentIndex, nextIndex)
+
+  await updateNextIndexesCursor.all()
+
+  const updateCurrentIndexCursor = await db.query(aql`
+    UPDATE DOCUMENT(${inPlaylistAsId})
+    WITH {
+      index: ${nextIndex}
+    } IN used_in_playlist
+    RETURN NEW
+  `)
+
+  const inPlaylistAs = await updateCurrentIndexCursor.next()
+
+  const songCursor = await db.query(aql`
+    RETURN DOCUMENT (${inPlaylistAs._from})
+  `)
+
+  const song = await songCursor.next()
+
+  return {
+    song,
+    inPlaylistAs,
+  }
 }
 
 export default {
